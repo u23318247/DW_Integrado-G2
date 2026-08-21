@@ -1,4 +1,4 @@
-﻿package com.utp.semana2.controller;
+package com.utp.semana2.controller;
 
 import java.net.URI;
 import java.util.List;
@@ -30,16 +30,6 @@ public class ProductoController {
     @GetMapping("/buscar")
     public List<Producto> buscarPorNombre(@RequestParam String nombre) {
         return service.buscarPorNombre(nombre);
-    }
-
-    @GetMapping("/stock-bajo")
-    public List<Producto> stockBajo(@RequestParam(defaultValue = "10") int limite) {
-        return service.stockBajo(limite);
-    }
-
-    @GetMapping("/precio-mayor")
-    public List<Producto> precioMayor(@RequestParam(defaultValue = "100") double precio) {
-        return service.precioMayor(precio);
     }
 
     @PostMapping

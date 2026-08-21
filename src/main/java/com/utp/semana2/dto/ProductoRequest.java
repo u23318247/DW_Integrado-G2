@@ -1,4 +1,4 @@
-﻿package com.utp.semana2.dto;
+package com.utp.semana2.dto;
 
 public record ProductoRequest(
     String nombre,

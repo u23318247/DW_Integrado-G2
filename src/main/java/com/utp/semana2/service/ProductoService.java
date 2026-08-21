@@ -1,4 +1,4 @@
-﻿package com.utp.semana2.service;
+package com.utp.semana2.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +18,7 @@ public class ProductoService {
     public ProductoService() {
         crear(new ProductoRequest("Laptop Lenovo", 3500.00, 8));
         crear(new ProductoRequest("Mouse Logitech", 80.00, 25));
-        crear(new ProductoRequest("Teclado mecanico", 240.00, 12));
-        crear(new ProductoRequest("Monitor LG 27 pulgadas", 750.00, 15)); // Actividad 5
+        crear(new ProductoRequest("Teclado mecánico", 240.00, 12));
     }
 
     public List<Producto> listar() {
@@ -41,22 +40,15 @@ public class ProductoService {
                 .toList();
     }
 
-    public List<Producto> stockBajo(int limite) {
-        return productos.values().stream()
-                .filter(p -> p.getStock() <= limite)
-                .toList();
-    }
-
-    public List<Producto> precioMayor(double precio) {
-        return productos.values().stream()
-                .filter(p -> p.getPrecio() >= precio)
-                .toList();
-    }
-
     public Producto crear(ProductoRequest request) {
         validar(request);
         Long nuevoId = secuencia.incrementAndGet();
-        Producto producto = new Producto(nuevoId, request.nombre(), request.precio(), request.stock());
+        Producto producto = new Producto(
+                nuevoId,
+                request.nombre(),
+                request.precio(),
+                request.stock()
+        );
         productos.put(nuevoId, producto);
         return producto;
     }
@@ -80,9 +72,6 @@ public class ProductoService {
     private void validar(ProductoRequest request) {
         if (request.nombre() == null || request.nombre().isBlank()) {
             throw new IllegalArgumentException("El nombre del producto es obligatorio.");
-        }
-        if (request.nombre().trim().length() < 3) {
-            throw new IllegalArgumentException("El nombre del producto debe tener al menos 3 caracteres.");
         }
         if (request.precio() <= 0) {
             throw new IllegalArgumentException("El precio debe ser mayor que cero.");
