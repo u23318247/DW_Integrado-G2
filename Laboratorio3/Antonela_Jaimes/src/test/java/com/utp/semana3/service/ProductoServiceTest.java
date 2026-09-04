@@ -3,6 +3,8 @@ package com.utp.semana3.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -70,5 +72,36 @@ class ProductoServiceTest {
 
         assertThat(eliminado).isTrue();
         assertThat(service.buscarPorId(producto.getId())).isEmpty();
+    }
+
+    @Test
+    void actualizar_debeActualizarProductoExistente() {
+        Producto producto = service.registrar(new Producto(null, "Tablet", 900.00, 4));
+        Producto datosActualizados = new Producto(null, "Tablet Pro", 1100.00, 10);
+
+        Optional<Producto> resultado = service.actualizar(producto.getId(), datosActualizados);
+
+        assertThat(resultado).isPresent();
+        assertThat(resultado.get().getNombre()).isEqualTo("Tablet Pro");
+        assertThat(resultado.get().getPrecio()).isEqualTo(1100.00);
+        assertThat(resultado.get().getStock()).isEqualTo(10);
+    }
+
+    @Test
+    void actualizar_debeRetornarVacioCuandoProductoNoExiste() {
+        Producto datosActualizados = new Producto(null, "Tablet Pro", 1100.00, 10);
+
+        Optional<Producto> resultado = service.actualizar(999L, datosActualizados);
+
+        assertThat(resultado).isEmpty();
+    }
+
+    @Test
+    void actualizar_debeLanzarExcepcionSiDatosInvalidos() {
+        Producto producto = service.registrar(new Producto(null, "Tablet", 900.00, 4));
+        Producto datosInvalidos = new Producto(null, "", -10.0, -1);
+
+        assertThatThrownBy(() -> service.actualizar(producto.getId(), datosInvalidos))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

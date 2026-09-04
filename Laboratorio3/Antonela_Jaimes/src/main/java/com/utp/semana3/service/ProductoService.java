@@ -33,6 +33,19 @@ public class ProductoService {
         return productos.removeIf(p -> p.getId().equals(id));
     }
 
+    public Optional<Producto> actualizar(Long id, Producto datosActualizados) {
+        validar(datosActualizados);
+        Optional<Producto> optProducto = buscarPorId(id);
+        if (optProducto.isPresent()) {
+            Producto p = optProducto.get();
+            p.setNombre(datosActualizados.getNombre());
+            p.setPrecio(datosActualizados.getPrecio());
+            p.setStock(datosActualizados.getStock());
+            return Optional.of(p);
+        }
+        return Optional.empty();
+    }
+
     private void validar(Producto producto) {
         if (producto.getNombre() == null || producto.getNombre().isBlank()) {
             throw new IllegalArgumentException("El nombre es obligatorio");

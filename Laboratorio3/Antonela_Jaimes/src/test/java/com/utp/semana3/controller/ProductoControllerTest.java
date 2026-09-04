@@ -3,6 +3,7 @@ package com.utp.semana3.controller;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -84,6 +85,54 @@ class ProductoControllerTest {
     @Test
     void buscarPorIdCuandoNoExiste_debeRetornar404() throws Exception {
         mockMvc.perform(get("/productos/99"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void actualizarCuandoExiste_debeRetornarProductoActualizado() throws Exception {
+        String jsonCrear = """
+                {
+                  "nombre": "Teclado Simple",
+                  "precio": 50.00,
+                  "stock": 10
+                }
+                """;
+
+        mockMvc.perform(post("/productos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonCrear))
+                .andExpect(status().isCreated());
+
+        String jsonActualizar = """
+                {
+                  "nombre": "Teclado Mecanico",
+                  "precio": 150.00,
+                  "stock": 15
+                }
+                """;
+
+        mockMvc.perform(put("/productos/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonActualizar))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nombre").value("Teclado Mecanico"))
+                .andExpect(jsonPath("$.precio").value(150.00))
+                .andExpect(jsonPath("$.stock").value(15));
+    }
+
+    @Test
+    void actualizarCuandoNoExiste_debeRetornar404() throws Exception {
+        String jsonActualizar = """
+                {
+                  "nombre": "Producto Inexistente",
+                  "precio": 100.00,
+                  "stock": 5
+                }
+                """;
+
+        mockMvc.perform(put("/productos/999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonActualizar))
                 .andExpect(status().isNotFound());
     }
 
