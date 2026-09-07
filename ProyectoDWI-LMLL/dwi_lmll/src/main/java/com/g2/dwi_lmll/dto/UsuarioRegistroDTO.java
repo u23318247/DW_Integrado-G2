@@ -19,7 +19,7 @@ public class UsuarioRegistroDTO {
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
 
-    // Opcionales (no llevan @NotBlank)
+    // Opcionales (no llevan @NotBlank, ver si se agregan)
     private String telefono;
     private String direccion;
 }
