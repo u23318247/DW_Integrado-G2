@@ -1,27 +1,24 @@
 package com.g2.dwi_lmll.service;
 
-import com.g2.dwi_lmll.dto.ProductoDTO;
+import com.g2.dwi_lmll.model.EstadoPedido;
+import com.g2.dwi_lmll.model.Pedido;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface PedidoService {
-    // Metodos de lectura que devuelven DTOs (Listos para la vista)
-    List<ProductoDTO> listarTodos();
 
-    Optional<ProductoDTO> buscarPorId(Long id);
+    // Metodos de lectura
+    List<Pedido> listarTodos();
 
-    List<ProductoDTO> buscarPorCategoriaId(Long categoriaId);
+    Optional<Pedido> buscarPorId(Long id);
 
-    List<ProductoDTO> buscarPorNombre(String nombre);
-
-    List<ProductoDTO> filtrar(String genero, Long categoriaId);
+    Long contarPorEstado(EstadoPedido estado);
 
     // Métodos de escritura
-    ProductoDTO guardar(ProductoDTO productoDto);
+    Pedido guardar(Pedido pedido);
+
+    Pedido actualizar(Long id, Pedido pedido);
 
     void eliminar(Long id);
-
-    // Método interno para otras capas (ej. Ventas) que necesiten la Entidad real
-    com.proyectomdweb.proyectomdweb.model.Producto obtenerEntidadPorId(Long id);
 }
