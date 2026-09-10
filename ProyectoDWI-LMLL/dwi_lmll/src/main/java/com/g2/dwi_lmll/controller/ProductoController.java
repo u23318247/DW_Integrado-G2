@@ -1,9 +1,8 @@
-package com.proyectomdweb.proyectomdweb.controller;
+package com.g2.dwi_lmll.controller;
 
-import com.proyectomdweb.proyectomdweb.model.Producto;
-import com.proyectomdweb.proyectomdweb.service.ProductoService;
-import com.proyectomdweb.proyectomdweb.dtos.ProductoDTO;
-import com.proyectomdweb.proyectomdweb.service.CategoriaService;
+import com.g2.dwi_lmll.service.ProductoService;
+import com.g2.dwi_lmll.dto.ProductoDTO;
+import com.g2.dwi_lmll.service.CategoriaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

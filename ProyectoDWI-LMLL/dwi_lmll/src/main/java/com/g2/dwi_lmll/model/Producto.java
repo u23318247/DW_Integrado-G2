@@ -1,9 +1,8 @@
-package com.proyectomdweb.proyectomdweb.model;
+package com.g2.dwi_lmll.model;
 
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
-import java.util.List;
 
 @Entity
 @Getter
@@ -38,8 +37,4 @@ public class Producto {
     @Column(columnDefinition = "boolean default true")
     private Boolean disponibilidad;
 
-    //* Relación: UN producto tiene MUCHOS detalles (variantes) *//
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    private List<ProductoDetalle> variantes;
 }

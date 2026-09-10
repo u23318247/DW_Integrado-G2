@@ -1,7 +1,7 @@
-package com.proyectomdweb.proyectomdweb.service;
+package com.g2.dwi_lmll.service;
 
-import com.proyectomdweb.proyectomdweb.dtos.ProductoDTO;
-import com.proyectomdweb.proyectomdweb.model.Producto;
+import com.g2.dwi_lmll.dto.ProductoDTO;
+import com.g2.dwi_lmll.model.Producto;
 
 import java.util.List;
 import java.util.Optional;
