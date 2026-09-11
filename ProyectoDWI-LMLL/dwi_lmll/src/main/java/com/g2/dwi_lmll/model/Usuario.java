@@ -1,19 +1,20 @@
 package com.g2.dwi_lmll.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "usuarios")
-public class Usuario implements UserDetails {
+public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,47 +37,4 @@ public class Usuario implements UserDetails {
 
     @Column(name = "fecha_registro", insertable = false, updatable = false)
     private LocalDateTime fechaRegistro;
-
-    //*-- MÉTODOS OBLIGATORIOS DE USERDETAILS (Spring Security) --*//
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Si el correo es del admin, se le asigna doble rol
-        if ("admin@email.com".equals(this.email)) {
-            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
-        } 
-        // Se asigna el rol 'ROLE_USER' por defecto a todos los que se logueen.
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        
-    }
-    
-    @Override
-    public String getUsername() {
-        return this.email; // Se usa el email como username para el Login
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true; // La cuenta no expira
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true; // La cuenta no está bloqueada
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true; // Las credenciales no expiran
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true; // El usuario está activo
-    }
 }

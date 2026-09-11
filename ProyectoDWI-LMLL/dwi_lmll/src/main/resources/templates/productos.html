@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Llama a la Moda - Catálogo de Prendas G2</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+
+    <!-- Header / Navbar -->
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl">🦙</span>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">Llama a la Moda</h1>
+                    <p class="text-xs text-indigo-300 font-medium">Grupo 2 - Desarrollo Web Integrado</p>
+                </div>
+            </div>
+            <nav class="flex items-center space-x-4">
+                <a href="/productos" class="px-3 py-2 rounded-md text-sm font-semibold bg-indigo-800 text-white hover:bg-indigo-700 transition">
+                    <i class="fa-solid fa-shirt mr-1"></i> Catálogo
+                </a>
+                <a href="/usuarios" target="_blank" class="px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800 transition">
+                    <i class="fa-solid fa-users mr-1"></i> API Usuarios
+                </a>
+                <a href="/pedidos" target="_blank" class="px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800 transition">
+                    <i class="fa-solid fa-cart-shopping mr-1"></i> API Pedidos
+                </a>
+                <a href="/api/ventas" target="_blank" class="px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800 transition">
+                    <i class="fa-solid fa-receipt mr-1"></i> API Ventas
+                </a>
+                <a href="/h2-console" target="_blank" class="px-3 py-2 rounded-md text-sm font-medium bg-amber-500 text-gray-900 font-bold hover:bg-amber-400 transition">
+                    <i class="fa-solid fa-database mr-1"></i> Consola H2
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Banner Principal -->
+    <section class="bg-gradient-to-r from-indigo-800 to-purple-800 text-white py-12 px-4 sm:px-6 lg:px-8 text-center shadow-inner">
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Nueva Colección Textil 2026</h2>
+        <p class="mt-3 text-lg text-indigo-200 max-w-2xl mx-auto">
+            Prendas de alta calidad con identidad peruana. Diseños urbanos y contemporáneos.
+        </p>
+    </section>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Barra de Filtros AJAX -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <i class="fa-solid fa-filter text-indigo-600 mr-2"></i> Filtros de Catálogo (AJAX)
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- Género -->
+                <div>
+                    <label for="filtro-genero" class="block text-sm font-semibold text-gray-700 mb-1">Género:</label>
+                    <select id="filtro-genero" onchange="aplicarFiltros()" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="Unisex">Unisex / Todos</option>
+                        <option value="Hombre">Hombre</option>
+                        <option value="Mujer">Mujer</option>
+                    </select>
+                </div>
+
+                <!-- Categoría -->
+                <div>
+                    <label for="filtro-categoria" class="block text-sm font-semibold text-gray-700 mb-1">Categoría:</label>
+                    <select id="filtro-categoria" onchange="aplicarFiltros()" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">Todas las categorías</option>
+                        <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}"></option>
+                    </select>
+                </div>
+
+                <!-- Botón Limpiar -->
+                <div class="flex items-end">
+                    <button onclick="limpiarFiltros()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg border border-gray-300 transition flex items-center justify-center">
+                        <i class="fa-solid fa-rotate-left mr-2"></i> Restablecer Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor de Productos (Fragmento Thymeleaf para AJAX) -->
+        <div th:fragment="lista-productos" id="contenedor-productos">
+            <div th:if="${#lists.isEmpty(productos)}" class="text-center py-12 bg-white rounded-xl border border-gray-200">
+                <i class="fa-solid fa-box-open text-5xl text-gray-400 mb-3"></i>
+                <p class="text-lg font-semibold text-gray-600">No se encontraron productos para el filtro seleccionado.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(productos)}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div th:each="prod : ${productos}" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="h-56 bg-gray-200 overflow-hidden relative">
+                            <img th:src="${prod.imagenUrl}" th:alt="${prod.nombre}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                            <span class="absolute top-2 right-2 bg-indigo-900 text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" th:text="${prod.genero}"></span>
+                            <span class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full shadow" th:text="${prod.categoriaNombre}"></span>
+                        </div>
+                        <div class="p-5">
+                            <h4 class="font-bold text-gray-900 text-lg leading-snug line-clamp-2" th:text="${prod.nombre}"></h4>
+                            <p class="mt-2 text-2xl font-black text-indigo-600">S/. <span th:text="${prod.precioBase}"></span></p>
+                        </div>
+                    </div>
+                    <div class="p-5 pt-0">
+                        <button onclick="alert('¡Producto agregado al pedido de prueba!')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-indigo-200">
+                            <i class="fa-solid fa-cart-plus mr-2"></i> Comprar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-8 border-t border-gray-800 mt-16 text-center text-sm">
+        <p class="font-semibold text-gray-300">Llama a la Moda - E-commerce de Confección Textil</p>
+        <p class="mt-1">Desarrollo Web Integrado - Grupo 2 (UTP 2026)</p>
+        <p class="mt-2 text-xs text-gray-500">Integrantes: Antonela Jaimes • Daniel Batallanos • Adrian Salcedo • Ali Contreras • Joel Andagua • Yair Quispe</p>
+    </footer>
+
+    <!-- Script para filtrado AJAX dinámico -->
+    <script>
+        function aplicarFiltros() {
+            const genero = document.getElementById('filtro-genero').value;
+            const categoriaId = document.getElementById('filtro-categoria').value;
+
+            let url = `/productos/ajax?genero=${encodeURIComponent(genero)}`;
+            if (categoriaId) {
+                url += `&categoriaId=${encodeURIComponent(categoriaId)}`;
+            }
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Error en la petición');
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById('contenedor-productos').innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Error al filtrar:', err);
+                });
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('filtro-genero').value = 'Unisex';
+            document.getElementById('filtro-categoria').value = '';
+            aplicarFiltros();
+        }
+    </script>
+</body>
+</html>

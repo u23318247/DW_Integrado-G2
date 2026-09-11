@@ -111,7 +111,6 @@ class PedidoServiceTest {
     @DisplayName("Debe eliminar pedido cuando existe")
     void eliminar_cuandoExiste() {
         when(pedidoRepository.existsById(1L)).thenReturn(true);
-        doNothing().when(pedidoRepository).deleteById(1L);
 
         pedidoService.eliminar(1L);
 
