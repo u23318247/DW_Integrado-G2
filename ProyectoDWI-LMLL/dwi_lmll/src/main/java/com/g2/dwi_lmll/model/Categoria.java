@@ -1,5 +1,6 @@
 package com.g2.dwi_lmll.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -22,6 +23,7 @@ public class Categoria {
 
     // Una categoría tiene MUCHOS productos
     @OneToMany(mappedBy = "categoria", fetch = FetchType.LAZY) 
-    @ToString.Exclude 
+    @ToString.Exclude
+    @JsonIgnore // no serializar la lista LAZY en las respuestas JSON
     private List<Producto> productos;
 }

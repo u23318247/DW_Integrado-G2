@@ -27,4 +27,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse(400, mensaje, request.getRequestURI()));
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> argumentoInvalido(IllegalArgumentException ex, HttpServletRequest request) {
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(400, ex.getMessage(), request.getRequestURI()));
+    }
+
+    // Los servicios lanzan RuntimeException con "no existe" / "no encontrado" cuando falta un registro
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> errorGenerico(RuntimeException ex, HttpServletRequest request) {
+        String msg = ex.getMessage() == null ? "Error interno" : ex.getMessage();
+        String lower = msg.toLowerCase();
+        HttpStatus status = (lower.contains("no existe") || lower.contains("no encontrado"))
+                ? HttpStatus.NOT_FOUND : HttpStatus.BAD_REQUEST;
+        return ResponseEntity.status(status)
+                .body(new ErrorResponse(status.value(), msg, request.getRequestURI()));
+    }
 }

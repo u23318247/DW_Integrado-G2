@@ -1,11 +1,8 @@
 package com.g2.dwi_lmll.service.implement;
 
-import com.g2.dwi_lmll.dto.ProductoDTO;
 import com.g2.dwi_lmll.model.EstadoPedido;
 import com.g2.dwi_lmll.model.Pedido;
-import com.g2.dwi_lmll.model.Producto;
 import com.g2.dwi_lmll.repository.PedidoRepository;
-import com.g2.dwi_lmll.repository.ProductoRepository;
 import com.g2.dwi_lmll.service.PedidoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,49 +14,57 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PedidoServiceImpl implements PedidoService {
-    private final ProductoRepository productoRepository;
+
+    private final PedidoRepository pedidoRepository;
 
     @Override
-    public List<ProductoDTO> listarTodos() {
-        return productoRepository.findAll().stream().map(this::toDto).toList();
+    @Transactional(readOnly = true)
+    public List<Pedido> listarTodos() {
+        return pedidoRepository.findAll();
     }
 
     @Override
-    public Optional<ProductoDTO> buscarPorId(Long id) {
-        return productoRepository.findById(id).map(this::toDto);
+    @Transactional(readOnly = true)
+    public Optional<Pedido> buscarPorId(Long id) {
+        return pedidoRepository.findById(id);
     }
 
     @Override
-    public List<ProductoDTO> buscarPorCategoriaId(Long id) {
-        return productoRepository.findByCategoriaId(id).stream().map(this::toDto).toList();
+    @Transactional(readOnly = true)
+    public Long contarPorEstado(EstadoPedido estado) {
+        return pedidoRepository.countByEstado(estado);
     }
 
     @Override
-    public List<ProductoDTO> buscarPorNombre(String nombre) {
-        return productoRepository.findByNombreContainingIgnoreCase(nombre).stream().map(this::toDto).toList();
+    @Transactional
+    public Pedido guardar(Pedido pedido) {
+        if (pedido.getEstado() == null) {
+            pedido.setEstado(EstadoPedido.PENDIENTE);
+        }
+        return pedidoRepository.save(pedido);
     }
 
     @Override
-    public List<ProductoDTO> filtrar(String genero, Long categoriaId) {
-        return productoRepository.filtrarPorGeneroYCategoria(genero, categoriaId).stream().map(this::toDto).toList();
+    @Transactional
+    public Pedido actualizar(Long id, Pedido pedido) {
+        Pedido existente = pedidoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("El pedido con ID " + id + " no existe."));
+
+        existente.setUsuarioId(pedido.getUsuarioId());
+        existente.setTotal(pedido.getTotal());
+        if (pedido.getEstado() != null) {
+            existente.setEstado(pedido.getEstado());
+        }
+
+        return pedidoRepository.save(existente);
     }
 
     @Override
-    public ProductoDTO guardar(ProductoDTO dto) {
-        return null;
-    }
-
-    @Override
+    @Transactional
     public void eliminar(Long id) {
-        productoRepository.deleteById(id);
-    }
-
-    @Override
-    public Producto obtenerEntidadPorId(Long id) {
-        return productoRepository.findById(id).orElseThrow();
-    }
-
-    private ProductoDTO toDto(Producto p) {
-        return new ProductoDTO(p.getId(), p.getNombre(), p.getGenero(), p.getImagenUrl(), p.getPrecioBase(), p.getDisponibilidad(), p.getCategoria() != null ? p.getCategoria().getId() : null, p.getCategoria() != null ? p.getCategoria().getNombre() : null);
+        if (!pedidoRepository.existsById(id)) {
+            throw new RuntimeException("El pedido con ID " + id + " no existe.");
+        }
+        pedidoRepository.deleteById(id);
     }
 }
