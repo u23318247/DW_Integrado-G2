@@ -1,8 +1,6 @@
 package com.g2.dwi_lmll.controller;
 
 import com.g2.dwi_lmll.dto.ProductoDTO;
-import com.g2.dwi_lmll.model.Categoria;
-import com.g2.dwi_lmll.service.CategoriaService;
 import com.g2.dwi_lmll.service.ProductoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,16 +9,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,28 +30,14 @@ class ProductoControllerTest {
     @Mock
     private ProductoService productoService;
 
-    @Mock
-    private CategoriaService categoriaService;
-
     @InjectMocks
     private ProductoController productoController;
 
     private ProductoDTO productoDTO;
-    private Categoria categoria;
 
     @BeforeEach
     void setUp() {
-        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-        viewResolver.setPrefix("/templates/");
-        viewResolver.setSuffix(".html");
-
-        mockMvc = MockMvcBuilders.standaloneSetup(productoController)
-                .setViewResolvers(viewResolver)
-                .build();
-
-        categoria = new Categoria();
-        categoria.setId(1L);
-        categoria.setNombre("Polos");
+        mockMvc = MockMvcBuilders.standaloneSetup(productoController).build();
 
         productoDTO = new ProductoDTO(
                 1L,
@@ -67,33 +52,63 @@ class ProductoControllerTest {
     }
 
     @Test
-    @DisplayName("GET /productos debe retornar la vista 'productos' con categorías y productos")
-    void listarTodosLosProductos_debeRetornarVistaProductos() throws Exception {
+    @DisplayName("GET /api/productos debe retornar lista de productos con status 200")
+    void listarTodosLosProductos_debeRetornar200YLista() throws Exception {
         when(productoService.listarTodos()).thenReturn(List.of(productoDTO));
-        when(categoriaService.listarTodas()).thenReturn(List.of(categoria));
 
-        mockMvc.perform(get("/productos"))
+        mockMvc.perform(get("/api/productos"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("productos"))
-                .andExpect(model().attributeExists("categorias"))
-                .andExpect(model().attributeExists("productos"));
+                .andExpect(jsonPath("$[0].nombre").value("Polo Oversize"))
+                .andExpect(jsonPath("$[0].precioBase").value(49.90));
 
         verify(productoService).listarTodos();
-        verify(categoriaService).listarTodas();
     }
 
     @Test
-    @DisplayName("GET /productos/ajax debe retornar el fragmento 'productos :: lista-productos'")
-    void filtrarAjax_debeRetornarFragmentoProductos() throws Exception {
-        when(productoService.filtrar("Unisex", 1L)).thenReturn(List.of(productoDTO));
+    @DisplayName("GET /api/productos/{id} debe retornar producto con status 200")
+    void buscarPorId_debeRetornar200YProducto() throws Exception {
+        when(productoService.buscarPorId(1L)).thenReturn(Optional.of(productoDTO));
 
-        mockMvc.perform(get("/productos/ajax")
-                        .param("genero", "Unisex")
-                        .param("categoriaId", "1"))
+        mockMvc.perform(get("/api/productos/1"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("productos :: lista-productos"))
-                .andExpect(model().attributeExists("productos"));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nombre").value("Polo Oversize"));
 
-        verify(productoService).filtrar("Unisex", 1L);
+        verify(productoService).buscarPorId(1L);
+    }
+
+    @Test
+    @DisplayName("POST /api/productos debe crear producto y retornar status 201")
+    void crear_debeRetornar201() throws Exception {
+        when(productoService.guardar(any(ProductoDTO.class))).thenReturn(productoDTO);
+
+        String json = """
+                {
+                    "nombre": "Polo Oversize",
+                    "genero": "Unisex",
+                    "imagenUrl": "/img/polo.jpg",
+                    "precioBase": 49.90,
+                    "disponibilidad": true,
+                    "categoriaId": 1
+                }
+                """;
+
+        mockMvc.perform(post("/api/productos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "/api/productos/1"))
+                .andExpect(jsonPath("$.nombre").value("Polo Oversize"));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/productos/{id} debe eliminar y retornar status 204")
+    void eliminar_debeRetornar204() throws Exception {
+        when(productoService.buscarPorId(1L)).thenReturn(Optional.of(productoDTO));
+
+        mockMvc.perform(delete("/api/productos/1"))
+                .andExpect(status().isNoContent());
+
+        verify(productoService).eliminar(1L);
     }
 }

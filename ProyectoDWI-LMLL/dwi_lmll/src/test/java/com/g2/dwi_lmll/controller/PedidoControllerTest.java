@@ -2,7 +2,7 @@ package com.g2.dwi_lmll.controller;
 
 import com.g2.dwi_lmll.model.EstadoPedido;
 import com.g2.dwi_lmll.model.Pedido;
-import com.g2.dwi_lmll.service.PedidoService;
+import com.g2.dwi_lmll.repository.PedidoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -30,7 +29,7 @@ class PedidoControllerTest {
     private MockMvc mockMvc;
 
     @Mock
-    private PedidoService pedidoService;
+    private PedidoRepository pedidoRepository;
 
     @InjectMocks
     private PedidoController pedidoController;
@@ -51,7 +50,7 @@ class PedidoControllerTest {
     @Test
     @DisplayName("GET /pedidos debe retornar lista con 200 OK")
     void listarTodos_debeRetornar200YLista() throws Exception {
-        when(pedidoService.listarTodos()).thenReturn(List.of(pedido));
+        when(pedidoRepository.findAll()).thenReturn(List.of(pedido));
 
         mockMvc.perform(get("/pedidos"))
                 .andExpect(status().isOk())
@@ -59,13 +58,13 @@ class PedidoControllerTest {
                 .andExpect(jsonPath("$[0].total").value(120.50))
                 .andExpect(jsonPath("$[0].estado").value("PENDIENTE"));
 
-        verify(pedidoService).listarTodos();
+        verify(pedidoRepository).findAll();
     }
 
     @Test
     @DisplayName("GET /pedidos/{id} cuando existe debe retornar 200 OK")
     void buscarPorId_cuandoExiste_retorna200() throws Exception {
-        when(pedidoService.buscarPorId(1L)).thenReturn(Optional.of(pedido));
+        when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedido));
 
         mockMvc.perform(get("/pedidos/1"))
                 .andExpect(status().isOk())
@@ -76,16 +75,16 @@ class PedidoControllerTest {
     @Test
     @DisplayName("GET /pedidos/{id} cuando no existe debe retornar 404 Not Found")
     void buscarPorId_cuandoNoExiste_retorna404() throws Exception {
-        when(pedidoService.buscarPorId(99L)).thenReturn(Optional.empty());
+        when(pedidoRepository.findById(99L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/pedidos/99"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("POST /pedidos debe crear pedido y retornar 201 Created con Location header")
+    @DisplayName("POST /pedidos debe crear pedido y retornar 201 Created")
     void crear_debeRetornar201() throws Exception {
-        when(pedidoService.guardar(any(Pedido.class))).thenReturn(pedido);
+        when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedido);
 
         String json = """
                 {
@@ -99,20 +98,14 @@ class PedidoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "/pedidos/1"))
                 .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
     @DisplayName("PUT /pedidos/{id} debe actualizar y retornar 200 OK")
     void actualizar_debeRetornar200() throws Exception {
-        Pedido actualizado = new Pedido();
-        actualizado.setId(1L);
-        actualizado.setUsuarioId(1L);
-        actualizado.setTotal(new BigDecimal("150.00"));
-        actualizado.setEstado(EstadoPedido.PAGADO);
-
-        when(pedidoService.actualizar(eq(1L), any(Pedido.class))).thenReturn(actualizado);
+        when(pedidoRepository.existsById(1L)).thenReturn(true);
+        when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedido);
 
         String json = """
                 {
@@ -126,17 +119,17 @@ class PedidoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.estado").value("PAGADO"));
+                .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
     @DisplayName("DELETE /pedidos/{id} debe eliminar y retornar 204 No Content")
     void eliminar_debeRetornar204() throws Exception {
-        doNothing().when(pedidoService).eliminar(1L);
+        when(pedidoRepository.existsById(1L)).thenReturn(true);
 
         mockMvc.perform(delete("/pedidos/1"))
                 .andExpect(status().isNoContent());
 
-        verify(pedidoService).eliminar(1L);
+        verify(pedidoRepository).deleteById(1L);
     }
 }

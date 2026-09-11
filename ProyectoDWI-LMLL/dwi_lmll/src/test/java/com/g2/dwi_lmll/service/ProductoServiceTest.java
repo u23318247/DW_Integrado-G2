@@ -4,6 +4,7 @@ import com.g2.dwi_lmll.dto.ProductoDTO;
 import com.g2.dwi_lmll.mapper.ProductoMapper;
 import com.g2.dwi_lmll.model.Categoria;
 import com.g2.dwi_lmll.model.Producto;
+import com.g2.dwi_lmll.service.implement.ProductoServiceImpl;
 import com.g2.dwi_lmll.repository.CategoriaRepository;
 import com.g2.dwi_lmll.repository.ProductoRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -233,7 +234,6 @@ class ProductoServiceTest {
     @DisplayName("Debe eliminar producto cuando el ID existe")
     void eliminar_cuandoExiste_debeEliminar() {
         when(productoRepository.existsById(1L)).thenReturn(true);
-        doNothing().when(productoRepository).deleteById(1L);
 
         productoService.eliminar(1L);
 

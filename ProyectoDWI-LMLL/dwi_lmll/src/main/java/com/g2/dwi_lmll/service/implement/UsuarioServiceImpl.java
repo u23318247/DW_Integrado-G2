@@ -28,7 +28,10 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     public UsuarioDTO obtenerUsuarioDtoPorEmail(String email){ return convertir(obtenerUsuarioEntidadPorEmail(email)); }
     public List<UsuarioDTO> obtenerTodosLosUsuarios(){ return usuarioRepository.findAll().stream().map(this::convertir).toList(); }
-    public Usuario obtenerUsuarioEntidadPorEmail(String email){ return usuarioRepository.findByEmail(email).orElseThrow(); }
+    public Usuario obtenerUsuarioEntidadPorEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email));
+    }
 
     private UsuarioDTO convertir(Usuario u){
         UsuarioDTO dto = new UsuarioDTO();

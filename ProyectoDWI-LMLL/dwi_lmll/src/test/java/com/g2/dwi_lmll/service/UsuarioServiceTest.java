@@ -4,6 +4,7 @@ import com.g2.dwi_lmll.dto.UsuarioDTO;
 import com.g2.dwi_lmll.dto.UsuarioRegistroDTO;
 import com.g2.dwi_lmll.model.Usuario;
 import com.g2.dwi_lmll.repository.UsuarioRepository;
+import com.g2.dwi_lmll.service.implement.UsuarioServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
