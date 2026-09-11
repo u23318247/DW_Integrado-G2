@@ -9,7 +9,7 @@ call "%~dp0mvnw.cmd" test
 if %ERRORLEVEL% equ 0 (
     echo.
     echo ========================================================
-    echo   [EXITO] Todas las 45 pruebas pasaron correctamente!
+    echo   [EXITO] Todas las 50 pruebas pasaron correctamente!
     echo ========================================================
 ) else (
     echo.

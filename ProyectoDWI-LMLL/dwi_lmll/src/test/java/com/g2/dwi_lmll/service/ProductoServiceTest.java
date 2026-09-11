@@ -6,6 +6,7 @@ import com.g2.dwi_lmll.model.Categoria;
 import com.g2.dwi_lmll.model.Producto;
 import com.g2.dwi_lmll.repository.CategoriaRepository;
 import com.g2.dwi_lmll.repository.ProductoRepository;
+import com.g2.dwi_lmll.service.implement.ProductoServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

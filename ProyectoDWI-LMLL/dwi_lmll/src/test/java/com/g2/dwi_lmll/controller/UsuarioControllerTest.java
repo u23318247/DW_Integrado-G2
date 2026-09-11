@@ -50,11 +50,11 @@ class UsuarioControllerTest {
     }
 
     @Test
-    @DisplayName("GET /usuarios debe retornar lista de usuarios con status 200")
+    @DisplayName("GET /api/usuarios debe retornar lista de usuarios con status 200")
     void listarTodos_debeRetornar200YLista() throws Exception {
         when(usuarioService.obtenerTodosLosUsuarios()).thenReturn(List.of(usuarioDTO));
 
-        mockMvc.perform(get("/usuarios"))
+        mockMvc.perform(get("/api/usuarios"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nombre").value("Antonela Jaimes"))
                 .andExpect(jsonPath("$[0].email").value("antonela@example.com"));
@@ -63,11 +63,11 @@ class UsuarioControllerTest {
     }
 
     @Test
-    @DisplayName("GET /usuarios/{email} debe retornar usuario con status 200")
+    @DisplayName("GET /api/usuarios/email/{email} debe retornar usuario con status 200")
     void buscarPorEmail_debeRetornar200YUsuario() throws Exception {
         when(usuarioService.obtenerUsuarioDtoPorEmail("antonela@example.com")).thenReturn(usuarioDTO);
 
-        mockMvc.perform(get("/usuarios/antonela@example.com"))
+        mockMvc.perform(get("/api/usuarios/email/antonela@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nombre").value("Antonela Jaimes"))
                 .andExpect(jsonPath("$.email").value("antonela@example.com"));
@@ -76,7 +76,7 @@ class UsuarioControllerTest {
     }
 
     @Test
-    @DisplayName("POST /usuarios/registro con correo no registrado debe retornar status 201")
+    @DisplayName("POST /api/usuarios con correo no registrado debe retornar status 201")
     void registrar_usuarioNuevo_debeRetornar201() throws Exception {
         when(usuarioService.existePorEmail("antonela@example.com")).thenReturn(false);
         when(usuarioService.registrarNuevoUsuario(any(UsuarioRegistroDTO.class))).thenReturn(usuarioDTO);
@@ -91,7 +91,7 @@ class UsuarioControllerTest {
                 }
                 """;
 
-        mockMvc.perform(post("/usuarios/registro")
+        mockMvc.perform(post("/api/usuarios")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
@@ -100,7 +100,7 @@ class UsuarioControllerTest {
     }
 
     @Test
-    @DisplayName("POST /usuarios/registro con correo duplicado debe retornar status 409")
+    @DisplayName("POST /api/usuarios con correo duplicado debe retornar status 409")
     void registrar_usuarioExistente_debeRetornar409() throws Exception {
         when(usuarioService.existePorEmail("antonela@example.com")).thenReturn(true);
 
@@ -114,7 +114,7 @@ class UsuarioControllerTest {
                 }
                 """;
 
-        mockMvc.perform(post("/usuarios/registro")
+        mockMvc.perform(post("/api/usuarios")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isConflict())
