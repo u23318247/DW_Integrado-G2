@@ -79,7 +79,7 @@ public class DataLoader implements CommandLineRunner {
                 .build());
 
         productoRepository.save(Producto.builder()
-                .nombre("Polo Básico Algodón Pima")
+                .nombre("Polo Basico Algodon Pima")
                 .genero("Hombre")
                 .imagenUrl("https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500")
                 .precioBase(new BigDecimal("39.90"))
@@ -97,7 +97,7 @@ public class DataLoader implements CommandLineRunner {
                 .build());
 
         productoRepository.save(Producto.builder()
-                .nombre("Pantalón Jeans Slim Fit")
+                .nombre("Pantalon Jeans Slim Fit")
                 .genero("Hombre")
                 .imagenUrl("https://images.unsplash.com/photo-1542272604-780c96856592?w=500")
                 .precioBase(new BigDecimal("89.90"))
@@ -110,7 +110,7 @@ public class DataLoader implements CommandLineRunner {
         usuario.setNombre("Antonela Jaimes");
         usuario.setEmail("antonela@example.com");
         usuario.setTelefono("987654321");
-        usuario.setDireccion("Lima, Perú");
+        usuario.setDireccion("Lima, Peru");
         usuario.setPassword("123456");
         usuarioRepository.save(usuario);
 

@@ -13,14 +13,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 @Controller
-@RequestMapping("/productos")
 @RequiredArgsConstructor
 public class CatalogoViewController {
 
     private final ProductoService productoService;
     private final CategoriaService categoriaService;
 
-    @GetMapping
+    @GetMapping({"/", "/productos", "/index", "/catalogo"})
     public String verCatalogo(Model model) {
         List<ProductoDTO> productos = productoService.listarTodos();
         model.addAttribute("categorias", categoriaService.listarTodas());
@@ -28,7 +27,7 @@ public class CatalogoViewController {
         return "productos";
     }
 
-    @GetMapping("/ajax")
+    @GetMapping("/productos/ajax")
     public String filtrarAjax(
             @RequestParam(defaultValue = "Unisex") String genero,
             @RequestParam(required = false) Long categoriaId,
