@@ -3,6 +3,7 @@ package com.g2.dwi_lmll.service;
 import com.g2.dwi_lmll.model.EstadoPedido;
 import com.g2.dwi_lmll.model.Pedido;
 import com.g2.dwi_lmll.repository.PedidoRepository;
+import com.g2.dwi_lmll.service.implement.PedidoServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
