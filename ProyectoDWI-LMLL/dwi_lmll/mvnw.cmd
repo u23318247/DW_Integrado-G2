@@ -28,6 +28,28 @@
 @REM ----------------------------------------------------------------------------
 
 @IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
+
+@REM Deteccion automatica de JDK 17+ si JAVA_HOME no esta configurado o apunta a Java 8
+@SET "_NEED_JDK=0"
+@IF "%JAVA_HOME%"=="" (SET "_NEED_JDK=1")
+@IF NOT "%JAVA_HOME%"=="" (
+  IF NOT EXIST "%JAVA_HOME%\bin\javac.exe" (SET "_NEED_JDK=1")
+  IF EXIST "%JAVA_HOME%\bin\java.exe" (
+    "%JAVA_HOME%\bin\java.exe" -version 2>&1 | findstr /C:"1.8." >nul && SET "_NEED_JDK=1"
+  )
+)
+@IF "%_NEED_JDK%"=="1" (
+  FOR /D %%D IN ("C:\Program Files\Java\jdk-21*" "C:\Program Files\Java\jdk-25*" "C:\Program Files\Java\jdk-17*" "C:\Program Files\Java\jdk*" "C:\Program Files\Eclipse Adoptium\jdk*" "C:\Program Files\Semeru\jdk*" "%ProgramFiles%\Java\jdk*" "%ProgramFiles%\Eclipse Adoptium\jdk*") DO @(
+    IF EXIST "%%~fD\bin\javac.exe" (
+      "%%~fD\bin\java.exe" -version 2>&1 | findstr /C:"1.8." >nul || (
+        SET "JAVA_HOME=%%~fD"
+        GOTO :_JdkReady
+      )
+    )
+  )
+)
+:_JdkReady
+
 @SET __MVNW_CMD__=
 @SET __MVNW_ERROR__=
 @SET __MVNW_PSMODULEP_SAVE=%PSModulePath%

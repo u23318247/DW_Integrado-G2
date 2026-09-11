@@ -15,7 +15,7 @@
 	<description>Laboratorio 4 - Implementación de API REST, herramientas de prueba y métodos HTTP</description>
 
 	<properties>
-		<java.version>21</java.version>
+		<java.version>17</java.version>
 	</properties>
 
 	<dependencies>

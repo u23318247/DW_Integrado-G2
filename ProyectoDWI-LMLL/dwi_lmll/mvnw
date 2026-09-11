@@ -43,6 +43,16 @@ esac
 
 # set JAVACMD and JAVACCMD
 set_java_home() {
+  # Auto-detect JDK 17+ if JAVA_HOME is not set or points to legacy Java
+  if [ -z "${JAVA_HOME-}" ] || [ ! -x "${JAVA_HOME-}/bin/javac" ]; then
+    for _jdk in /usr/lib/jvm/java-21* /usr/lib/jvm/java-17* /usr/lib/jvm/default-java /Library/Java/JavaVirtualMachines/*/Contents/Home; do
+      if [ -x "$_jdk/bin/javac" ]; then
+        JAVA_HOME="$_jdk"
+        break
+      fi
+    done
+  fi
+
   # For Cygwin and MinGW, ensure paths are in Unix format before anything is touched
   if [ -n "${JAVA_HOME-}" ]; then
     if [ -x "$JAVA_HOME/jre/sh/java" ]; then
