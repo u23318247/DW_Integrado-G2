@@ -3,116 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Llama a la Moda - Catálogo de Prendas G2</title>
+    <title>Llama a la Moda - Sistema Integrado G2</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 font-sans text-gray-800">
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Header / Navbar -->
+    <!-- Header / Navbar Unificado -->
     <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="cambiarPestana('catalogo')">
                 <span class="text-3xl">🦙</span>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight">Llama a la Moda</h1>
-                    <p class="text-xs text-indigo-300 font-medium">Grupo 2 - Desarrollo Web Integrado</p>
+                    <p class="text-xs text-indigo-300 font-medium">Grupo 2 - Desarrollo Web Integrado (UTP 2026)</p>
                 </div>
             </div>
-            <nav class="flex items-center space-x-4">
-                <a href="/productos" class="px-3 py-2 rounded-md text-sm font-semibold bg-indigo-800 text-white hover:bg-indigo-700 transition">
-                    <i class="fa-solid fa-shirt mr-1"></i> Catálogo
-                </a>
-                <a href="/usuarios" target="_blank" class="px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800 transition">
-                    <i class="fa-solid fa-users mr-1"></i> API Usuarios
-                </a>
-                <a href="/pedidos" target="_blank" class="px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800 transition">
-                    <i class="fa-solid fa-cart-shopping mr-1"></i> API Pedidos
-                </a>
-                <a href="/api/ventas" target="_blank" class="px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800 transition">
-                    <i class="fa-solid fa-receipt mr-1"></i> API Ventas
-                </a>
-                <a href="/h2-console" target="_blank" class="px-3 py-2 rounded-md text-sm font-medium bg-amber-500 text-gray-900 font-bold hover:bg-amber-400 transition">
-                    <i class="fa-solid fa-database mr-1"></i> Consola H2
-                </a>
+            
+            <!-- Pestañas de Navegación en la misma página -->
+            <nav class="flex items-center space-x-2 sm:space-x-3">
+                <button id="btn-tab-catalogo" onclick="cambiarPestana('catalogo')" class="tab-btn px-3 py-2 rounded-lg text-sm font-bold bg-indigo-700 text-white shadow transition flex items-center">
+                    <i class="fa-solid fa-shirt mr-2"></i> <span>Catálogo</span>
+                </button>
+                <button id="btn-tab-usuarios" onclick="cambiarPestana('usuarios')" class="tab-btn px-3 py-2 rounded-lg text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800 transition flex items-center">
+                    <i class="fa-solid fa-users mr-2"></i> <span>Usuarios</span>
+                    <span class="ml-1.5 bg-indigo-800 text-xs px-2 py-0.5 rounded-full" th:text="${#lists.size(usuarios)}">0</span>
+                </button>
+                <button id="btn-tab-pedidos" onclick="cambiarPestana('pedidos')" class="tab-btn px-3 py-2 rounded-lg text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800 transition flex items-center">
+                    <i class="fa-solid fa-cart-shopping mr-2"></i> <span>Pedidos</span>
+                    <span class="ml-1.5 bg-indigo-800 text-xs px-2 py-0.5 rounded-full" th:text="${#lists.size(pedidos)}">0</span>
+                </button>
+                <button id="btn-tab-ventas" onclick="cambiarPestana('ventas')" class="tab-btn px-3 py-2 rounded-lg text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800 transition flex items-center">
+                    <i class="fa-solid fa-receipt mr-2"></i> <span>Ventas</span>
+                    <span class="ml-1.5 bg-indigo-800 text-xs px-2 py-0.5 rounded-full" th:text="${#lists.size(ventas)}">0</span>
+                </button>
+                <button id="btn-tab-h2" onclick="cambiarPestana('h2')" class="tab-btn px-3 py-2 rounded-lg text-sm font-medium bg-amber-500 hover:bg-amber-400 text-gray-900 font-bold transition flex items-center">
+                    <i class="fa-solid fa-database mr-2"></i> <span>Base de Datos</span>
+                </button>
             </nav>
         </div>
     </header>
 
-    <!-- Banner Principal -->
-    <section class="bg-gradient-to-r from-indigo-800 to-purple-800 text-white py-12 px-4 sm:px-6 lg:px-8 text-center shadow-inner">
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Nueva Colección Textil 2026</h2>
-        <p class="mt-3 text-lg text-indigo-200 max-w-2xl mx-auto">
-            Prendas de alta calidad con identidad peruana. Diseños urbanos y contemporáneos.
-        </p>
-    </section>
-
     <!-- Contenido Principal -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <!-- Barra de Filtros AJAX -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
-            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                <i class="fa-solid fa-filter text-indigo-600 mr-2"></i> Filtros de Catálogo (AJAX)
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- Género -->
-                <div>
-                    <label for="filtro-genero" class="block text-sm font-semibold text-gray-700 mb-1">Género:</label>
-                    <select id="filtro-genero" onchange="aplicarFiltros()" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="Unisex">Unisex / Todos</option>
-                        <option value="Hombre">Hombre</option>
-                        <option value="Mujer">Mujer</option>
-                    </select>
-                </div>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
 
-                <!-- Categoría -->
-                <div>
-                    <label for="filtro-categoria" class="block text-sm font-semibold text-gray-700 mb-1">Categoría:</label>
-                    <select id="filtro-categoria" onchange="aplicarFiltros()" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="">Todas las categorías</option>
-                        <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}"></option>
-                    </select>
-                </div>
-
-                <!-- Botón Limpiar -->
-                <div class="flex items-end">
-                    <button onclick="limpiarFiltros()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg border border-gray-300 transition flex items-center justify-center">
-                        <i class="fa-solid fa-rotate-left mr-2"></i> Restablecer Filtros
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contenedor de Productos (Fragmento Thymeleaf para AJAX) -->
-        <div th:fragment="lista-productos" id="contenedor-productos">
-            <div th:if="${#lists.isEmpty(productos)}" class="text-center py-12 bg-white rounded-xl border border-gray-200">
-                <i class="fa-solid fa-box-open text-5xl text-gray-400 mb-3"></i>
-                <p class="text-lg font-semibold text-gray-600">No se encontraron productos para el filtro seleccionado.</p>
+        <!-- ============================================================== -->
+        <!-- 1. SECCIÓN: CATÁLOGO DE PRODUCTOS (TIENDA WEB) -->
+        <!-- ============================================================== -->
+        <section id="seccion-catalogo" class="pestana-seccion">
+            <!-- Banner Catálogo -->
+            <div class="bg-gradient-to-r from-indigo-800 to-purple-800 text-white rounded-2xl p-8 mb-8 text-center shadow-md">
+                <h2 class="text-3xl sm:text-4xl font-black tracking-tight">Nueva Colección Textil 2026</h2>
+                <p class="mt-2 text-indigo-200 max-w-xl mx-auto">Prendas con identidad peruana elaboradas con los más altos estándares de calidad.</p>
             </div>
 
-            <div th:unless="${#lists.isEmpty(productos)}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div th:each="prod : ${productos}" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 flex flex-col justify-between group">
+            <!-- Filtros AJAX -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="fa-solid fa-filter text-indigo-600 mr-2"></i> Filtros Rápidos de Catálogo (AJAX)
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                        <div class="h-56 bg-gray-200 overflow-hidden relative">
-                            <img th:src="${prod.imagenUrl}" th:alt="${prod.nombre}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                            <span class="absolute top-2 right-2 bg-indigo-900 text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" th:text="${prod.genero}"></span>
-                            <span class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full shadow" th:text="${prod.categoriaNombre}"></span>
-                        </div>
-                        <div class="p-5">
-                            <h4 class="font-bold text-gray-900 text-lg leading-snug line-clamp-2" th:text="${prod.nombre}"></h4>
-                            <p class="mt-2 text-2xl font-black text-indigo-600">S/. <span th:text="${prod.precioBase}"></span></p>
-                        </div>
+                        <label for="filtro-genero" class="block text-sm font-semibold text-gray-700 mb-1">Género:</label>
+                        <select id="filtro-genero" onchange="aplicarFiltros()" class="w-full rounded-xl border-gray-300 shadow-sm border p-2.5 focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="Unisex">Unisex / Todos</option>
+                            <option value="Hombre">Hombre</option>
+                            <option value="Mujer">Mujer</option>
+                        </select>
                     </div>
-                    <div class="p-5 pt-0">
-                        <button onclick="alert('¡Producto agregado al pedido de prueba!')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-indigo-200">
-                            <i class="fa-solid fa-cart-plus mr-2"></i> Comprar
+
+                    <div>
+                        <label for="filtro-categoria" class="block text-sm font-semibold text-gray-700 mb-1">Categoría:</label>
+                        <select id="filtro-categoria" onchange="aplicarFiltros()" class="w-full rounded-xl border-gray-300 shadow-sm border p-2.5 focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">Todas las categorías</option>
+                            <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}"></option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-end">
+                        <button onclick="limpiarFiltros()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl border border-gray-300 transition flex items-center justify-center">
+                            <i class="fa-solid fa-rotate-left mr-2"></i> Restablecer Filtros
                         </button>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <!-- Contenedor de Productos (Fragmento Thymeleaf para AJAX) -->
+            <div th:fragment="lista-productos" id="contenedor-productos">
+                <div th:if="${#lists.isEmpty(productos)}" class="text-center py-12 bg-white rounded-2xl border border-gray-200">
+                    <i class="fa-solid fa-box-open text-5xl text-gray-400 mb-3"></i>
+                    <p class="text-lg font-semibold text-gray-600">No se encontraron productos para el filtro seleccionado.</p>
+                </div>
+
+                <div th:unless="${#lists.isEmpty(productos)}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div th:each="prod : ${productos}" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl transition duration-300 flex flex-col justify-between group">
+                        <div>
+                            <div class="h-56 bg-gray-200 overflow-hidden relative">
+                                <img th:src="${prod.imagenUrl}" th:alt="${prod.nombre}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                <span class="absolute top-3 right-3 bg-indigo-900 text-white text-xs font-black px-2.5 py-1 rounded-full uppercase tracking-wider" th:text="${prod.genero}"></span>
+                                <span class="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-gray-800 text-xs font-bold px-2.5 py-1 rounded-full shadow" th:text="${prod.categoriaNombre}"></span>
+                            </div>
+                            <div class="p-5">
+                                <h4 class="font-bold text-gray-900 text-lg leading-snug line-clamp-2" th:text="${prod.nombre}"></h4>
+                                <p class="mt-2 text-2xl font-black text-indigo-600">S/. <span th:text="${prod.precioBase}"></span></p>
+                            </div>
+                        </div>
+                        <div class="p-5 pt-0">
+                            <button onclick="alert('¡Excelente! El producto ha sido agregado al pedido de prueba.')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl transition duration-200 flex items-center justify-center shadow-md hover:shadow-indigo-200">
+                                <i class="fa-solid fa-cart-plus mr-2"></i> Comprar Prenda
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ============================================================== -->
+        <!-- 2. SECCIÓN: GESTIÓN DE USUARIOS -->
+        <!-- ============================================================== -->
+        <section id="seccion-usuarios" class="pestana-seccion hidden">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-black text-gray-900">👥 Gestión de Usuarios</h2>
+                    <p class="text-sm text-gray-500">Módulo de Clientes registrados en el sistema de comercio electrónico.</p>
+                </div>
+                <div class="bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-2 text-indigo-800 font-semibold text-sm">
+                    Total Usuarios: <span class="font-bold text-lg text-indigo-600" th:text="${#lists.size(usuarios)}">1</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-600 font-bold uppercase text-xs tracking-wider">
+                            <tr>
+                                <th class="px-6 py-3.5">ID</th>
+                                <th class="px-6 py-3.5">Usuario / Cliente</th>
+                                <th class="px-6 py-3.5">Correo Electrónico</th>
+                                <th class="px-6 py-3.5">Teléfono</th>
+                                <th class="px-6 py-3.5">Dirección</th>
+                                <th class="px-6 py-3.5">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            <tr th:each="u : ${usuarios}" class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 font-bold text-gray-900" th:text="${u.id}">1</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-9 h-9 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow">
+                                            <span th:text="${#strings.substring(u.nombre, 0, 1)}">A</span>
+                                        </div>
+                                        <span class="font-bold text-gray-900" th:text="${u.nombre}">Antonela Jaimes</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-gray-600 font-mono text-xs" th:text="${u.email}">antonela@example.com</td>
+                                <td class="px-6 py-4 text-gray-600" th:text="${u.telefono}">987654321</td>
+                                <td class="px-6 py-4 text-gray-600" th:text="${u.direccion}">Lima, Perú</td>
+                                <td class="px-6 py-4">
+                                    <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full flex items-center w-max">
+                                        <i class="fa-solid fa-circle-check mr-1.5 text-emerald-600"></i> Activo
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ============================================================== -->
+        <!-- 3. SECCIÓN: GESTIÓN DE PEDIDOS -->
+        <!-- ============================================================== -->
+        <section id="seccion-pedidos" class="pestana-seccion hidden">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-black text-gray-900">🛒 Gestión de Pedidos</h2>
+                    <p class="text-sm text-gray-500">Historial de órdenes y compras procesadas por los clientes.</p>
+                </div>
+                <div class="bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-2 text-indigo-800 font-semibold text-sm">
+                    Total Pedidos: <span class="font-bold text-lg text-indigo-600" th:text="${#lists.size(pedidos)}">1</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-600 font-bold uppercase text-xs tracking-wider">
+                            <tr>
+                                <th class="px-6 py-3.5">ID Pedido</th>
+                                <th class="px-6 py-3.5">ID Cliente</th>
+                                <th class="px-6 py-3.5">Total (S/.)</th>
+                                <th class="px-6 py-3.5">Estado de Pago</th>
+                                <th class="px-6 py-3.5">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            <tr th:each="ped : ${pedidos}" class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 font-mono font-bold text-indigo-600">#PED-<span th:text="${ped.id}">1</span></td>
+                                <td class="px-6 py-4 text-gray-700 font-medium">Cliente ID: <span class="font-bold" th:text="${ped.usuarioId}">1</span></td>
+                                <td class="px-6 py-4 font-black text-gray-900 text-base">S/. <span th:text="${ped.total}">139.80</span></td>
+                                <td class="px-6 py-4">
+                                    <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-flex items-center">
+                                        <i class="fa-solid fa-check mr-1.5"></i> <span th:text="${ped.estado}">PAGADO</span>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <button onclick="alert('Detalles del pedido #' + this.dataset.id + ' cargados')" th:data-id="${ped.id}" class="text-indigo-600 hover:text-indigo-800 font-bold text-xs">
+                                        Ver Detalle →
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ============================================================== -->
+        <!-- 4. SECCIÓN: VENTAS Y FACTURACIÓN -->
+        <!-- ============================================================== -->
+        <section id="seccion-ventas" class="pestana-seccion hidden">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-black text-gray-900">🧾 Ventas y Comprobantes</h2>
+                    <p class="text-sm text-gray-500">Módulo de emisión de comprobantes electrónicos (Boletas / Facturas).</p>
+                </div>
+                <div class="bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-2 text-indigo-800 font-semibold text-sm">
+                    Total Comprobantes: <span class="font-bold text-lg text-indigo-600" th:text="${#lists.size(ventas)}">1</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-600 font-bold uppercase text-xs tracking-wider">
+                            <tr>
+                                <th class="px-6 py-3.5">ID</th>
+                                <th class="px-6 py-3.5">Comprobante / Serie</th>
+                                <th class="px-6 py-3.5">Método de Pago</th>
+                                <th class="px-6 py-3.5">Subtotal</th>
+                                <th class="px-6 py-3.5">IGV (18%)</th>
+                                <th class="px-6 py-3.5">Monto Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            <tr th:each="v : ${ventas}" class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 font-bold text-gray-900" th:text="${v.id}">1</td>
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-gray-900 flex items-center">
+                                        <i class="fa-solid fa-file-invoice mr-2 text-indigo-600"></i>
+                                        <span th:text="${v.tipoComprobante}">BOLETA</span>: <span class="ml-1 text-indigo-700 font-mono" th:text="${v.serieCorrelativo}">B001-000001</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded-full uppercase" th:text="${v.metodoPago}">YAPE</span>
+                                </td>
+                                <td class="px-6 py-4 text-gray-600">S/. <span th:text="${v.subtotal}">118.47</span></td>
+                                <td class="px-6 py-4 text-gray-600">S/. <span th:text="${v.igv}">21.33</span></td>
+                                <td class="px-6 py-4 font-black text-gray-900 text-base text-emerald-600">S/. <span th:text="${v.total}">139.80</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ============================================================== -->
+        <!-- 5. SECCIÓN: BASE DE DATOS H2 CONSOLA -->
+        <!-- ============================================================== -->
+        <section id="seccion-h2" class="pestana-seccion hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-black text-gray-900">🗄️ Base de Datos en Memoria H2</h2>
+                <p class="text-sm text-gray-500">Parámetros de conexión y consola de gestión SQL de la aplicación.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-gray-900 text-lg mb-4 flex items-center">
+                        <i class="fa-solid fa-server text-indigo-600 mr-2"></i> Parámetros de Conexión H2
+                    </h3>
+                    <div class="space-y-3 font-mono text-sm bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="text-gray-500">JDBC URL:</span>
+                            <span class="font-bold text-indigo-600">jdbc:h2:mem:dwi_lmll</span>
+                        </div>
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="text-gray-500">Driver Class:</span>
+                            <span class="text-gray-800">org.h2.Driver</span>
+                        </div>
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="text-gray-500">User Name:</span>
+                            <span class="font-bold text-emerald-600">sa</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Password:</span>
+                            <span class="text-gray-400 italic">(dejar en blanco)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-gray-900 text-lg mb-2 flex items-center">
+                            <i class="fa-solid fa-table text-amber-500 mr-2"></i> Tablas Creadas Automáticamente
+                        </h3>
+                        <ul class="text-sm text-gray-600 space-y-1.5 mt-3">
+                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i> <strong>CATEGORIAS</strong>: Polos, Poleras, Pantalones, etc.</li>
+                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i> <strong>PRODUCTOS</strong>: Prendas textiles con precio base y fotos.</li>
+                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i> <strong>USUARIOS</strong>: Datos de clientes y cuentas.</li>
+                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i> <strong>PEDIDOS</strong>: Registro de compras realizadas.</li>
+                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i> <strong>VENTAS</strong>: Comprobantes emitidos con cálculo de IGV.</li>
+                        </ul>
+                    </div>
+                    <div class="mt-6">
+                        <a href="/h2-console" target="_blank" class="w-full bg-amber-500 hover:bg-amber-400 text-gray-900 font-black py-3 px-4 rounded-xl transition flex items-center justify-center shadow">
+                            <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i> Abrir Consola SQL de H2
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
     </main>
 
@@ -123,8 +338,34 @@
         <p class="mt-2 text-xs text-gray-500">Integrantes: Antonela Jaimes • Daniel Batallanos • Adrian Salcedo • Ali Contreras • Joel Andagua • Yair Quispe</p>
     </footer>
 
-    <!-- Script para filtrado AJAX dinámico -->
+    <!-- Script de Gestión de Pestañas y Filtros -->
     <script>
+        function cambiarPestana(tabName) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.pestana-seccion').forEach(seccion => {
+                seccion.classList.add('hidden');
+            });
+
+            // Restablecer estilos de botones
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (!btn.id.includes('h2')) {
+                    btn.className = "tab-btn px-3 py-2 rounded-lg text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800 transition flex items-center";
+                }
+            });
+
+            // Mostrar la sección seleccionada
+            const seccionActiva = document.getElementById('seccion-' + tabName);
+            if (seccionActiva) {
+                seccionActiva.classList.remove('hidden');
+            }
+
+            // Activar botón seleccionado
+            const btnActivo = document.getElementById('btn-tab-' + tabName);
+            if (btnActivo && !tabName.includes('h2')) {
+                btnActivo.className = "tab-btn px-3 py-2 rounded-lg text-sm font-bold bg-indigo-700 text-white shadow transition flex items-center";
+            }
+        }
+
         function aplicarFiltros() {
             const genero = document.getElementById('filtro-genero').value;
             const categoriaId = document.getElementById('filtro-categoria').value;
@@ -155,3 +396,4 @@
     </script>
 </body>
 </html>
+
