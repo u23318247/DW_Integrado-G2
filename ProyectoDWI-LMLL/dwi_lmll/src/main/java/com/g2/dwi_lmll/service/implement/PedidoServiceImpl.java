@@ -3,6 +3,7 @@ package com.g2.dwi_lmll.service.implement;
 import com.g2.dwi_lmll.dto.ProductoDTO;
 import com.g2.dwi_lmll.model.EstadoPedido;
 import com.g2.dwi_lmll.model.Pedido;
+import com.g2.dwi_lmll.model.Producto;
 import com.g2.dwi_lmll.repository.PedidoRepository;
 import com.g2.dwi_lmll.repository.ProductoRepository;
 import com.g2.dwi_lmll.service.PedidoService;
