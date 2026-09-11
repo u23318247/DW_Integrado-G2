@@ -11,7 +11,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/pedidos")
+@RequestMapping({"/pedidos", "/api/pedidos"})
 @RequiredArgsConstructor
 public class PedidoController {
     private final PedidoRepository pedidoRepository;
