@@ -31,7 +31,6 @@ class ProductoControllerTest {
         String json = """
                 {
                   "nombre": "Tablet Xiaomi",
-                  "categoria": "Tecnologia",
                   "precio": 1200.0,
                   "stock": 7
                 }
@@ -49,7 +48,6 @@ class ProductoControllerTest {
         String json = """
                 {
                   "nombre": "Monitor",
-                  "categoria": "Tecnologia",
                   "precio": 0,
                   "stock": 5
                 }

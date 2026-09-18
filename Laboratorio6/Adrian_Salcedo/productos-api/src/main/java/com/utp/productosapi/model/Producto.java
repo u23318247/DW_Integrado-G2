@@ -1,10 +1,27 @@
 package com.utp.productosapi.model;
 
-public class Producto{
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "productos")
+public class Producto {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 120)
     private String nombre;
-    private String categoria;
+
+    @Column(nullable = false)
     private double precio;
+
+    @Column(nullable = false)
     private int stock;
 
     public Producto() {
@@ -13,14 +30,6 @@ public class Producto{
     public Producto(Long id, String nombre, double precio, int stock) {
         this.id = id;
         this.nombre = nombre;
-        this.precio = precio;
-        this.stock = stock;
-    }
-
-    public Producto(Long id, String nombre, String categoria, double precio, int stock) {
-        this.id = id;
-        this.nombre = nombre;
-        this.categoria = categoria;
         this.precio = precio;
         this.stock = stock;
     }
@@ -39,14 +48,6 @@ public class Producto{
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-
-    public String getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
     }
 
     public double getPrecio() {
