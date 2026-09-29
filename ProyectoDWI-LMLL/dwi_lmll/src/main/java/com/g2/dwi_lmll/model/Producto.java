@@ -37,4 +37,9 @@ public class Producto {
     @Column(columnDefinition = "boolean default true")
     private Boolean disponibilidad;
 
+    // Inventario actual. El valor por defecto evita romper Producto.builder() existente
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer stock = 0;
+
 }

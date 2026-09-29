@@ -3,7 +3,11 @@ package com.g2.dwi_lmll.service.implement;
 import com.g2.dwi_lmll.dto.ProductoDTO;
 import com.g2.dwi_lmll.mapper.ProductoMapper;
 import com.g2.dwi_lmll.model.Categoria;
+import com.g2.dwi_lmll.model.MovimientoStock;
 import com.g2.dwi_lmll.model.Producto;
+import com.g2.dwi_lmll.model.enums.TipoMovimiento;
+import com.g2.dwi_lmll.exception.ProductoNoEncontradoException;
+import com.g2.dwi_lmll.repository.MovimientoStockRepository;
 import com.g2.dwi_lmll.repository.CategoriaRepository;
 import com.g2.dwi_lmll.repository.ProductoRepository;
 import com.g2.dwi_lmll.service.ProductoService;
@@ -22,6 +26,7 @@ public class ProductoServiceImpl implements ProductoService {
     private final ProductoRepository productoRepository;
     private final ProductoMapper productoMapper;
     private final CategoriaRepository categoriaRepository;
+    private final MovimientoStockRepository movimientoStockRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -118,5 +123,74 @@ public class ProductoServiceImpl implements ProductoService {
     public Producto obtenerEntidadPorId(Long id) {
         return productoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + id));
+    }
+
+    // ===================== LABORATORIO 7: TRANSACCIONES =====================
+
+    /**
+     * Descuenta stock y registra el movimiento SALIDA en UNA sola transacción.
+     * Si algo falla, se revierte todo (atomicidad).
+     *
+     * Dirty checking: el producto se carga dentro de la transacción, por lo que
+     * queda "gestionado" por el EntityManager. Al modificar su stock NO hace falta
+     * llamar a productoRepository.save(): al hacer commit Hibernate compara el
+     * estado actual con el original y emite el UPDATE automáticamente.
+     */
+    @Override
+    @Transactional
+    public void registrarSalida(Long id, int cantidad) {
+        validarCantidad(cantidad);
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new ProductoNoEncontradoException(id));
+
+        if (producto.getStock() < cantidad) {
+            throw new IllegalArgumentException("Stock insuficiente: disponible "
+                    + producto.getStock() + ", solicitado " + cantidad);
+        }
+
+        producto.setStock(producto.getStock() - cantidad); // dirty checking: sin save()
+
+        movimientoStockRepository.save(MovimientoStock.builder()
+                .producto(producto)
+                .tipo(TipoMovimiento.SALIDA)
+                .cantidad(cantidad)
+                .build());
+    }
+
+    /**
+     * Actividad de consolidación: aumenta stock y registra el movimiento ENTRADA.
+     */
+    @Override
+    @Transactional
+    public void registrarEntrada(Long id, int cantidad) {
+        validarCantidad(cantidad);
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new ProductoNoEncontradoException(id));
+
+        producto.setStock(producto.getStock() + cantidad); // dirty checking: sin save()
+
+        movimientoStockRepository.save(MovimientoStock.builder()
+                .producto(producto)
+                .tipo(TipoMovimiento.ENTRADA)
+                .cantidad(cantidad)
+                .build());
+    }
+
+    /**
+     * Demostración de rollback: descuenta stock y guarda el movimiento, y luego
+     * lanza una RuntimeException. Spring hace rollback automático, por lo que ni
+     * el UPDATE del producto ni el INSERT del movimiento quedan en la base de datos.
+     */
+    @Override
+    @Transactional
+    public void simularSalidaConError(Long id, int cantidad) {
+        registrarSalida(id, cantidad); // se une a la misma transacción (REQUIRED)
+        throw new RuntimeException("Fallo simulado despues de descontar stock y guardar el movimiento");
+    }
+
+    private void validarCantidad(int cantidad) {
+        if (cantidad <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor a cero.");
+        }
     }
 }
