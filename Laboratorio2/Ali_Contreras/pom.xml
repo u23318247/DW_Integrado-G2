@@ -18,7 +18,7 @@
     <description>API REST de productos - Laboratorio 2</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>21</java.version>
     </properties>
 
     <dependencies>

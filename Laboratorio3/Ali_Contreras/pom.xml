@@ -18,7 +18,7 @@
     <description>TDD en Spring Boot - Laboratorio 3</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>21</java.version>
     </properties>
 
     <dependencies>
