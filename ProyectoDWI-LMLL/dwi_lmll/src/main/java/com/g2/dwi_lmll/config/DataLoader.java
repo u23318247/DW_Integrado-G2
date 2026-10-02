@@ -39,6 +39,7 @@ public class DataLoader implements CommandLineRunner {
                 .imagenUrl("https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500")
                 .precioBase(new BigDecimal("49.90"))
                 .disponibilidad(true)
+                .stock(50)
                 .categoria(polos)
                 .build());
 
@@ -48,6 +49,7 @@ public class DataLoader implements CommandLineRunner {
                 .imagenUrl("https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=500")
                 .precioBase(new BigDecimal("89.90"))
                 .disponibilidad(true)
+                .stock(50)
                 .categoria(poleras)
                 .build());
 
@@ -57,6 +59,7 @@ public class DataLoader implements CommandLineRunner {
                 .imagenUrl("https://images.unsplash.com/photo-1517445312882-bc9910d016b7?w=500")
                 .precioBase(new BigDecimal("79.90"))
                 .disponibilidad(true)
+                .stock(50)
                 .categoria(pantalones)
                 .build());
 
@@ -66,6 +69,7 @@ public class DataLoader implements CommandLineRunner {
                 .imagenUrl("https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500")
                 .precioBase(new BigDecimal("129.90"))
                 .disponibilidad(true)
+                .stock(50)
                 .categoria(casacas)
                 .build());
 
@@ -75,6 +79,7 @@ public class DataLoader implements CommandLineRunner {
                 .imagenUrl("https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=500")
                 .precioBase(new BigDecimal("39.90"))
                 .disponibilidad(true)
+                .stock(50)
                 .categoria(accesorios)
                 .build());
 
@@ -84,6 +89,7 @@ public class DataLoader implements CommandLineRunner {
                 .imagenUrl("https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500")
                 .precioBase(new BigDecimal("39.90"))
                 .disponibilidad(true)
+                .stock(50)
                 .categoria(polos)
                 .build());
 
@@ -93,6 +99,7 @@ public class DataLoader implements CommandLineRunner {
                 .imagenUrl("https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=500")
                 .precioBase(new BigDecimal("69.90"))
                 .disponibilidad(true)
+                .stock(50)
                 .categoria(poleras)
                 .build());
 
@@ -102,6 +109,7 @@ public class DataLoader implements CommandLineRunner {
                 .imagenUrl("https://images.unsplash.com/photo-1542272604-780c96856592?w=500")
                 .precioBase(new BigDecimal("89.90"))
                 .disponibilidad(true)
+                .stock(50)
                 .categoria(pantalones)
                 .build());
 

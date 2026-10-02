@@ -21,4 +21,9 @@ public interface ProductoService {
     
     // Método interno para otras capas (ej. Ventas) que necesiten la Entidad real
     Producto obtenerEntidadPorId(Long id);
+
+    // Laboratorio 7: operaciones transaccionales de inventario
+    void registrarSalida(Long id, int cantidad);
+    void registrarEntrada(Long id, int cantidad);
+    void simularSalidaConError(Long id, int cantidad);
 }
