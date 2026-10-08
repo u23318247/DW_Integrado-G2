@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LMLL — La Moda te LLama</title>
+    <meta name="description" content="Colecciones de moda peruana. Prendas premium, cortes limpios y estilo auténtico."/>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"/>
+
+    <!-- Bootstrap 5.3 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"/>
+
+    <!-- Bootstrap Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"/>
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+  </head>
+
+  <body>
+    <!-- =============================
+         NAVBAR — Bootstrap responsive
+         ============================= -->
+    <header class="site-header">
+      <nav
+        class="navbar navbar-expand-md w-100 px-3 py-2"
+        aria-label="Navegación principal"
+      >
+        <!-- Marca -->
+        <a class="navbar-brand" th:href="@{/}" aria-label="LMLL Inicio">
+          <img
+            th:src="@{/img/logo.png}"
+            alt="La Moda te LLama"
+            style="height: 63px; width: auto"
+          />
+        </a>
+
+        <!-- Botón hamburguesa (Celular) -->
+        <button
+          class="navbar-toggler ms-auto me-2"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navMenu"
+          aria-controls="navMenu"
+          aria-expanded="false"
+          aria-label="Abrir menú"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Links + acciones -->
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="site-nav navbar-nav me-auto ms-4 gap-2">
+            <li class="nav-item">
+              <a class="nav-link active" th:href="@{/}">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/productos}">Productos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/carrito}">Carrito</a>
+            </li>
+          </ul>
+
+          <div class="d-flex align-items-center mt-2 mt-md-0 gap-3">
+            
+            <button
+              id="carrito-toggle"
+              class="cart-btn"
+              aria-label="Abrir carrito lateral"
+            >
+              <i class="bi bi-bag" style="font-size: 0.95rem"></i>
+              <span>Bolsa</span>
+              <span class="cart-badge" id="cart-count" style="display: none"></span>
+            </button>
+            
+            <a sec:authorize="isAnonymous()" th:href="@{/auth/login}" class="btn-lmll btn-outline-lmll">
+              <i class="bi bi-person me-1"></i> Entrar
+            </a>
+
+            <a sec:authorize="hasAnyRole('ADMIN', 'VENDEDOR')" th:href="@{/admin/dashboard}" class="btn-lmll btn-primary-lmll">
+              <i class="bi bi-gear-fill me-1"></i> Panel
+            </a>
+
+            <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-3">
+              <span class="text-muted-1 display-font" style="font-size: 0.95rem; letter-spacing: 0.5px;">
+                Hola, <strong style="color: var(--txt);" sec:authentication="name"></strong>
+              </span>
+              
+              <a th:href="@{/auth/logout}" class="btn-lmll" style="background-color: #ffffff; color: #000000; border: none; padding: 0.45rem 0.8rem;" title="Cerrar Sesión">
+                <i class="bi bi-box-arrow-right m-0" style="font-size: 1.1rem;"></i>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- ===============================
+         TICKER — Texto dinámico anuncio
+         =============================== -->
+    <div class="ticker-bar px-3" aria-live="polite" aria-label="Anuncio">
+      <span id="texto-dinamico"
+        >Descubre la próxima generación de moda peruana.</span
+      >
+    </div>
+
+    <!-- ===================
+         CONTENIDO PRINCIPAL
+         =================== -->
+    <main>
+      <div class="container py-4">
+        <div class="blog-grid">
+          <!-- Columna Principal -->
+          <section aria-label="Contenido principal">
+            <!-- título página -->
+            <div class="anim-1 mb-1">
+              <span class="pill-tag pill-nuevo">Colección 2026</span>
+            </div>
+            <h1
+              class="display-font anim-1"
+              style="
+                font-size: clamp(1.8rem, 4vw, 2.6rem);
+                font-weight: 600;
+                line-height: 1.2;
+                margin-bottom: 0.35rem;
+              "
+            >
+              Cultura &amp; Moda <em style="color: var(--brand)">peruana</em>
+            </h1>
+            <p
+              class="text-muted-1 anim-2"
+              style="
+                font-size: 0.93rem;
+                margin-bottom: 1.6rem;
+                max-width: 480px;
+              "
+            >
+              Prendas esenciales con identidad, cortes limpios y materiales
+              premium para tu día a día.
+            </p>
+
+            <!-- ================================= 
+                 HERO / BANNER (Imagenes Carrusel)
+                 ================================= -->
+            <div
+              class="hero anim-2"
+              role="img"
+              aria-label="Banner de colección LMLL"
+            >
+              <!-- Imágenes del carrusel -->
+              <img
+                class="banner-image active"
+                th:src="@{/img/Imagen-mov-1.jpg}"
+                alt="Colección LMLL — Look 1"
+                loading="eager"
+              />
+              <img
+                class="banner-image"
+                th:src="@{/img/Imagen-mov-2.PNG}"
+                alt="Colección LMLL — Look 2"
+                loading="eager"
+              />
+              <img
+                class="banner-image"
+                th:src="@{/img/llama-a-la-moda.PNG}"
+                alt="La llama a la moda — Colección especial"
+                loading="lazy"
+              />
+
+              <!-- Overlay -->
+              <div class="hero-overlay" aria-hidden="true"></div>
+
+              <!-- Texto hero -->
+              <div class="hero-body">
+                <p class="hero-eyebrow">Nueva temporada</p>
+                <h2 class="hero-title">
+                  Estilo que <em>nace</em><br />en el Perú
+                </h2>
+                <p class="hero-sub">
+                  Prendas con historia, cortes del presente.
+                </p>
+                <a th:href="@{/productos}" class="btn-lmll btn-primary-lmll">
+                  Ver colección &nbsp;<i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
+
+              <!-- Dots navegación -->
+              <div class="banner-dots" aria-label="Slides del banner">
+                <button class="banner-dot active" aria-label="Slide 1"></button>
+                <button class="banner-dot" aria-label="Slide 2"></button>
+                <button class="banner-dot" aria-label="Slide 3"></button>
+              </div>
+            </div>
+
+            <!-- ===========
+                 CARD OFERTA 
+                 =========== -->
+            <div
+              class="card-oferta anim-3 mt-4 d-flex flex-column flex-sm-row align-items-sm-center gap-3"
+            >
+              <div class="flex-grow-1">
+                <span class="pill-tag pill-limitado mb-2 d-inline-block"
+                  >Edición limitada</span
+                >
+                <h3 class="mb-1">Nuestra colección</h3>
+                <p class="text-muted-1" style="font-size: 0.88rem; margin: 0">
+                  Explora prendas esenciales, cortes limpios y materiales
+                  premium pensados para durar.
+                </p>
+              </div>
+              <a
+                href="productos.html"
+                class="btn-lmll btn-outline-lmll flex-shrink-0"
+              >
+                Ver productos &nbsp;<i class="bi bi-chevron-right"></i>
+              </a>
+            </div>
+          </section>
+          <!-- /columna principal -->
+
+          <!-- =======
+               SIDEBAR
+               ======= -->
+          <aside class="sidebar anim-3" aria-label="Novedades y ofertas">
+            <!-- Card novedades -->
+            <div class="card-lmll mb-3">
+              <h2 class="sidebar-title">Novedades</h2>
+              <ul class="lista-ofertas">
+                <li>Nueva cápsula "Del Cono a tu closet"</li>
+                <li>Abrigos edición limitada</li>
+                <li>Envío gratis desde S/ 199</li>
+              </ul>
+            </div>
+
+            <!-- Card mini-promo -->
+            <div
+              class="card-lmll"
+              style="
+                background: linear-gradient(
+                  135deg,
+                  rgba(212, 200, 122, 0.1),
+                  var(--panel)
+                );
+                border-color: rgba(212, 200, 122, 0.2);
+              "
+            >
+              <p class="pill-tag pill-limitado mb-2">Oferta del día</p>
+              <p
+                style="
+                  font-size: 0.85rem;
+                  color: var(--txt-2);
+                  margin-bottom: 0.5rem;
+                "
+              >
+                Compra dos productos y llévate el segundo a
+              </p>
+              <p
+                class="text-gold display-font"
+                style="font-size: 1.6rem; font-weight: 600; line-height: 1"
+              >
+                S/ 449
+              </p>
+              <p
+                style="
+                  font-size: 0.75rem;
+                  color: var(--txt-3);
+                  margin-top: 0.25rem;
+                "
+              >
+                Precio regular S/ 499
+              </p>
+              <a
+                href="productos.html"
+                class="btn-lmll btn-outline-lmll mt-3 w-100 justify-content-center"
+                style="
+                  border-color: rgba(212, 200, 122, 0.4);
+                  color: var(--accent-2);
+                "
+              >
+                Aprovechar oferta
+              </a>
+            </div>
+
+            <!-- Stats rapidas -->
+            <div class="card-lmll mt-3">
+              <h2 class="sidebar-title">En números</h2>
+              <div class="d-flex flex-column gap-2 mt-1">
+                <div
+                  class="d-flex justify-content-between align-items-center"
+                  style="font-size: 0.84rem"
+                >
+                  <span class="text-muted-1">Productos</span>
+                  <span id="stat-productos" class="text-brand fw-600">—</span>
+                </div>
+                <hr class="divider my-1" />
+                <div
+                  class="d-flex justify-content-between align-items-center"
+                  style="font-size: 0.84rem"
+                >
+                  <span class="text-muted-1">Clientes felices</span>
+                  <span class="text-brand fw-600">+1,200</span>
+                </div>
+                <hr class="divider my-1" />
+                <div
+                  class="d-flex justify-content-between align-items-center"
+                  style="font-size: 0.84rem"
+                >
+                  <span class="text-muted-1">Colecciones</span>
+                  <span class="text-brand fw-600">8</span>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <!-- ===============
+         CARRITO LATERAL
+         =============== -->
+    <div class="carrito-overlay" id="carrito-overlay" aria-hidden="true"></div>
+
+    <aside
+      id="carrito-panel"
+      class="carrito-panel"
+      style="right: -320px; transition: 0.3s"
+      aria-label="Carrito de compras"
+      role="complementary"
+    >
+      <div class="carrito-header">
+        <h4><i class="bi bi-bag me-2"></i>Tu bolsa</h4>
+        <button
+          id="cerrar-carrito"
+          class="close-btn"
+          aria-label="Cerrar carrito"
+        >
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="carrito-items" id="carrito-items">
+        <p
+          style="
+            font-size: 0.82rem;
+            color: var(--txt-4);
+            text-align: center;
+            padding: 1.5rem 0;
+          "
+        >
+          Tu bolsa está vacía.<br />¡Añade algo especial!
+        </p>
+      </div>
+
+      <div class="carrito-footer">
+        <div class="total-line">
+          <span>Total</span>
+          <strong>S/ <span id="carrito-total">0.00</span></strong>
+        </div>
+        <button
+          id="carrito-ver"
+          class="btn-lmll btn-primary-lmll w-100 justify-content-center"
+          style="
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+          "
+        >
+          Ver carrito completo &nbsp;<i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===========
+         MODAL PROMO
+         =========== -->
+    <div
+      id="promo-modal"
+      class="popupmodal"
+      style="display: none"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-titulo"
+    >
+      <div class="modal-content">
+        <button id="close-modal" class="close-btn" aria-label="Cerrar oferta">
+          <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="badge-promo">Oferta exclusiva</div>
+        <h3 id="modal-titulo">¡Bienvenido a LMLL!</h3>
+        <p>
+          Usa el código <span class="highlight">MODA10</span> en tu primera
+          compra y obtén un <span class="highlight">10% de descuento</span> en
+          toda la tienda.
+        </p>
+        <a
+          href="productos.html"
+          class="btn-lmll btn-primary-lmll w-100 justify-content-center"
+        >
+          Explorar ahora &nbsp;<i class="bi bi-arrow-right"></i>
+        </a>
+        <p style="font-size: 0.72rem; color: var(--txt-3); margin-top: 0.85rem">
+          *Válido solo en primera compra. Hasta agotar stock.
+        </p>
+      </div>
+    </div>
+
+    <!-- =============
+         PIE DE PAGINA
+         ============= -->
+    <footer class="footer">
+      <p>&copy; 2026 LMLL. Todos los derechos reservados.</p>
+      <p class="socials">
+        <a href="#">www.lmll.com.pe</a> &nbsp;|&nbsp;
+        <a href="#">@LmLL_</a> &nbsp;|&nbsp;
+      </p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script propio (Conectado mediante Thymyleaf)-->
+    <script th:src="@{/js/script.js}"></script>
+  </body>
+</html>

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LMLL — La Moda te LLama</title>
+    <meta name="description" content="Colecciones de moda peruana. Prendas premium, cortes limpios y estilo auténtico."/>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"/>
+
+    <!-- Bootstrap 5.3 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"/>
+
+    <!-- Bootstrap Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"/>
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+  </head>
+
+  <body>
+    <!-- =============================
+         NAVBAR — Bootstrap responsive
+         ============================= -->
+    <header class="site-header border-bottom">
+      <nav class="navbar navbar-expand-md w-100 px-3 py-2">
+        <a class="navbar-brand" th:href="@{/}">
+          <img
+            th:src="@{/img/logo.png}"
+            alt="La Moda te LLama"
+            style="height: 63px; width: auto"
+          />
+        </a>
+        <button
+          class="navbar-toggler ms-auto me-2"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navMenu"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="site-nav navbar-nav me-auto ms-4 gap-2">
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/}">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/productos}">Productos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/carrito}">Carrito</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <!-- ===================
+         CONTENIDO PRINCIPAL
+         =================== -->
+<main class="py-4">
+  <div class="container">
+    
+    <div class="mb-5 text-center checkout-hero">
+      <h1 class="display-font checkout-title">
+        Finalizar <em style="color: var(--brand);">Compra</em>
+      </h1>
+      <p class="checkout-subtitle">Completa tus datos para procesar tu pedido de forma segura.</p>
+    </div>
+
+    <form id="checkout-form" th:action="@{/pago/procesar-local}" method="POST" class="needs-validation" novalidate>
+      <div class="row g-4 align-items-start">
+        
+        <div class="col-lg-7">
+          <div class="card-lmll mb-4">
+            <h2 class="display-font h4 mb-4 text-gold"><i class="bi bi-geo-alt me-2"></i>Datos del Cliente</h2>
+            <div class="row g-4">
+              <div class="col-md-6">
+                <label class="form-label-lmll">Nombre completo</label>
+                <input type="text" name="clienteNombre" class="form-control form-input-lmll" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-lmll">Teléfono (9 dígitos)</label>
+                <input type="tel" name="clienteTelefono" class="form-control form-input-lmll" maxlength="9" pattern="[0-9]{9}" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label-lmll">Correo Electrónico</label>
+                <input type="email" name="clienteEmail" class="form-control form-input-lmll" placeholder="ejemplo@correo.com" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label-lmll">Dirección de Entrega</label>
+                <input type="text" name="clienteDireccion" class="form-control form-input-lmll" placeholder="Av. / Jr. / Calle, Distrito, Ciudad" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="choice-grid" role="radiogroup" aria-label="Tipo de comprobante">
+                  <label class="choice-card">
+                    <input type="radio" name="tipoComprobante" value="BOLETA" checked>
+                    <span class="choice-card-content">
+                      <i class="bi bi-person-vcard"></i>
+                      <span class="choice-card-title">Boleta</span>
+                      <span class="choice-card-caption">Ideal para compras personales.</span>
+                    </span>
+                  </label>
+                  <label class="choice-card">
+                    <input type="radio" name="tipoComprobante" value="FACTURA">
+                    <span class="choice-card-content">
+                      <i class="bi bi-building"></i>
+                      <span class="choice-card-title">Factura</span>
+                      <span class="choice-card-caption">Para compras con RUC.</span>
+                    </span>
+                  </label>
+                </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="checkout-resumen-card sticky-summary">
+            
+            <div class="checkout-resumen-header">
+              <h3 class="display-font mb-0 text-white">Resumen de tu bolsa</h3>
+            </div>
+            
+            <div class="checkout-resumen-content">
+              <div id="pago-productos-lista" class="mb-4">
+                  </div>
+              
+              <div class="checkout-divider"></div>
+              
+              <div class="checkout-total-box mt-0 mb-4">
+                <span class="checkout-total-label">Total a pagar</span>
+                <span class="checkout-total-price display-font">S/ <span id="pago-total">0.00</span></span>
+              </div>
+
+              <input type="hidden" id="input-total-hidden" name="total">
+
+              <button type="submit" class="btn-lmll btn-primary-lmll checkout-btn-main w-100 py-3">
+                <i class="bi bi-credit-card-2-front-fill me-2"></i> Ir a la pasarela segura
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</main>
+
+    <!-- =============
+         PIE DE PAGINA
+         ============= -->
+    <footer class="footer">
+      <p>&copy; 2026 LMLL. Todos los derechos reservados.</p>
+      <p class="socials">
+        <a href="#">www.lmll.com.pe</a> &nbsp;|&nbsp;
+        <a href="#">@LmLL_</a> &nbsp;|&nbsp;
+      </p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script propio -->
+    <script th:src="@{/js/pago.js}"></script>
+
+  </body>
+</html>

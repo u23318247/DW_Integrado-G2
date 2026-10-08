@@ -1,0 +1,30 @@
+services:
+  mysql:
+    #Version de MySQL 
+    image: 'mysql:8.4'
+    #Nombre del contenedor 
+    container_name: llamadb_mysql
+    #Configuraciones de caracteres
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      - 'MYSQL_DATABASE=llamadb'
+      - 'MYSQL_PASSWORD=llamadb'
+      - 'MYSQL_ROOT_PASSWORD=llamapass'
+      - 'MYSQL_USER=llama'
+    ports:
+      - '3309:3306'
+    volumes:
+      - ./db-init:/docker-entrypoint-initdb.d
+      - mysql_data:/var/lib/mysql
+    #Configuracion de chequeo del programa
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD || exit 1"]
+      interval: 10s       # Cada cuánto tiempo hará la comprobación
+      timeout: 5s         # Cuánto tiempo esperará por una respuesta antes de fallar
+      retries: 5          # Cuántos intentos fallidos para declararlo "unhealthy"
+      start_period: 30s   # Tiempo de gracia al iniciar (muy útil la primera vez mientras crea tus tablas)
+
+volumes:
+  mysql_data:

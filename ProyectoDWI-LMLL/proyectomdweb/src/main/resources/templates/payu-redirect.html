@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>LMLL - Conectando con la pasarela...</title>
+    <style>
+      body {
+        font-family: "Batang", serif;
+        text-align: center;
+        padding-top: 10%;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Conectando de forma segura con PayU...</h2>
+    <p>Por favor, no cierres ni recargues esta ventana.</p>
+
+    <form id="payu-form" method="POST" th:action="${payuUrl}">
+      <input type="hidden" name="merchantId" th:value="${merchantId}" />
+      <input type="hidden" name="accountId" th:value="${accountId}" />
+      <input type="hidden" name="description" th:value="${description}" />
+      <input type="hidden" name="referenceCode" th:value="${referenceCode}" />
+      <input
+        type="hidden"
+        name="amount"
+        th:value="${#numbers.formatDecimal(amount, 1, 2, 'POINT')}"
+      />
+      <input type="hidden" name="tax" value="0.00" />
+      <input type="hidden" name="taxReturnBase" value="0.00" />
+      <input type="hidden" name="currency" th:value="${currency}" />
+      <input type="hidden" name="signature" th:value="${signature}" />
+      <input type="hidden" name="buyerEmail" th:value="${buyerEmail}">
+      <input type="hidden" name="buyerFullName" th:value="${buyerFullName}"/>
+      <input type="hidden" name="responseUrl" th:value="${responseUrl}" />
+      <input type="hidden" name="test" th:value="${test}" />
+    </form>
+
+    <script>
+      // Dispara el envío hacia PayU inmediatamente al cargar los datos
+      document.getElementById("payu-form").submit();
+    </script>
+  </body>
+</html>

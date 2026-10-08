@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LMLL - Panel Administrativo (Dashboard)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin_styles.css}" />
+  </head>
+
+  <body>
+    <div class="d-flex">
+      <div class="sidebar d-flex flex-column" style="width: 260px">
+        <div class="p-4 text-center border-bottom border-dark mb-3">
+          <h4 class="display-font mt-2 fw-bold" style="letter-spacing: 2px">
+            LMLL ADMIN
+          </h4>
+          <span
+            class="badge bg-light text-dark px-3 py-1"
+            style="border-radius: 0; font-size: 0.75rem"
+            >PANEL GENERAL</span>
+        </div>
+        <a href="#" class="active"
+          ><i class="bi bi-speedometer2 me-2"></i> Resumen</a
+        >
+        <a th:href="@{/admin/productos}"
+          ><i class="bi bi-box-seam me-2"></i> Gestión Productos</a
+        >
+        <a th:href="@{/admin/pedidos}"
+          ><i class="bi bi-truck me-2"></i> Pedidos y Entregas</a
+        >
+        <a th:href="@{/admin/estadisticas}"
+        ><i class="bi bi-cart-check me-2"></i> Ventas e Ingresos</a>
+
+        <a
+          th:href="@{/auth/logout}"
+          class="mt-auto border-top border-dark text-danger"
+        >
+          <i class="bi bi-box-arrow-left me-2"></i> Cerrar Sesión
+        </a>
+      </div>
+
+      <div class="flex-grow-1 p-5">
+        <div
+          class="d-flex flex-column flex-md-row justify-content-between align-items-md-center border-bottom pb-4 mb-5 gap-3"
+        >
+          <div>
+            <h1 class="display-font mb-1 fw-bold">Resumen del Negocio</h1>
+            <p class="text-muted mb-0">
+              Monitoreo en tiempo real de La Moda te LLama
+            </p>
+          </div>
+
+          <div class="d-flex gap-2">
+            <a th:href="@{/}" class="btn btn-outline-lmll">
+              <i class="bi bi-shop me-2"></i> Ver Tienda Virtual
+            </a>
+            <a th:href="@{/admin/productos}" class="btn btn-lmll">
+              <i class="bi bi-pencil-square me-2"></i> Gestionar Productos
+            </a>
+          </div>
+        </div>
+
+        <!-- MENSAJES DE ÉXITO O ERROR -->
+        <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> <span th:text="${mensajeExito}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${mensajeError}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row g-4 mb-5">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div
+              class="kpi-card d-flex align-items-center justify-content-between"
+            >
+              <div>
+                <span class="text-uppercase text-muted small fw-bold"
+                  >Total Ventas</span
+                >
+                <h2 class="display-font fw-bold m-0 mt-1">
+                  S/ <span th:text="${totalIngresos}">0.00</span>
+                </h2>
+              </div>
+              <i class="bi bi-currency-exchange kpi-icon"></i>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div
+              class="kpi-card d-flex align-items-center justify-content-between"
+            >
+              <div>
+                <span class="text-uppercase text-muted small fw-bold"
+                  >Pedidos Pendientes</span
+                >
+                <h2
+                  class="display-font fw-bold m-0 mt-1"
+                  th:text="${pedidosPendientes}"
+                >
+                  0
+                </h2>
+              </div>
+              <i class="bi bi-clock-history kpi-icon text-warning"></i>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div
+              class="kpi-card d-flex align-items-center justify-content-between"
+            >
+              <div>
+                <span class="text-uppercase text-muted small fw-bold"
+                  >Prendas en Catálogo</span
+                >
+                <h2
+                  class="display-font fw-bold m-0 mt-1"
+                  th:text="${totalProductos}"
+                >
+                  0
+                </h2>
+              </div>
+              <i class="bi bi-tags kpi-icon"></i>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div
+              class="kpi-card d-flex align-items-center justify-content-between"
+            >
+              <div>
+                <span class="text-uppercase text-muted small fw-bold"
+                  >Clientes Registrados</span
+                >
+                <h2
+                  class="display-font fw-bold m-0 mt-1"
+                  th:text="${totalClientes}"
+                >
+                  0
+                </h2>
+              </div>
+              <i class="bi bi-people-fill kpi-icon"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN: ALERTA DE STOCK Y REPOSICIÓN DE PROVEEDORES -->
+        <div class="card border-0 mb-4" style="border-radius: 0; background-color: #fff; border: 1px solid #e3e3e3;">
+          <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+            <h5 class="display-font fw-bold m-0 text-danger">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>Alerta: Prendas por Agotarse (Reordenar a Proveedor)
+            </h5>
+            <span class="badge bg-danger" th:text="${productosStockBajo.size()} + ' prendas en nivel crítico'">0 críticas</span>
+          </div>
+          <div class="table-responsive p-0">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-dark">
+                <tr>
+                  <th>Código SKU</th>
+                  <th>Prenda</th>
+                  <th>Talla</th>
+                  <th>Color</th>
+                  <th>Stock Actual</th>
+                  <th>Estado Suministro</th>
+                  <th>Acción Proveedor</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:if="${#lists.isEmpty(productosStockBajo)}">
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="bi bi-check-circle text-success fs-4 d-block mb-1"></i>
+                    ¡Todo en orden! No hay prendas con stock crítico en este momento.
+                  </td>
+                </tr>
+                <tr th:each="item : ${productosStockBajo}">
+                  <td class="fw-bold font-monospace" th:text="${item.codigo}">SUD-01</td>
+                  <td th:text="${item.nombreCompleto}">Sudadera con Capucha</td>
+                  <td><span class="badge bg-secondary" th:text="${item.talla}">M</span></td>
+                  <td th:text="${item.color}">Negro</td>
+                  <td>
+                    <span class="badge bg-danger fs-6 px-2 py-1" th:text="${item.stock} + ' unids.'">15 unids.</span>
+                  </td>
+                  <td>
+                    <span th:if="${item.stock == 0}" class="badge bg-dark">Agotado</span>
+                    <span th:if="${item.stock > 0 and item.stock <= 15}" class="badge bg-danger">Urgente Reabastecer</span>
+                    <span th:if="${item.stock > 15}" class="badge bg-warning text-dark">Stock Bajo</span>
+                  </td>
+                  <td>
+                    <form th:action="@{/admin/productos/detalles/reabastecer/{id}(id=${item.id})}" method="post" class="d-inline-flex gap-1 align-items-center">
+                      <input type="number" name="cantidad" value="20" min="1" max="1000" class="form-control form-control-sm text-center" style="width: 70px; border-radius: 0;" title="Cantidad a ingresar">
+                      <button type="submit" class="btn btn-sm btn-dark" style="border-radius: 0;" title="Sumar stock recibido de proveedor">
+                        <i class="bi bi-plus-circle me-1"></i> +Stock
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div
+          class="card border-0 p-4"
+          style="
+            border-radius: 0;
+            background-color: #fff;
+            border: 1px solid #e3e3e3;
+          "
+        >
+          <div class="card-body">
+            <h4 class="display-font fw-bold mb-3">
+              <i class="bi bi-activity me-2"></i>Rendimiento del Sistema y Envíos
+            </h4>
+            <p class="text-muted mb-0" style="font-size: 0.95rem">
+              Monitoreo activo de catálogo, inventario en tiempo real y pedidos.
+              El vendedor puede identificar prendas agotadas para coordinar envíos de reposición con los proveedores de confección textil.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

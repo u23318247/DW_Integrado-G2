@@ -1,0 +1,429 @@
+/* ============================================================
+   LMLL — La Moda te LLama
+   Design System · v4.0 (Minimalista)
+   ============================================================ */
+
+/* ── 1. VARIABLES ──────────────────────────────────────────── */
+:root {
+  --bg:          #0d0909;
+  --bg-2:        #110c0c;
+  --panel:       #1a1010;
+  --panel-2:     #201414;
+  --panel-hover: #261818;
+
+  --txt:         #F5EDD8;
+  --txt-2:       #b8a98a;
+  --txt-3:       #6b5a48;
+  
+  --brand:       #C8102E;
+  --accent-2:    #D4AF37;
+
+  --border:      rgba(200, 16, 46, 0.12);
+  --border-2:    rgba(200, 16, 46, 0.22);
+
+  --radius:      14px;
+  --radius-sm:   8px;
+  --radius-pill: 999px;
+
+  --ease:        cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --dur:         0.22s;
+}
+
+/* ── 2. RESET & BASE ───────────────────────────────────────── */
+*, *::before, *::after { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--txt);
+  font-family: 'Batang', serif;
+  font-size: 15px;
+  line-height: 1.65;
+  min-height: 100vh;
+}
+
+img { 
+  display: block; 
+  max-width: 100%; }
+
+a { 
+  color: inherit; 
+  text-decoration: none; }
+
+/* Tipografía global heredada */
+.display-font, .hero-title, .navbar-brand, .checkout-title { 
+  font-family: 'Batang', serif; 
+}
+
+/* ── 3. COMPONENTES GLOBALES (Cards, Botones, Inputs) ──────── */
+/* Consolidación de todas las tarjetas y paneles del sistema */
+.card-lmll, .card-oferta, .cart-main-panel, 
+.checkout-resumen-card, .carrito-full-container {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  transition: transform var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.card-lmll:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-2);
+}
+/* Consolidación de botones */
+.btn-lmll, .checkout-btn-main {
+  display: inline-flex; justify-content: center; align-items: center; gap: 7px;
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius-pill);
+  font-family: 'Batang', serif;
+  font-size: 0.85rem; font-weight: 600; text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur), color var(--dur), border var(--dur);
+}
+
+.btn-primary-lmll, .checkout-btn-main { 
+  background: var(--brand); 
+  color: #fff; 
+  border: none; 
+}
+
+.btn-primary-lmll:hover, .checkout-btn-main:hover { background: #a00d24; }
+.btn-outline-lmll { 
+  background: transparent; 
+  color: var(--brand); 
+  border: 1px solid var(--border-2); 
+}
+
+.btn-outline-lmll:hover { 
+  background: rgba(200, 16, 46, 0.1); 
+  border-color: var(--brand); 
+}
+
+/* Inputs estándar */
+.form-input-lmll {
+  background-color: var(--bg-2); border: 1px solid var(--border-2);
+  color: var(--txt); border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem; font-family: 'Batang', serif; width: 100%;
+}
+
+.form-input-lmll:focus { 
+  border-color: var(--brand); 
+  outline: none; 
+}
+
+/* ── 4. NAVBAR & HEADER ────────────────────────────────────── */
+.site-header {
+  position: sticky; top: 0; z-index: 1000;
+  background: rgba(13, 9, 9, 0.95); border-bottom: 1px solid var(--border);
+}
+
+.navbar-brand { font-size: 1.45rem; font-weight: 600; color: var(--brand) !important; }
+
+.site-nav .nav-link {
+  color: var(--txt-2) !important; font-size: 0.85rem; font-weight: 600;
+  text-transform: uppercase; padding: 0.45rem 0.85rem !important;
+  transition: color var(--dur);
+}
+
+.site-nav .nav-link:hover, .site-nav .nav-link.active { color: var(--brand) !important; }
+
+.cart-btn {
+  display: flex; align-items: center; gap: 6px; position: relative;
+  padding: 0.38rem 0.85rem; border-radius: var(--radius-pill);
+  border: 1px solid var(--border-2); color: var(--txt-3) !important;
+}
+
+.cart-btn:hover { 
+  border-color: var(--brand); 
+  color: var(--brand) !important; 
+}
+
+.cart-badge {
+  position: absolute; top: -6px; right: -8px; background: var(--accent-2);
+  color: #000; font-size: 0.65rem; font-weight: 700; width: 18px; height: 18px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+
+/* ── 5. HERO & TICKER ──────────────────────────────────────── */
+.ticker-bar { 
+  background: var(--panel-2); 
+  border-bottom: 1px solid var(--border); 
+  padding: 8px 0; 
+  font-size: 0.8rem; 
+  text-align: center; 
+}
+
+.ticker-bar strong { color: var(--brand); }
+
+.hero { 
+  position: relative; 
+  min-height: 480px; 
+  border-radius: var(--radius); 
+  overflow: hidden; 
+  margin-bottom: 2rem; 
+  background: var(--panel); 
+}
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(13, 9, 9, 0.95) 0%, rgba(13, 9, 9, 0.3) 50%, transparent 100%);
+  z-index: 1;
+}
+.hero-body { 
+  position: relative; 
+  z-index: 2; 
+  padding: 3rem; 
+  height: 100%; 
+  min-height: 480px; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: flex-end; 
+}
+
+.hero-title { 
+  font-size: clamp(2rem, 5vw, 3.5rem); 
+  color: #fff; margin-bottom: 1rem; 
+}
+.hero-title em { 
+  color: var(--brand); 
+  font-style: italic; 
+}
+
+.banner-image { 
+  position: absolute; 
+  inset: 0; width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
+  opacity: 0; 
+  transition: opacity 1s; 
+}
+
+.banner-image.active { opacity: 1; }
+.banner-dots {
+  position: absolute;
+  bottom: 2.5rem; 
+  right: 3rem;
+  z-index: 3;
+  display: flex; 
+  gap: 10px;
+}
+.banner-dot {
+  width: 8px; 
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+}
+.banner-dot:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+.banner-dot.active {
+  background: var(--brand);
+  transform: scale(1.5);
+  box-shadow: 0 0 12px rgba(200, 16, 46, 0.6);
+}
+/* ── 6. UTILIDADES & LAYOUT ────────────────────────────────── */
+.blog-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 240px; 
+  gap: 1.5rem; 
+}
+@media (max-width: 768px) { 
+  .blog-grid { grid-template-columns: 1fr; } 
+  .sidebar { order: -1; } 
+}
+
+.footer { 
+  margin-top: 4rem; 
+  border-top: 1px solid var(--border); 
+  background: var(--panel); 
+  padding: 2rem; text-align: center; 
+  color: var(--txt-3); 
+}
+
+.text-brand { color: var(--brand); } 
+.text-gold { color: var(--accent-2); } 
+.text-muted-1 { color: var(--txt-2); }
+
+.lista-filtros {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lista-filtros li a {
+  display: block;
+  padding: 0.6rem 1rem;
+  color: var(--txt-2);
+  font-size: 0.95rem;
+  transition: all var(--dur) var(--ease);
+  border-left: 3px solid transparent;
+  margin-bottom: 0.2rem;
+}
+
+.lista-filtros li a:hover {
+  color: var(--txt);
+  background: rgba(200, 16, 46, 0.05); 
+}
+
+.lista-filtros li a.active {
+  color: var(--brand);
+  font-weight: 600;
+  border-left: 3px solid var(--brand); 
+  background: rgba(200, 16, 46, 0.08); 
+}
+
+/* ── 7. CARRITO LATERAL & MODALES ──────────────────────────── */
+.carrito-panel {
+  position: fixed; top: 0; right: -320px; width: 320px; height: 100vh;
+  background: var(--panel); border-left: 1px solid var(--border); z-index: 1050;
+  display: flex; flex-direction: column; transition: right 0.3s;
+}
+.carrito-overlay { position: fixed; 
+  inset: 0; 
+  background: rgba(0, 0, 0, 0.6); 
+  z-index: 1040; 
+  display: none; 
+}
+.carrito-overlay.active { display: block; }
+
+.popupmodal { 
+  position: fixed; 
+  inset: 0; 
+  background: rgba(0, 0, 0, 0.8); 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  z-index: 2000; 
+}
+.modal-content { 
+  background: var(--panel); 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius); 
+  padding: 2rem; 
+  max-width: 400px; 
+  text-align: center; 
+  position: relative; 
+  width: 90%; 
+}
+.close-btn { 
+  position: absolute; 
+  top: 10px; right: 15px; 
+  font-size: 1.5rem; 
+  background: none; 
+  border: none; 
+  color: var(--txt-2); 
+  cursor: pointer; 
+}
+
+/* ── 8. PRODUCTOS & CHECKOUT ───────────────────────────────── */
+.product-card-lmll {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: all 0.4s var(--ease);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer; /* Hace que el usuario sepa que puede clickear toda la tarjeta */
+  position: relative;
+}
+.product-card-lmll:hover {
+  transform: translateY(-6px);
+  border-color: rgba(200, 16, 46, 0.4); /* Resalte rojo corporativo */
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4), 0 0 15px rgba(200, 16, 46, 0.1);
+}
+.product-img-wrap { 
+  width: 100%; 
+  aspect-ratio: 4/5; 
+  background: var(--panel-2); 
+  overflow: hidden; 
+  border-radius: var(--radius-sm); 
+  position: relative; 
+}
+.product-img-wrap img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
+}
+.product-info { padding: 1rem 0; }
+.product-title { 
+  font-size: 1rem; 
+  color: var(--txt); 
+  margin-bottom: 0.3rem; 
+}
+.product-price { 
+  font-size: 1.1rem; 
+  font-weight: 600; 
+  color: var(--brand); 
+}
+/* El contenedor del botón oculto */
+.product-overlay {
+  position: absolute;
+  bottom: 0; left: 0; width: 100%;
+  padding: 1.5rem;
+  background: linear-gradient(to top, rgba(13, 9, 9, 0.95), transparent);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s var(--ease);
+  display: flex;
+  align-items: flex-end;
+  pointer-events: none; /* Deja que el click pase a la tarjeta padre */
+}
+
+/* AQUÍ ESTÁ LA MAGIA: Aparece al hacer hover en la tarjeta */
+.product-card-lmll:hover .product-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Mejora visual del botón Añadir a Bolsa */
+.product-overlay .btn-primary-lmll {
+  background: rgba(200, 16, 46, 0.95);
+  backdrop-filter: blur(4px); /* Efecto cristal */
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 4px 15px rgba(200, 16, 46, 0.3);
+  pointer-events: auto; /* El botón en sí es clickeable */
+}
+
+.product-overlay .btn-primary-lmll:hover {
+  background: #e8213f;
+}
+
+.payment-methods-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 1rem; 
+  margin-top: 1rem; }
+.payment-card input[type="radio"] { display: none; }
+.payment-card-content { 
+  background: var(--panel-2); 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius-sm); 
+  padding: 1rem; 
+  text-align: center; 
+  cursor: pointer; }
+.payment-card input[type="radio"]:checked + .payment-card-content { 
+  border-color: var(--brand); 
+  color: var(--brand); 
+  background: rgba(200, 16, 46, 0.05); 
+}
+
+.checkout-line, .checkout-total-box { 
+  display: flex; 
+  justify-content: space-between; 
+  margin-bottom: 1rem; 
+  align-items: center; 
+}
+.checkout-total-price { 
+  font-size: 2rem; 
+  font-weight: 700; 
+  color: var(--brand); 
+}

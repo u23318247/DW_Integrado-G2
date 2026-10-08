@@ -1,0 +1,160 @@
+<!-- Contenedor Principal de Productos con Angular -->
+<div class="row g-4">
+  <!-- SIDEBAR DE CATEGORÍAS ANGULAR -->
+  <aside class="col-lg-3 anim-2">
+    <div class="card-lmll sticky-filters">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="sidebar-title mb-0" style="font-size: 1.15rem;">Categorías</h2>
+        <span class="badge" style="background-color: rgba(200, 16, 46, 0.2); color: var(--brand); font-size: 0.75rem;">Angular SPA</span>
+      </div>
+
+      <!-- Buscador en tiempo real Angular -->
+      <div class="mb-3">
+        <div class="input-group">
+          <input 
+            type="text" 
+            class="form-control form-input-lmll" 
+            placeholder="Buscar prenda..." 
+            [(ngModel)]="textoBusqueda"
+            (keyup)="buscar()"
+            style="font-size: 0.85rem; padding: 0.45rem 0.75rem;"
+          />
+          <button class="btn btn-outline-lmll" (click)="buscar()" style="border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 0 0.75rem;">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </div>
+
+      <ul class="lista-filtros mb-4">
+        <li>
+          <a href="javascript:void(0)" 
+             class="filtro-cat" 
+             [class.active]="categoriaSeleccionada === undefined"
+             (click)="filtrarCategoria(undefined)">
+            Todos los productos
+          </a>
+        </li>
+        <li *ngFor="let cat of categorias">
+          <a href="javascript:void(0)" 
+             class="filtro-cat" 
+             [class.active]="categoriaSeleccionada === cat.id"
+             (click)="filtrarCategoria(cat.id)">
+            {{ cat.nombre }}
+          </a>
+        </li>
+      </ul>
+
+      <!-- Filtro Género -->
+      <div class="pt-3 border-top" style="border-color: var(--border) !important;">
+        <label class="form-label text-muted-1 mb-2" style="font-size: 0.85rem;">Filtrar por Género:</label>
+        <div class="d-flex flex-wrap gap-2">
+          <button 
+            class="btn btn-sm" 
+            [ngClass]="generoSeleccionado === 'Todos' ? 'btn-lmll btn-primary-lmll' : 'btn-lmll btn-outline-lmll'"
+            style="padding: 0.25rem 0.7rem; font-size: 0.78rem;"
+            (click)="filtrarGenero('Todos')">
+            Todos
+          </button>
+          <button 
+            class="btn btn-sm" 
+            [ngClass]="generoSeleccionado === 'Unisex' ? 'btn-lmll btn-primary-lmll' : 'btn-lmll btn-outline-lmll'"
+            style="padding: 0.25rem 0.7rem; font-size: 0.78rem;"
+            (click)="filtrarGenero('Unisex')">
+            Unisex
+          </button>
+          <button 
+            class="btn btn-sm" 
+            [ngClass]="generoSeleccionado === 'Hombre' ? 'btn-lmll btn-primary-lmll' : 'btn-lmll btn-outline-lmll'"
+            style="padding: 0.25rem 0.7rem; font-size: 0.78rem;"
+            (click)="filtrarGenero('Hombre')">
+            Hombre
+          </button>
+          <button 
+            class="btn btn-sm" 
+            [ngClass]="generoSeleccionado === 'Mujer' ? 'btn-lmll btn-primary-lmll' : 'btn-lmll btn-outline-lmll'"
+            style="padding: 0.25rem 0.7rem; font-size: 0.78rem;"
+            (click)="filtrarGenero('Mujer')">
+            Mujer
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO DE PRODUCTOS ANGULAR -->
+  <div class="col-lg-9 anim-3">
+    <!-- Barra superior con contador y feedback -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <p class="text-muted-1 mb-0" style="font-size: 0.9rem;">
+        Mostrando <strong style="color: var(--txt);">{{ productosFiltrados.length }}</strong> productos exclusivos 
+        <span *ngIf="categoriaSeleccionada" class="text-brand">(filtrado)</span>
+      </p>
+
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn-lmll btn-outline-lmll" style="padding: 0.35rem 0.8rem; font-size: 0.8rem;" (click)="cargarTodo()">
+          <i class="bi bi-arrow-clockwise" [class.spin-anim]="cargando"></i> Actualizar
+        </button>
+      </div>
+    </div>
+
+    <!-- Spinner cargando -->
+    <div *ngIf="cargando" class="text-center py-5">
+      <div class="spinner-border text-danger" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Cargando catálogo...</span>
+      </div>
+      <p class="text-muted-1 mt-3" style="font-size: 0.9rem;">Cargando catálogo con Angular...</p>
+    </div>
+
+    <!-- Mensaje si hay error -->
+    <div *ngIf="errorMensaje && !cargando" class="alert alert-dark text-center py-4" style="background-color: var(--panel); border: 1px solid var(--brand); color: var(--txt);">
+      <i class="bi bi-exclamation-circle text-brand fs-2 mb-2 d-block"></i>
+      <p class="mb-2">{{ errorMensaje }}</p>
+      <button class="btn-lmll btn-primary-lmll" (click)="cargarTodo()">Reintentar</button>
+    </div>
+
+    <!-- Grid de productos -->
+    <div *ngIf="!cargando && !errorMensaje" class="row g-4">
+      <div class="col-md-6 col-xl-4" *ngFor="let producto of productosFiltrados">
+        <div class="product-card-lmll">
+          <div class="product-img-wrap">
+            <img [src]="producto.imagenUrl" [alt]="producto.nombre" onerror="this.src='https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=600'" />
+            
+            <!-- Badge Género -->
+            <span class="badge position-absolute top-0 end-0 m-2" style="background: rgba(13, 9, 9, 0.75); color: var(--accent-2); border: 1px solid var(--border-2); font-size: 0.7rem; font-family: 'DM Sans', sans-serif;">
+              {{ producto.genero }}
+            </span>
+
+            <div class="product-overlay">
+              <button class="btn-lmll btn-primary-lmll btn-glow w-100 justify-content-center" (click)="agregarAlCarritoGlobal(producto)">
+                Añadir a bolsa <i class="bi bi-bag-plus ms-1"></i>
+              </button>
+            </div>
+          </div>
+          <div class="product-info p-3">
+            <h3 class="product-title mb-1" style="font-size: 1.05rem; font-weight: 600; color: var(--txt);">
+              {{ producto.nombre }}
+            </h3>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <p class="product-price mb-0" style="color: var(--brand); font-weight: 700; font-size: 1.1rem;">
+                S/ {{ producto.precioBase | number:'1.2-2' }}
+              </p>
+              <button class="btn btn-sm btn-outline-danger p-1 px-2 d-md-none" (click)="agregarAlCarritoGlobal(producto)">
+                <i class="bi bi-bag-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerta si no hay resultados -->
+      <div class="col-12" *ngIf="productosFiltrados.length === 0">
+        <div class="card-lmll text-center py-5">
+          <i class="bi bi-search text-brand mb-3" style="font-size: 2.5rem; display: block;"></i>
+          <h4 class="text-light">No hay prendas disponibles</h4>
+          <p class="text-muted-1 mb-3">No encontramos prendas para este filtro o búsqueda.</p>
+          <button class="btn-lmll btn-outline-lmll" (click)="limpiarFiltros()">Mostrar todos los productos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
