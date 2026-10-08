@@ -92,7 +92,11 @@
               <i class="bi bi-gear-fill me-1"></i> Panel
             </a>
 
-            <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-3">
+            <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+              <a th:href="@{/mis-pedidos}" class="btn-lmll btn-outline-lmll" style="padding: 0.45rem 0.8rem; font-size: 0.85rem;" title="Ver mis compras y seguimiento">
+                <i class="bi bi-box2-heart me-1"></i> Mis Pedidos
+              </a>
+
               <span class="text-muted-1 display-font" style="font-size: 0.95rem; letter-spacing: 0.5px;">
                 Hola, <strong style="color: var(--txt);" sec:authentication="name"></strong>
               </span>

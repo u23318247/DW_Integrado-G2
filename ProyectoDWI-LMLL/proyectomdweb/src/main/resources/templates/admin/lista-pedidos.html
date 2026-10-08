@@ -47,6 +47,22 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
+            <!-- FILTROS RÁPIDOS POR ESTADO -->
+            <div class="d-flex gap-2 mb-3 flex-wrap">
+                <button type="button" class="btn btn-sm btn-dark filter-btn active" onclick="filtrarPedidos('TODOS', this)">
+                    Todos (<span th:text="${pedidos.size()}">0</span>)
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-primary filter-btn" onclick="filtrarPedidos('PAGADO', this)">
+                    <i class="bi bi-box-seam me-1"></i> Por Despachar
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-warning text-dark filter-btn" onclick="filtrarPedidos('ENVIADO', this)">
+                    <i class="bi bi-truck me-1"></i> En Camino
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-success filter-btn" onclick="filtrarPedidos('ENTREGADO', this)">
+                    <i class="bi bi-check2-circle me-1"></i> Entregados
+                </button>
+            </div>
+
             <!-- TABLA DE PEDIDOS -->
             <div class="card border-0" style="border-radius: 0; border: 1px solid #e3e3e3;">
                 <div class="table-responsive">
@@ -68,7 +84,7 @@
                                     No hay pedidos registrados en este momento.
                                 </td>
                             </tr>
-                            <tr th:each="ped : ${pedidos}">
+                            <tr th:each="ped : ${pedidos}" class="fila-pedido" th:data-estado="${ped.estado.name()}">
                                 <td class="fw-bold font-monospace">#[[${ped.id}]]</td>
                                 <td class="fw-bold text-success">S/ [[${ped.total}]]</td>
                                 <td style="max-width: 250px;">
@@ -119,5 +135,28 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function filtrarPedidos(estado, boton) {
+            // Actualizar botones visuales
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.classList.contains('btn-dark')) {
+                    btn.className = 'btn btn-sm btn-outline-dark filter-btn';
+                }
+            });
+            boton.classList.add('active');
+
+            // Filtrar filas
+            const filas = document.querySelectorAll('.fila-pedido');
+            filas.forEach(fila => {
+                const estadoFila = fila.getAttribute('data-estado');
+                if (estado === 'TODOS' || estadoFila === estado) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+        }
+    </script>
 </body>
 </html>

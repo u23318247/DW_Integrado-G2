@@ -17,4 +17,6 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
     BigDecimal sumarTotalIngresosPorEstado(@Param("estado") EstadoPedido estado);
 
     List<Venta> findByPedidoEstadoAndFechaEmisionBetween(EstadoPedido estado, LocalDateTime inicio, LocalDateTime fin);
+
+    java.util.Optional<Venta> findByPedidoId(Long pedidoId);
 }
