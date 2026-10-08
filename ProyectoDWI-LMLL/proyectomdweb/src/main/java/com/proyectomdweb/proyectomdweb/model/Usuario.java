@@ -44,13 +44,12 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if ("admin@email.com".equalsIgnoreCase(this.email) || "ROLE_ADMIN".equalsIgnoreCase(this.rol)) {
-            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
-        } 
-        if ("ROLE_VENDEDOR".equalsIgnoreCase(this.rol)) {
-            return List.of(new SimpleGrantedAuthority("ROLE_VENDEDOR"), new SimpleGrantedAuthority("ROLE_USER"));
-        }
-        return List.of(new SimpleGrantedAuthority("ROLE_CLIENTE"), new SimpleGrantedAuthority("ROLE_USER"));
+        Rol rolEnum = Rol.desdeTexto(this.rol, this.email);
+        return switch (rolEnum) {
+            case ROLE_ADMIN -> List.of(new SimpleGrantedAuthority(Rol.ROLE_ADMIN.name()), new SimpleGrantedAuthority("ROLE_USER"));
+            case ROLE_VENDEDOR -> List.of(new SimpleGrantedAuthority(Rol.ROLE_VENDEDOR.name()), new SimpleGrantedAuthority("ROLE_USER"));
+            case ROLE_CLIENTE -> List.of(new SimpleGrantedAuthority(Rol.ROLE_CLIENTE.name()), new SimpleGrantedAuthority("ROLE_USER"));
+        };
     }
     
     @Override

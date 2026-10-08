@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,6 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -29,9 +31,13 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // 1. Las rutas de administración son para ADMIN y VENDEDOR
+                // 1. Estadísticas e Ingresos son de acceso exclusivo para ADMIN (Clean Code RBAC)
+                .requestMatchers("/admin/estadisticas/**").hasRole("ADMIN")
+                // 2. Gestión de Pedidos, Catálogo y Despacho para ADMIN y VENDEDOR
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "VENDEDOR")
-                // 2. Rutas públicas: Tienda, API, Angular y todos los recursos estáticos
+                // 3. Área privada del comprador
+                .requestMatchers("/mis-pedidos/**").authenticated()
+                // 4. Rutas públicas: Tienda, API, Angular y todos los recursos estáticos
                 .requestMatchers(
                     "/",
                     "/productos/**",

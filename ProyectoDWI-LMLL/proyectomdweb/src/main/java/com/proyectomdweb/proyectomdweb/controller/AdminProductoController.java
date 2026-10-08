@@ -4,6 +4,7 @@ import com.proyectomdweb.proyectomdweb.dtos.ProductoDTO;
 import com.proyectomdweb.proyectomdweb.service.CategoriaService;
 import com.proyectomdweb.proyectomdweb.service.ProductoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,8 +68,9 @@ public class AdminProductoController {
         return "admin/formulario-producto";
     }
 
-    // --- (D) ELIMINAR: Borra la prenda de la BD --- //
+    // --- (D) ELIMINAR: Borra la prenda de la BD (Solo Administrador) --- //
     @GetMapping("/eliminar/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String eliminarProducto(@PathVariable Long id,
                                    RedirectAttributes redirectAttributes) {
         try {
