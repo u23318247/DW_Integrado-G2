@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import com.proyectomdweb.proyectomdweb.service.EmailService;
+import com.proyectomdweb.proyectomdweb.repository.UsuarioRepository;
 import java.util.Map;
 
 @Controller
@@ -19,11 +21,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CheckoutController {
 
-    private final VentaPresentacionService  ventaService;
-    private final VentaRepository           ventaRepository;
-    private final UsuarioService            usuarioService; 
-    private final com.proyectomdweb.proyectomdweb.service.EmailService emailService;
-    private final com.proyectomdweb.proyectomdweb.repository.UsuarioRepository usuarioRepository; 
+    private final VentaPresentacionService ventaService;
+    private final VentaRepository          ventaRepository;
+    private final UsuarioService           usuarioService; 
+    private final EmailService             emailService;
+    private final UsuarioRepository        usuarioRepository; 
 
     // Datos estáticos del Sandbox de prueba de PayU Latam
     private final String MERCHANT_ID = "508029";

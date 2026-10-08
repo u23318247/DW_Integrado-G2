@@ -18,6 +18,10 @@ public interface ProductoService {
     // Métodos de escritura
     ProductoDTO guardar(ProductoDTO productoDto);
     void eliminar(Long id);
+
+    // Métodos de inventario y stock
+    void reabastecerStock(Long detalleId, Integer cantidad, String proveedor);
+    List<com.proyectomdweb.proyectomdweb.model.ProductoDetalle> obtenerProductosStockCritico(int limite);
     
     // Método interno para otras capas (ej. Ventas) que necesiten la Entidad real
     Producto obtenerEntidadPorId(Long id);

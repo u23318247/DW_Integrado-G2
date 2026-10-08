@@ -1,13 +1,17 @@
 package com.proyectomdweb.proyectomdweb.controller;
 
-import com.proyectomdweb.proyectomdweb.model.Producto;
 import com.proyectomdweb.proyectomdweb.dtos.ProductoDTO;
-import com.proyectomdweb.proyectomdweb.service.ProductoService;
 import com.proyectomdweb.proyectomdweb.service.CategoriaService;
+import com.proyectomdweb.proyectomdweb.service.ProductoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -15,8 +19,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 public class AdminProductoController {
 
-    private final ProductoService   productoService;
-    private final CategoriaService  categoriaService;
+    private final ProductoService  productoService;
+    private final CategoriaService categoriaService;
 
     // --- (R) LEER: Muestra una tabla estilo Excel para el administrador --- //
     @GetMapping
@@ -25,7 +29,7 @@ public class AdminProductoController {
         return "admin/lista-productos";
     }
 
-     // --- (C) CREAR: Muestra el formulario vacío --- //
+    // --- (C) CREAR: Muestra el formulario vacío --- //
     @GetMapping("/nuevo")
     public String mostrarFormularioDeCrear(Model model) {
         model.addAttribute("producto", new ProductoDTO(null, "", "Unisex", "", null, true, null, ""));
@@ -38,7 +42,6 @@ public class AdminProductoController {
     public String guardarProducto(@ModelAttribute ProductoDTO productoDto,
                                   RedirectAttributes redirectAttributes) {
         try {
-            // El controlador delega todo al servicio.
             productoService.guardar(productoDto);
             redirectAttributes.addFlashAttribute("exito", "Prenda guardada correctamente en el catálogo.");
         } catch (Exception e) {
@@ -64,8 +67,6 @@ public class AdminProductoController {
         return "admin/formulario-producto";
     }
 
-    private final com.proyectomdweb.proyectomdweb.repository.ProductoDetalleRepository productoDetalleRepository;
-
     // --- (D) ELIMINAR: Borra la prenda de la BD --- //
     @GetMapping("/eliminar/{id}")
     public String eliminarProducto(@PathVariable Long id,
@@ -79,7 +80,7 @@ public class AdminProductoController {
         return "redirect:/admin/productos";
     }
 
-    // --- (PROVEEDORES / REABASTECER STOCK) --- //
+    // --- (PROVEEDORES / REABASTECER STOCK VÍA SERVICE) --- //
     @PostMapping("/detalles/reabastecer/{id}")
     public String reabastecerStock(
             @PathVariable Long id,
@@ -87,15 +88,9 @@ public class AdminProductoController {
             @RequestParam(value = "proveedor", defaultValue = "Proveedor Local") String proveedor,
             RedirectAttributes redirectAttributes) {
         try {
-            var detalleOpt = productoDetalleRepository.findById(id);
-            if (detalleOpt.isPresent()) {
-                var detalle = detalleOpt.get();
-                int stockAnterior = detalle.getStock() != null ? detalle.getStock() : 0;
-                detalle.setStock(stockAnterior + cantidad);
-                productoDetalleRepository.save(detalle);
-                redirectAttributes.addFlashAttribute("mensajeExito", 
-                    "¡Stock ingresado! Se sumaron +" + cantidad + " unidades recibidas de [" + proveedor + "] a la prenda: " + detalle.getNombreCompleto());
-            }
+            productoService.reabastecerStock(id, cantidad, proveedor);
+            redirectAttributes.addFlashAttribute("mensajeExito", 
+                "¡Stock ingresado! Se sumaron +" + cantidad + " unidades recibidas de [" + proveedor + "].");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("mensajeError", "Error al registrar ingreso de mercadería: " + e.getMessage());
         }

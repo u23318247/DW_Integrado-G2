@@ -13,13 +13,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import com.proyectomdweb.proyectomdweb.model.ProductoDetalle;
+import com.proyectomdweb.proyectomdweb.repository.ProductoDetalleRepository;
+import com.proyectomdweb.proyectomdweb.exception.RecursoNoEncontradoException;
+
 @Service
 @RequiredArgsConstructor
 public class ProductoServiceIm implements ProductoService {
     
-    private final ProductoRepository  productoRepository;
-    private final ProductoMapper      productoMapper; 
-    private final CategoriaRepository categoriaRepository;
+    private final ProductoRepository        productoRepository;
+    private final ProductoMapper            productoMapper; 
+    private final CategoriaRepository       categoriaRepository;
+    private final ProductoDetalleRepository  productoDetalleRepository;
     
     @Override
     @Transactional(readOnly = true)
@@ -118,6 +123,22 @@ public class ProductoServiceIm implements ProductoService {
     @Transactional(readOnly = true)
     public Producto obtenerEntidadPorId(Long id) {
         return productoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Producto no encontrado con ID: " + id));
+    }
+
+    @Override
+    @Transactional
+    public void reabastecerStock(Long detalleId, Integer cantidad, String proveedor) {
+        ProductoDetalle detalle = productoDetalleRepository.findById(detalleId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Detalle de producto no encontrado con ID: " + detalleId));
+        int stockActual = (detalle.getStock() != null) ? detalle.getStock() : 0;
+        detalle.setStock(stockActual + cantidad);
+        productoDetalleRepository.save(detalle);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductoDetalle> obtenerProductosStockCritico(int limite) {
+        return productoDetalleRepository.findByStockLessThanEqualOrderByStockAsc(limite);
     }
 }

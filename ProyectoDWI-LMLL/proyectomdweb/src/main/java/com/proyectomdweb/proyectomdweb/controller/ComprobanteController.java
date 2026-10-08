@@ -4,21 +4,25 @@ import com.proyectomdweb.proyectomdweb.model.Usuario;
 import com.proyectomdweb.proyectomdweb.model.Venta;
 import com.proyectomdweb.proyectomdweb.repository.UsuarioRepository;
 import com.proyectomdweb.proyectomdweb.repository.VentaRepository;
+import com.proyectomdweb.proyectomdweb.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/comprobante")
 @RequiredArgsConstructor
 public class ComprobanteController {
 
-    private final VentaRepository ventaRepository;
+    private final VentaRepository   ventaRepository;
     private final UsuarioRepository usuarioRepository;
-    private final com.proyectomdweb.proyectomdweb.service.EmailService emailService;
+    private final EmailService      emailService;
 
     @GetMapping("/{id}")
     public String verComprobante(@PathVariable Long id, Model model) {
@@ -39,11 +43,11 @@ public class ComprobanteController {
     }
 
     // Endpoint para enviar o reenviar manualmente la boleta/factura por correo
-    @org.springframework.web.bind.annotation.PostMapping("/enviar-correo/{id}")
+    @PostMapping("/enviar-correo/{id}")
     public String enviarComprobantePorCorreo(
             @PathVariable Long id, 
-            @org.springframework.web.bind.annotation.RequestParam("email") String email,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
+            @RequestParam("email") String email,
+            RedirectAttributes flash) {
         
         Venta venta = ventaRepository.findById(id).orElse(null);
         if (venta != null) {

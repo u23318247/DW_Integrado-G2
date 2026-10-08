@@ -17,7 +17,6 @@ public class AdminController {
     private final ProductoService          productoService;
     private final UsuarioService           usuarioService;
     private final VentaPresentacionService ventaService; 
-    private final com.proyectomdweb.proyectomdweb.repository.ProductoDetalleRepository productoDetalleRepository;
 
     @GetMapping("/dashboard")
     public String mostrarDashboard(Model model) {
@@ -27,8 +26,8 @@ public class AdminController {
         model.addAttribute("totalIngresos", ventaService.obtenerTotalIngresosReales());
         model.addAttribute("pedidosPendientes", ventaService.obtenerCantidadPedidosPendientes());
         
-        // Prendas con stock bajo o agotándose (umbral: <= 25 unidades de prueba)
-        model.addAttribute("productosStockBajo", productoDetalleRepository.findByStockLessThanEqualOrderByStockAsc(25));
+        // Prendas con stock bajo o agotándose delegando a ProductoService (SRP)
+        model.addAttribute("productosStockBajo", productoService.obtenerProductosStockCritico(25));
 
         return "admin/dashboard"; 
     }
