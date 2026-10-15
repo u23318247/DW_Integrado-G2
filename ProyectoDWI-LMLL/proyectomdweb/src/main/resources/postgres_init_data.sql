@@ -55,3 +55,9 @@ SELECT setval('usuarios_id_seq', (SELECT MAX(id) FROM usuarios));
 SELECT setval('categorias_id_seq', (SELECT MAX(id) FROM categorias));
 SELECT setval('productos_id_seq', (SELECT MAX(id) FROM productos));
 SELECT setval('producto_detalles_id_seq', (SELECT MAX(id) FROM producto_detalles));
+
+-- 5. Variantes (Lab 6): al arrancar la aplicación, CatalogoInicializador.java completa
+--    cada uno de los 18 productos hasta 20 variantes = 360 prendas en producto_detalles.
+-- Verificación en pgAdmin:
+-- SELECT p.nombre, count(d.id) AS variantes FROM productos p
+-- JOIN producto_detalles d ON p.id = d.producto_id GROUP BY p.nombre;

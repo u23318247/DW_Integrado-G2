@@ -3,6 +3,7 @@ package com.proyectomdweb.proyectomdweb.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -42,4 +43,20 @@ public class Producto {
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<ProductoDetalle> variantes;
+
+    //* Mantiene sincronizados ambos lados de la relación bidireccional *//
+    public void agregarVariante(ProductoDetalle variante) {
+        if (variantes == null) {
+            variantes = new ArrayList<>();
+        }
+        variantes.add(variante);
+        variante.setProducto(this);
+    }
+
+    //* Al quitarla de la lista, orphanRemoval la elimina de la BD *//
+    public void quitarVariante(ProductoDetalle variante) {
+        if (variantes != null && variantes.remove(variante)) {
+            variante.setProducto(null);
+        }
+    }
 }

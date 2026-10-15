@@ -26,6 +26,9 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     
     List<Producto> findByNombreContainingIgnoreCase(String nombre);
 
+    // Búsqueda exacta por nombre (usada por el inicializador del catálogo)
+    Optional<Producto> findFirstByNombreIgnoreCase(String nombre);
+
     @Query("SELECT p FROM Producto p WHERE " +
            "(p.genero = :genero OR p.genero = 'Unisex') AND " +
            "(:categoriaId IS NULL OR p.categoria.id = :categoriaId) AND " +
