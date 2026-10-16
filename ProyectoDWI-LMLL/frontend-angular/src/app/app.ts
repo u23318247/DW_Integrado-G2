@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductoService } from './services/producto.service';
@@ -14,6 +14,9 @@ import { Categoria } from './models/categoria.model';
 })
 export class App implements OnInit {
   private productoService = inject(ProductoService);
+  // Angular 21 es zoneless (sin zone.js): tras una respuesta HTTP hay que avisar
+  // explicitamente que el estado cambio para que la vista se vuelva a dibujar.
+  private cdr = inject(ChangeDetectorRef);
 
   productos: Producto[] = [];
   categorias: Categoria[] = [];
@@ -36,6 +39,7 @@ export class App implements OnInit {
     this.productoService.listarCategorias().subscribe({
       next: (cats) => {
         this.categorias = cats;
+        this.cdr.markForCheck();
       },
       error: (e) => console.warn('No se pudieron cargar categorías vía API:', e)
     });
@@ -49,11 +53,13 @@ export class App implements OnInit {
       next: (data) => {
         this.productos = data;
         this.cargando = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error(err);
         this.errorMensaje = 'No se pudo conectar con el catálogo de productos.';
         this.cargando = false;
+        this.cdr.markForCheck();
       }
     });
   }
