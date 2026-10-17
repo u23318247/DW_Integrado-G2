@@ -148,7 +148,7 @@ public class CatalogoInicializador implements CommandLineRunner {
         for (int k = 0; k < cantidad; k++) {
             int grupo = k / tallas.size();
             String talla = tallas.get(k % tallas.size());
-            boolean tallaGrande = recargoTallaGrande && tallas.size() > 1 && talla.equals(tallas.getLast());
+            boolean tallaGrande = recargoTallaGrande && tallas.size() > 1 && talla.equals(tallas.get(tallas.size() - 1));
             plan.add(new VariantePlan(
                     segmento,
                     marcas.get(grupo % marcas.size()),

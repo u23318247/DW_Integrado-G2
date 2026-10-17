@@ -132,7 +132,7 @@ class CatalogoPersistenciaTest {
         em.clear();
 
         Producto recuperado = productoRepository.findById(polo.getId()).orElseThrow();
-        recuperado.quitarVariante(recuperado.getVariantes().getFirst());
+        recuperado.quitarVariante(recuperado.getVariantes().get(0));
         em.flush();
 
         assertEquals(1, detalleRepository.countByProductoId(polo.getId()));
