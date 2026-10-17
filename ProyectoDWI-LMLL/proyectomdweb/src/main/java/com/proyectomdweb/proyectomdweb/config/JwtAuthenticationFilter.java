@@ -28,9 +28,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         
         String token = null;
-        
-        // Extrae el JWT desde las cookies
-        if (request.getCookies() != null) {
+
+        // 1. Extraer JWT desde cabecera Authorization (para Angular / REST API)
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        }
+
+        // 2. Si no viene en cabecera, extraer de la Cookie (para vistas Thymeleaf)
+        if (token == null && request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("jwt_token".equals(cookie.getName())) {
                     token = cookie.getValue();
@@ -38,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         }
-        
+
         if (token == null) {
             filterChain.doFilter(request, response);
             return;

@@ -134,6 +134,14 @@
             <h3 class="product-title mb-1" style="font-size: 1.05rem; font-weight: 600; color: var(--txt);">
               {{ producto.nombre }}
             </h3>
+            <!-- Badges de Tallas disponibles -->
+            <div class="d-flex flex-wrap gap-1 mt-1 mb-2" *ngIf="producto.tallas && producto.tallas.length > 0">
+              <span *ngFor="let t of producto.tallas" 
+                    class="badge" 
+                    style="font-size: 0.68rem; background: rgba(255, 255, 255, 0.08); color: var(--txt-2); border: 1px solid var(--border);">
+                {{ t }}
+              </span>
+            </div>
             <div class="d-flex justify-content-between align-items-center mt-2">
               <p class="product-price mb-0" style="color: var(--brand); font-weight: 700; font-size: 1.1rem;">
                 S/ {{ producto.precioBase | number:'1.2-2' }}
