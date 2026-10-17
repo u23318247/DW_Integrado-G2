@@ -51,18 +51,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            String username = jwtService.extraerUsername(token);
-            
-            if (username != null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            try {
+                String username = jwtService.extraerUsername(token);
                 
-                if (jwtService.esTokenValido(token, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities()
-                    );
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (username != null) {
+                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                    
+                    if (jwtService.esTokenValido(token, userDetails)) {
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities()
+                        );
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
                 }
+            } catch (Exception e) {
+                // Si el token es inválido o expiró, se limpia el contexto para que redirija a /auth/login
+                SecurityContextHolder.clearContext();
             }
         }
         filterChain.doFilter(request, response);

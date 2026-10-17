@@ -24,7 +24,6 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(org.springframework.web.servlet.config.annotation.ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("index");
         registry.addViewController("/angular").setViewName("forward:/angular/index.html");
         registry.addViewController("/angular/").setViewName("forward:/angular/index.html");
     }

@@ -37,25 +37,29 @@ public class SecurityConfig {
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "VENDEDOR")
                 // 3. Área privada del comprador
                 .requestMatchers("/mis-pedidos/**").authenticated()
-                // 4. Rutas públicas: Tienda, API, Angular y todos los recursos estáticos
+                // 4. Rutas públicas indispensables: Auth (login, registro) y recursos estáticos
                 .requestMatchers(
-                    "/",
-                    "/productos/**",
-                    "/carrito/**",
-                    "/pago/**",
-                    "/comprobante/**",
-                    "/pedidos/**",
                     "/auth/**",
-                    "/api/**",
-                    "/angular/**",
+                    "/api/auth/**",
                     "/css/**",
                     "/js/**",
                     "/img/**",
-                    "/favicon.ico"
+                    "/favicon.ico",
+                    "/error"
                 ).permitAll()
                 
-                // 3. Todo lo demás requiere autenticación
+                // 5. Todo el resto de la plataforma (Inicio, Catálogo, Carrito, Angular, etc.) requiere login inicial
                 .anyRequest().authenticated()
+            )
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, authException) -> {
+                    String uri = request.getRequestURI();
+                    if (uri.startsWith("/api/")) {
+                        response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "No autorizado");
+                    } else {
+                        response.sendRedirect("/auth/login");
+                    }
+                })
             )
             // Se apagan las sesiones de servidor nativas. 
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

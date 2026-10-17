@@ -26,7 +26,12 @@ public class AuthController {
     private final UsuarioService        usuarioService;
 
     @GetMapping("/login")
-    public String mostrarLogin() {
+    public String mostrarLogin(org.springframework.security.core.Authentication auth) {
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            boolean tieneAccesoPanel = auth.getAuthorities().stream()
+                    .anyMatch(rol -> rol.getAuthority().equals("ROLE_ADMIN") || rol.getAuthority().equals("ROLE_VENDEDOR"));
+            return tieneAccesoPanel ? "redirect:/admin/dashboard" : "redirect:/";
+        }
         return "login"; // vista login.html
     }
 
@@ -71,7 +76,7 @@ public class AuthController {
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0); // Esto borra la cookie inmediatamente
         response.addCookie(cookie);
-        return "redirect:/";
+        return "redirect:/auth/login?logout=true";
     }
 
     //-- METODOS DE REGISTRO DE USUARIO --//
