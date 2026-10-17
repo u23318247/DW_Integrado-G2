@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,23 +14,23 @@
       <div class="sidebar d-flex flex-column" style="width: 260px">
         <div class="p-4 text-center border-bottom border-dark mb-3">
           <h4 class="display-font mt-2 fw-bold" style="letter-spacing: 2px">
-            LMLL ADMIN
+            LMLL PANEL
           </h4>
           <span
             class="badge bg-light text-dark px-3 py-1"
             style="border-radius: 0; font-size: 0.75rem"
-            >PANEL GENERAL</span>
+            >PANEL OPERATIVO</span>
         </div>
         <a href="#" class="active"
           ><i class="bi bi-speedometer2 me-2"></i> Resumen</a
         >
-        <a th:href="@{/admin/productos}"
-          ><i class="bi bi-box-seam me-2"></i> Gestión Productos</a
+        <a sec:authorize="hasAnyRole('ADMIN', 'VENDEDOR', 'ALMACENERO')" th:href="@{/admin/productos}"
+          ><i class="bi bi-box-seam me-2"></i> Gestión Productos y Stock</a
         >
-        <a th:href="@{/admin/pedidos}"
+        <a sec:authorize="hasAnyRole('ADMIN', 'VENDEDOR', 'ALMACENERO', 'REPARTIDOR')" th:href="@{/admin/pedidos}"
           ><i class="bi bi-truck me-2"></i> Pedidos y Entregas</a
         >
-        <a th:href="@{/admin/estadisticas}"
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/estadisticas}"
         ><i class="bi bi-cart-check me-2"></i> Ventas e Ingresos</a>
 
         <a

@@ -1,8 +1,11 @@
--- 1. Usuarios Iniciales (password: admin123 y vendedor123 con BCrypt)
+-- 1. Usuarios Iniciales (password: admin123 para todos con BCrypt)
 INSERT INTO usuarios (id, nombre, email, password, telefono, direccion, rol, fecha_registro) 
 VALUES 
 (1, 'Admin', 'admin@email.com', '$2a$10$HUqJ0zRrUSPqtKiLpEDe3.FJEQjvnbTomkp1TPvYZSA8Pw5eTZmvy', '919191919', 'Av. Central 123, Lima', 'ROLE_ADMIN', CURRENT_TIMESTAMP),
-(2, 'Vendedor Oficial', 'vendedor@email.com', '$2a$10$HUqJ0zRrUSPqtKiLpEDe3.FJEQjvnbTomkp1TPvYZSA8Pw5eTZmvy', '987654321', 'Gamarra 456, La Victoria', 'ROLE_VENDEDOR', CURRENT_TIMESTAMP)
+(2, 'Vendedor Oficial', 'vendedor@email.com', '$2a$10$HUqJ0zRrUSPqtKiLpEDe3.FJEQjvnbTomkp1TPvYZSA8Pw5eTZmvy', '987654321', 'Gamarra 456, La Victoria', 'ROLE_VENDEDOR', CURRENT_TIMESTAMP),
+(3, 'Almacenero Central', 'almacen@email.com', '$2a$10$HUqJ0zRrUSPqtKiLpEDe3.FJEQjvnbTomkp1TPvYZSA8Pw5eTZmvy', '955443322', 'Almacén Central Lote 4, Lima', 'ROLE_ALMACENERO', CURRENT_TIMESTAMP),
+(4, 'Repartidor Expreso', 'repartidor@email.com', '$2a$10$HUqJ0zRrUSPqtKiLpEDe3.FJEQjvnbTomkp1TPvYZSA8Pw5eTZmvy', '911223344', 'Base de Despacho 12, Lima', 'ROLE_REPARTIDOR', CURRENT_TIMESTAMP),
+(5, 'Cliente Frecuente', 'cliente@email.com', '$2a$10$HUqJ0zRrUSPqtKiLpEDe3.FJEQjvnbTomkp1TPvYZSA8Pw5eTZmvy', '933221100', 'Av. Larco 789, Miraflores', 'ROLE_CLIENTE', CURRENT_TIMESTAMP)
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. Categorías de Ropa

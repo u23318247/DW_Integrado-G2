@@ -16,6 +16,9 @@ export class AuthService {
   isLoggedIn = computed(() => !!this.currentUser());
   isAdmin = computed(() => this.currentUser()?.roles.includes('ROLE_ADMIN') ?? false);
   isVendedor = computed(() => this.currentUser()?.roles.includes('ROLE_VENDEDOR') ?? false);
+  isAlmacenero = computed(() => this.currentUser()?.roles.includes('ROLE_ALMACENERO') ?? false);
+  isRepartidor = computed(() => this.currentUser()?.roles.includes('ROLE_REPARTIDOR') ?? false);
+  hasPanelAccess = computed(() => this.isAdmin() || this.isVendedor() || this.isAlmacenero() || this.isRepartidor());
 
   login(credenciales: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>('/api/auth/login', credenciales).pipe(

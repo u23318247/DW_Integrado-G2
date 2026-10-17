@@ -29,7 +29,10 @@ public class AuthController {
     public String mostrarLogin(org.springframework.security.core.Authentication auth) {
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
             boolean tieneAccesoPanel = auth.getAuthorities().stream()
-                    .anyMatch(rol -> rol.getAuthority().equals("ROLE_ADMIN") || rol.getAuthority().equals("ROLE_VENDEDOR"));
+                    .anyMatch(rol -> rol.getAuthority().equals("ROLE_ADMIN") 
+                                  || rol.getAuthority().equals("ROLE_VENDEDOR")
+                                  || rol.getAuthority().equals("ROLE_ALMACENERO")
+                                  || rol.getAuthority().equals("ROLE_REPARTIDOR"));
             return tieneAccesoPanel ? "redirect:/admin/dashboard" : "redirect:/";
         }
         return "login"; // vista login.html
@@ -55,12 +58,15 @@ public class AuthController {
             cookie.setMaxAge(86400);  // Duración de 1 día
             response.addCookie(cookie);
             
-            //  4. Verifica si es administrador o vendedor
+            //  4. Verifica si es administrador, vendedor, almacenero o repartidor
             boolean tieneAccesoPanel = userDetails.getAuthorities().stream()
-                    .anyMatch(rol -> rol.getAuthority().equals("ROLE_ADMIN") || rol.getAuthority().equals("ROLE_VENDEDOR"));
+                    .anyMatch(rol -> rol.getAuthority().equals("ROLE_ADMIN") 
+                                  || rol.getAuthority().equals("ROLE_VENDEDOR")
+                                  || rol.getAuthority().equals("ROLE_ALMACENERO")
+                                  || rol.getAuthority().equals("ROLE_REPARTIDOR"));
             
             if (tieneAccesoPanel) {
-                return "redirect:/admin/dashboard"; // Panel de gestión para vendedor y admin
+                return "redirect:/admin/dashboard"; // Panel de gestión para personal operativo y admin
             } 
             // 5. Manda clientes a la tienda
             return "redirect:/"; 

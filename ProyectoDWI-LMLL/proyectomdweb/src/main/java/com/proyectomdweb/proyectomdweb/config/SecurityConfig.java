@@ -33,8 +33,12 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 1. Estadísticas e Ingresos son de acceso exclusivo para ADMIN (Clean Code RBAC)
                 .requestMatchers("/admin/estadisticas/**").hasRole("ADMIN")
-                // 2. Gestión de Pedidos, Catálogo y Despacho para ADMIN y VENDEDOR
-                .requestMatchers("/admin/**").hasAnyRole("ADMIN", "VENDEDOR")
+                // 2. Gestión de Productos y Stock para ADMIN, VENDEDOR y ALMACENERO
+                .requestMatchers("/admin/productos/**").hasAnyRole("ADMIN", "VENDEDOR", "ALMACENERO")
+                // 3. Gestión de Pedidos y Entregas para ADMIN, VENDEDOR, ALMACENERO y REPARTIDOR
+                .requestMatchers("/admin/pedidos/**").hasAnyRole("ADMIN", "VENDEDOR", "ALMACENERO", "REPARTIDOR")
+                // 4. Panel general
+                .requestMatchers("/admin/**").hasAnyRole("ADMIN", "VENDEDOR", "ALMACENERO", "REPARTIDOR")
                 // 3. Área privada del comprador
                 .requestMatchers("/mis-pedidos/**").authenticated()
                 // 4. Rutas públicas indispensables: Auth (login, registro) y recursos estáticos

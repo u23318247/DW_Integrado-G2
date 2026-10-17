@@ -13,7 +13,10 @@ public class HomeController {
             return "redirect:/auth/login";
         }
         boolean tieneAccesoPanel = auth.getAuthorities().stream()
-                .anyMatch(rol -> rol.getAuthority().equals("ROLE_ADMIN") || rol.getAuthority().equals("ROLE_VENDEDOR"));
+                .anyMatch(rol -> rol.getAuthority().equals("ROLE_ADMIN") 
+                              || rol.getAuthority().equals("ROLE_VENDEDOR")
+                              || rol.getAuthority().equals("ROLE_ALMACENERO")
+                              || rol.getAuthority().equals("ROLE_REPARTIDOR"));
         if (tieneAccesoPanel) {
             return "redirect:/admin/dashboard";
         }
