@@ -1,4 +1,5 @@
 @echo off
 chcp 65001 >nul
-cd /d "%~dp0ProyectoDWI-LMLL\dwi_lmll"
-call ejecutar_pruebas.bat
+set JAVA_HOME=C:\Program Files\Java\jdk-17
+cd /d "%~dp0ProyectoDWI-LMLL\proyectomdweb"
+call mvnw.cmd test
