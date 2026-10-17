@@ -2,6 +2,8 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductoService } from './services/producto.service';
+import { CartService } from './services/cart.service';
+import { AuthService } from './services/auth.service';
 import { Producto } from './models/producto.model';
 import { Categoria } from './models/categoria.model';
 
@@ -14,8 +16,8 @@ import { Categoria } from './models/categoria.model';
 })
 export class App implements OnInit {
   private productoService = inject(ProductoService);
-  // Angular 21 es zoneless (sin zone.js): tras una respuesta HTTP hay que avisar
-  // explicitamente que el estado cambio para que la vista se vuelva a dibujar.
+  public cartService = inject(CartService);
+  public authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
   productos: Producto[] = [];
@@ -27,6 +29,9 @@ export class App implements OnInit {
   categoriaSeleccionada?: number;
   generoSeleccionado: string = 'Todos';
 
+  // Mapa de talla seleccionada por cada producto (id -> talla)
+  tallasSeleccionadas: Record<number, string> = {};
+
   ngOnInit(): void {
     this.cargarTodo();
   }
@@ -35,7 +40,6 @@ export class App implements OnInit {
     this.cargando = true;
     this.errorMensaje = '';
 
-    // Cargar categorías primero o en paralelo
     this.productoService.listarCategorias().subscribe({
       next: (cats) => {
         this.categorias = cats;
@@ -52,6 +56,12 @@ export class App implements OnInit {
     this.productoService.listarProductos(this.categoriaSeleccionada, this.textoBusqueda).subscribe({
       next: (data) => {
         this.productos = data;
+        // Inicializar tallas por defecto
+        for (const p of this.productos) {
+          if (p.id && p.tallas && p.tallas.length > 0 && !this.tallasSeleccionadas[p.id]) {
+            this.tallasSeleccionadas[p.id] = p.tallas[0];
+          }
+        }
         this.cargando = false;
         this.cdr.markForCheck();
       },
@@ -91,58 +101,37 @@ export class App implements OnInit {
     this.cargarProductos();
   }
 
-  // Integración con el carrito existente de La Moda te Llama
-  agregarAlCarritoGlobal(prod: Producto): void {
-    try {
-      let carrito: any[] = [];
-      const data = localStorage.getItem('carritoLlama');
-      if (data) {
-        carrito = JSON.parse(data) || [];
-      }
+  seleccionarTalla(productoId: number, talla: string): void {
+    this.tallasSeleccionadas[productoId] = talla;
+    this.cdr.markForCheck();
+  }
 
-      const itemExistente = carrito.find((item: any) => item.nombre === prod.nombre);
-      if (itemExistente) {
-        itemExistente.cantidad += 1;
-      } else {
-        carrito.push({
-          nombre: prod.nombre,
-          precio: Number(prod.precioBase),
-          cantidad: 1,
-          imagen: prod.imagenUrl
-        });
-      }
+  obtenerTallaSeleccionada(prod: Producto): string {
+    if (!prod.id) return 'Estándar';
+    return this.tallasSeleccionadas[prod.id] || (prod.tallas && prod.tallas.length > 0 ? prod.tallas[0] : 'Estándar');
+  }
 
-      localStorage.setItem('carritoLlama', JSON.stringify(carrito));
-
-      // Disparar evento para que script.js de Thymeleaf actualice el panel de bolsa
-      window.dispatchEvent(new CustomEvent('carritoActualizado', { detail: carrito }));
-
-      // Abrir panel lateral si existe
-      const panel = document.getElementById('carrito-panel');
-      if (panel) {
-        panel.style.right = '0';
-      }
-
-      // Actualizar contenedor si script.js está presente
-      const toggle = document.getElementById('carrito-toggle');
-      if (toggle) {
-        // Disparar click en botón del carrito si se requiere refresco
-        const countSpan = document.getElementById('cart-count');
-        if (countSpan) {
-          const totalQty = carrito.reduce((acc, curr) => acc + curr.cantidad, 0);
-          countSpan.textContent = String(totalQty);
-          countSpan.style.display = totalQty > 0 ? 'flex' : 'none';
-        }
-      }
-
-      // Despachar click o re-renderizar items si la función global existe
-      const eventStorage = new StorageEvent('storage', {
-        key: 'carritoLlama',
-        newValue: JSON.stringify(carrito)
-      });
-      window.dispatchEvent(eventStorage);
-    } catch (e) {
-      console.error('Error al agregar al carrito:', e);
+  obtenerVarianteActual(prod: Producto) {
+    const talla = this.obtenerTallaSeleccionada(prod);
+    if (prod.variantes && prod.variantes.length > 0) {
+      return prod.variantes.find(v => v.talla === talla);
     }
+    return undefined;
+  }
+
+  obtenerPrecioActual(prod: Producto): number {
+    const variante = this.obtenerVarianteActual(prod);
+    return variante ? Number(variante.precioTotal) : Number(prod.precioBase);
+  }
+
+  obtenerStockActual(prod: Producto): number {
+    const variante = this.obtenerVarianteActual(prod);
+    return variante ? variante.stock : 99;
+  }
+
+  agregarAlCarrito(prod: Producto): void {
+    const talla = this.obtenerTallaSeleccionada(prod);
+    this.cartService.agregarProducto(prod, talla);
+    this.cdr.markForCheck();
   }
 }
