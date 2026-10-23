@@ -1,0 +1,65 @@
+@use '../../../styles/variables' as *;
+
+.summary-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  background: white;
+  border-radius: 14px;
+  @include card-shadow;
+  border-left: 4px solid $blue;
+  @include smooth-transition;
+
+  &:hover {
+    @include card-shadow-hover;
+    transform: translateY(-2px);
+  }
+
+  &__icon {
+    font-size: 1.8rem;
+    line-height: 1;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+
+    .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: $text-muted;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .value {
+      font-size: 1.6rem;
+      color: $navy;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+  }
+
+  &.available {
+    border-left-color: $success;
+    .value {
+      color: $success;
+    }
+  }
+
+  &.out {
+    border-left-color: $danger;
+    .value {
+      color: $danger;
+    }
+  }
+}
