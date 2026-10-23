@@ -1,0 +1,21 @@
+$surface: #ffffff;
+$teal: #008491;
+
+:host {
+  display: block;
+}
+
+.summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 28px;
+  padding: 18px 22px;
+  border-left: 5px solid $teal;
+  border-radius: 12px;
+  background: $surface;
+
+  strong {
+    color: $teal;
+  }
+}
