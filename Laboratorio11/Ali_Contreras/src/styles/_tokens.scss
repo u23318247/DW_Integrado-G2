@@ -1,0 +1,37 @@
+// Partial SCSS con los tokens de diseño del catálogo.
+// Se reutiliza en cada componente con: @use '<ruta>/styles/tokens' as *;
+
+// Colores
+$navy: #0d2042;
+$blue: #14569b;
+$teal: #008491;
+$surface: #f6f8fb;
+$danger: #b23a3a;
+$text: #243044;
+$muted: #6b7a90;
+
+// Medidas
+$radius-lg: 22px;
+$radius-md: 14px;
+$breakpoint-md: 720px;
+
+// Mixins reutilizables
+@mixin card-shadow {
+  box-shadow: 0 10px 26px rgba(13, 32, 66, 0.1);
+}
+
+@mixin pill($bg, $fg: white) {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: $fg;
+  background: $bg;
+}
+
+@mixin responsive-md {
+  @media (max-width: $breakpoint-md) {
+    @content;
+  }
+}

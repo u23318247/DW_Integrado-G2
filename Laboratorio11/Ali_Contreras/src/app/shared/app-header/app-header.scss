@@ -1,0 +1,21 @@
+@use '../../../styles/tokens' as *;
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  border-radius: $radius-md;
+  color: white;
+  background: $navy;
+  @include card-shadow;
+
+  &__brand {
+    font-size: 1.1rem;
+    letter-spacing: 0.02em;
+  }
+
+  &__badge {
+    @include pill($teal);
+  }
+}

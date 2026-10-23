@@ -1,0 +1,23 @@
+@use '../../../styles/tokens' as *;
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 24px;
+  padding: 16px 20px;
+  border-left: 5px solid $blue;
+  border-radius: $radius-md;
+  background: white;
+  @include card-shadow;
+
+  &__icon {
+    font-size: 1.6rem;
+  }
+
+  &__text {
+    margin: 0;
+    color: $text;
+    font-weight: 600;
+  }
+}
