@@ -1,0 +1,94 @@
+@use './styles/variables' as *;
+
+:root {
+  --color-brand: #{$color-brand};
+  --color-dark: #{$color-dark};
+  --color-card-bg: #{$color-card-bg};
+  --color-card-border: #{$color-card-border};
+  --color-text-main: #{$color-text-main};
+  --color-text-muted: #{$color-text-muted};
+}
+
+body {
+  background-color: $color-dark;
+  color: $color-text-main;
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+h1, h2, h3, .brand-font {
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.card-product {
+  background-color: $color-card-bg;
+  border: 1px solid $color-card-border;
+  border-radius: 12px;
+  overflow: hidden;
+  @include smooth-transition;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.product-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  overflow: hidden;
+  background-color: #242426;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+}
+
+.card-product:hover .product-img-wrapper img {
+  transform: scale(1.05);
+}
+
+.badge-gender {
+  background-color: rgba(212, 175, 55, 0.15);
+  color: $color-brand;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.btn-brand {
+  background-color: $color-brand;
+  color: #000;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  @include smooth-transition;
+
+  &:hover {
+    background-color: #b59228;
+    color: #000;
+  }
+}
+
+.size-chip {
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  border: 1px solid #3a3a3c;
+  background: #242426;
+  color: #a1a1a6;
+  @include smooth-transition;
+
+  &.active {
+    border-color: $color-brand;
+    background: $color-brand;
+    color: #000;
+    font-weight: 700;
+  }
+}

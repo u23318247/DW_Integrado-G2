@@ -1,0 +1,5 @@
+@use '../styles/variables' as *;
+
+.catalog-wrapper {
+  min-height: calc(100vh - 160px);
+}

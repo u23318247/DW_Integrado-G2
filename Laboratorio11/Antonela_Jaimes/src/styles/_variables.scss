@@ -1,0 +1,43 @@
+// ==========================================
+// TOKENS Y VARIABLES DE DISEÑO SASS/SCSS
+// Laboratorio 11 - Desarrollo Web Integrado
+// Estudiante: Antonela Jaimes
+// ==========================================
+
+$navy: #0d2042;
+$blue: #14569b;
+$teal: #008491;
+$surface: #f6f8fb;
+$card-bg: #ffffff;
+$danger: #b23a3a;
+$danger-bg: #fde8e8;
+$warning: #e08700;
+$warning-bg: #fff8e6;
+$success: #198754;
+$success-bg: #e6f4ea;
+
+$text-main: #243044;
+$text-muted: #6b7a90;
+$border-color: #e2e8f0;
+
+// Mixin para sombras suaves
+@mixin card-shadow {
+  box-shadow: 0 10px 26px rgba(13, 32, 66, 0.08);
+}
+
+// Mixin para sombras hover
+@mixin card-shadow-hover {
+  box-shadow: 0 16px 36px rgba(13, 32, 66, 0.14);
+}
+
+// Mixin para centrado flexible
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Mixin para transición uniforme
+@mixin smooth-transition {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}

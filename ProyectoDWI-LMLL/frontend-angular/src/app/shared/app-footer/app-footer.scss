@@ -1,0 +1,6 @@
+@use '../../../styles/variables' as *;
+
+.lmll-footer {
+  background-color: $color-dark;
+  border-top-color: $color-card-border !important;
+}

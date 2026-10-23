@@ -1,0 +1,39 @@
+@use '../../../styles/variables' as *;
+
+.lmll-header {
+  background: $dark-gradient;
+  border-bottom: 1px solid $color-card-border;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+.lmll-brand {
+  &__sparkle {
+    font-size: 1.4rem;
+  }
+}
+
+.text-gold {
+  color: $color-brand !important;
+}
+
+.text-gold-light {
+  color: rgba(212, 175, 55, 0.85);
+}
+
+.bg-gold-subtle {
+  background-color: rgba(212, 175, 55, 0.18);
+}
+
+.user-pill {
+  background: #242426;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid #3a3a3c;
+}
+
+.user-avatar {
+  font-size: 1.1rem;
+}

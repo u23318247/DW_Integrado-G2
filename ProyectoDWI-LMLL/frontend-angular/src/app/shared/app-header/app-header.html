@@ -1,0 +1,45 @@
+<header class="lmll-header">
+  <div class="container d-flex justify-content-between align-items-center py-3">
+    <!-- Brand -->
+    <a href="/" class="lmll-brand text-decoration-none d-flex align-items-center gap-2">
+      <span class="lmll-brand__sparkle">✨</span>
+      <div>
+        <h1 class="h4 mb-0 brand-font text-white letter-spacing-1">LMLL</h1>
+        <small class="text-gold-light d-block" style="font-size: 0.72rem; letter-spacing: 1.5px;">LA MODA TE LLAMA · SEMANA 11</small>
+      </div>
+    </a>
+
+    <!-- Navigation / Actions -->
+    <div class="d-flex align-items-center gap-3">
+      <a href="/" class="btn btn-sm btn-outline-light d-none d-md-inline-flex align-items-center gap-1">
+        <span>🏠</span> Tienda Principal
+      </a>
+
+      <!-- Si es admin / vendedor / almacenero / repartidor -->
+      @if (authService.hasPanelAccess()) {
+        <a href="/admin/dashboard" class="btn btn-sm btn-warning text-dark fw-bold d-inline-flex align-items-center gap-1">
+          <span>⚙️</span> Panel Operativo
+        </a>
+      }
+
+      <!-- Badge de usuario -->
+      @if (authService.currentUser(); as user) {
+        <div class="user-pill d-none d-sm-flex align-items-center gap-2">
+          <span class="user-avatar">👤</span>
+          <div class="user-info text-start">
+            <span class="d-block text-white fw-bold" style="font-size: 0.85rem;">{{ user.nombre }}</span>
+            <span class="badge bg-gold-subtle text-gold" style="font-size: 0.7rem;">{{ user.roles[0] || 'ROLE_CLIENTE' }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Botón Bolsa -->
+      <a href="/carrito" class="btn btn-sm btn-brand position-relative d-inline-flex align-items-center gap-2">
+        <span>🛍️</span> Bolsa
+        @if (cartService.cantidadTotal() > 0) {
+          <span class="badge bg-danger rounded-pill">{{ cartService.cantidadTotal() }}</span>
+        }
+      </a>
+    </div>
+  </div>
+</header>

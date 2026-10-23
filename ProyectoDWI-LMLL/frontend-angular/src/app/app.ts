@@ -6,13 +6,16 @@ import { CartService } from './services/cart.service';
 import { AuthService } from './services/auth.service';
 import { Producto } from './models/producto.model';
 import { Categoria } from './models/categoria.model';
+import { AppHeader } from './shared/app-header/app-header';
+import { AppFooter } from './shared/app-footer/app-footer';
+import { SummaryPanel } from './features/summary-panel/summary-panel';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AppHeader, AppFooter, SummaryPanel],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.scss'
 })
 export class App implements OnInit {
   private productoService = inject(ProductoService);
@@ -79,6 +82,18 @@ export class App implements OnInit {
       return this.productos;
     }
     return this.productos.filter(p => p.genero?.toLowerCase() === this.generoSeleccionado.toLowerCase());
+  }
+
+  get totalProductos(): number {
+    return this.productos.length;
+  }
+
+  get totalDisponibles(): number {
+    return this.productos.filter(p => this.obtenerStockActual(p) > 0).length;
+  }
+
+  get totalSinStock(): number {
+    return this.productos.filter(p => this.obtenerStockActual(p) === 0).length;
   }
 
   buscar(): void {

@@ -1,0 +1,43 @@
+<section class="summary-panel mb-4" aria-label="Métricas del catálogo LMLL">
+  <div class="row g-3">
+    <div class="col-6 col-md-3">
+      <div class="metric-card">
+        <span class="metric-icon">👗</span>
+        <div>
+          <span class="metric-label">Prendas en Catálogo</span>
+          <strong class="metric-value">{{ totalProductos }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="metric-card available">
+        <span class="metric-icon">✅</span>
+        <div>
+          <span class="metric-label">Con Stock Disponible</span>
+          <strong class="metric-value text-success">{{ totalDisponibles }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="metric-card out">
+        <span class="metric-icon">⚠️</span>
+        <div>
+          <span class="metric-label">Prendas Agotadas</span>
+          <strong class="metric-value text-danger">{{ totalSinStock }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="metric-card cart">
+        <span class="metric-icon">🛍️</span>
+        <div>
+          <span class="metric-label">Artículos en Bolsa</span>
+          <strong class="metric-value text-warning">{{ articulosEnBolsa }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,3 +1,6 @@
+<!-- App Header Modular (Laboratorio 11) -->
+<app-header></app-header>
+
 <!-- Toast Notificación Flotante -->
 <div *ngIf="cartService.mensajeToast()" 
      class="position-fixed bottom-0 end-0 p-3" 
@@ -17,6 +20,15 @@
     </div>
   </div>
 </div>
+
+<div class="container py-4 catalog-wrapper">
+  <!-- Panel de Métricas Modular (Laboratorio 11) -->
+  <app-summary-panel 
+    [totalProductos]="totalProductos" 
+    [totalDisponibles]="totalDisponibles" 
+    [totalSinStock]="totalSinStock" 
+    [articulosEnBolsa]="cartService.cantidadTotal()">
+  </app-summary-panel>
 
 <div class="row g-4">
   <!-- SIDEBAR DE FILTROS -->
@@ -222,3 +234,7 @@
     </div>
   </div>
 </div>
+</div>
+
+<!-- App Footer Modular (Laboratorio 11) -->
+<app-footer></app-footer>

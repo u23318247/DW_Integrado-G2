@@ -1,0 +1,52 @@
+@use '../../../styles/variables' as *;
+
+.metric-card {
+  background-color: $color-card-bg;
+  border: 1px solid $color-card-border;
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-left: 4px solid $color-brand;
+  @include smooth-transition;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  }
+
+  .metric-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+  }
+
+  .metric-label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-text-muted;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .metric-value {
+    font-size: 1.45rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #ffffff;
+  }
+
+  &.available {
+    border-left-color: $success;
+  }
+
+  &.out {
+    border-left-color: $danger;
+  }
+
+  &.cart {
+    border-left-color: #ffc107;
+  }
+}
