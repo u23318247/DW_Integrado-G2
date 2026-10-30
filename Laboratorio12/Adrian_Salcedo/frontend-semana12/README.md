@@ -1,5 +1,18 @@
 # FrontendSemana12
 
+## Laboratorio 12
+
+La aplicación demuestra navegación SPA y comunicación explícita entre componentes:
+
+- `/` muestra la página de inicio.
+- `/productos` muestra el catálogo con `input()` y `output()`.
+- `/productos/:id` recupera el parámetro con `ActivatedRoute`.
+- `/categorias` muestra categorías únicas desde el mock local.
+- Las rutas inexistentes usan la vista 404 mediante la ruta comodín `**`.
+
+En el catálogo, los productos con precio mayor a S/ 1,000 se marcan como destacados. Las tarjetas emiten eventos para
+ver el detalle, registrar favoritos y agregar productos a comparación.
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.7.
 
 ## Development server
