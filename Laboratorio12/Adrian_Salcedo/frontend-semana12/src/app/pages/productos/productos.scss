@@ -1,0 +1,17 @@
+.page-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  h1 { margin: .25rem 0 0; color: #102a43; }
+  .eyebrow { margin: 0; color: #168aad; font-size: .8rem; font-weight: 700; }
+}
+
+.stats { display: flex; gap: .75rem; flex-wrap: wrap; }
+.stats span { padding: .6rem .8rem; border-radius: .5rem; background: white; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+
+@media (max-width: 600px) {
+  .page-heading { align-items: flex-start; flex-direction: column; }
+}
