@@ -1,0 +1,98 @@
+<!-- Backdrop -->
+<div class="cart-backdrop" [class.show]="cartService.isCartOpen()" (click)="cerrar()"></div>
+
+<!-- Drawer Panel -->
+<aside class="cart-drawer" [class.open]="cartService.isCartOpen()" aria-label="Bolsa de Compras Lateral">
+  <!-- Header del Drawer -->
+  <div class="cart-drawer__header d-flex justify-content-between align-items-center p-3 border-bottom border-dark">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-bag-check-fill text-gold fs-5"></i>
+      <h3 class="h6 mb-0 text-white fw-bold text-uppercase letter-spacing-1">Tu Bolsa de Compras</h3>
+      <span class="badge bg-gold-subtle text-gold">{{ cartService.totalItems() }}</span>
+    </div>
+    <button type="button" class="btn-close btn-close-white" (click)="cerrar()" aria-label="Cerrar bolsa"></button>
+  </div>
+
+  <!-- Contenido de la Bolsa -->
+  <div class="cart-drawer__body p-3">
+    @if (cartService.items().length > 0) {
+      <div class="cart-items-list d-flex flex-column gap-3">
+        @for (item of cartService.items(); track $index) {
+          <div class="cart-item d-flex gap-3 p-2 rounded">
+            <!-- Imagen Prenda -->
+            <div class="cart-item__img-wrapper">
+              <img [src]="item.imagen || '/img/logo.png'" [alt]="item.nombre" />
+            </div>
+
+            <!-- Datos de la Prenda -->
+            <div class="cart-item__details flex-grow-1">
+              <div class="d-flex justify-content-between align-items-start">
+                <h4 class="cart-item__title mb-1">{{ item.nombre }}</h4>
+                <button type="button" class="btn-remove" (click)="eliminar($index)" title="Quitar prenda">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+
+              <div class="cart-item__meta mb-2">
+                <span class="badge bg-dark-subtle border border-secondary text-light">Talla: {{ item.talla }}</span>
+                @if (item.color) {
+                  <span class="badge bg-dark-subtle border border-secondary text-light ms-1">{{ item.color }}</span>
+                }
+              </div>
+
+              <!-- Controles de Cantidad y Precio -->
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <div class="quantity-control d-flex align-items-center">
+                  <button type="button" class="qty-btn" (click)="decrementar($index)">-</button>
+                  <span class="qty-val">{{ item.cantidad }}</span>
+                  <button type="button" class="qty-btn" (click)="incrementar($index)">+</button>
+                </div>
+
+                <span class="cart-item__price fw-bold text-gold">
+                  S/ {{ (item.precio * item.cantidad) | number:'1.2-2' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Estado vacío -->
+      <div class="empty-cart text-center py-5">
+        <i class="bi bi-bag-x display-4 text-muted mb-3 d-block"></i>
+        <h4 class="h5 text-white">Tu bolsa está vacía</h4>
+        <p class="text-muted small mb-4">Aún no has agregado prendas a tu bolsa de compra.</p>
+        <button type="button" class="btn btn-brand btn-sm" (click)="cerrar()">
+          Explorar Catálogo
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Footer con Totales y Checkout -->
+  @if (cartService.items().length > 0) {
+    <div class="cart-drawer__footer p-3 border-top border-dark">
+      <div class="d-flex justify-content-between text-muted small mb-1">
+        <span>Subtotal</span>
+        <span>S/ {{ cartService.subtotal() | number:'1.2-2' }}</span>
+      </div>
+      <div class="d-flex justify-content-between text-muted small mb-2">
+        <span>IGV (18%)</span>
+        <span>S/ {{ cartService.igv() | number:'1.2-2' }}</span>
+      </div>
+      <div class="d-flex justify-content-between text-white fw-bold fs-5 mb-3 border-top border-secondary pt-2">
+        <span>Total Estimado</span>
+        <span class="text-gold">S/ {{ cartService.total() | number:'1.2-2' }}</span>
+      </div>
+
+      <div class="d-grid gap-2">
+        <button type="button" class="btn btn-brand py-2 fw-bold" (click)="irAPagar()">
+          <i class="bi bi-credit-card me-2"></i> Proceder al Pago
+        </button>
+        <button type="button" class="btn btn-outline-danger btn-sm" (click)="vaciar()">
+          <i class="bi bi-trash me-1"></i> Vaciar Bolsa
+        </button>
+      </div>
+    </div>
+  }
+</aside>

@@ -1,0 +1,84 @@
+@use '../../../styles/variables' as *;
+
+.hero-fashion {
+  position: relative;
+  background: radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.12) 0%, transparent 50%),
+              linear-gradient(135deg, #131316 0%, #0d0d0f 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+
+  &__overlay {
+    padding: 60px 0 50px;
+  }
+
+  &__badge {
+    display: inline-block;
+    padding: 5px 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #e4e4e7;
+    margin-bottom: 16px;
+  }
+
+  &__title {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 700;
+    line-height: 1.15;
+    color: #ffffff;
+    margin-bottom: 16px;
+  }
+
+  &__subtitle {
+    font-size: 1.05rem;
+    color: $color-text-muted;
+    line-height: 1.6;
+    max-width: 600px;
+    margin-bottom: 24px;
+  }
+
+  &__cards {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-left: 20px;
+  }
+}
+
+.highlight-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  @include smooth-transition;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(212, 175, 55, 0.4);
+    transform: translateX(6px);
+  }
+
+  .icon {
+    font-size: 1.8rem;
+    line-height: 1;
+  }
+
+  strong {
+    display: block;
+    color: #ffffff;
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+  }
+
+  small {
+    color: $color-text-muted;
+    font-size: 0.8rem;
+  }
+}

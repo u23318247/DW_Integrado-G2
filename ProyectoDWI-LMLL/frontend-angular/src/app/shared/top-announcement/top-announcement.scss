@@ -1,0 +1,38 @@
+@use '../../../styles/variables' as *;
+
+.top-announcement {
+  background: #09090b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.78rem;
+  color: $color-text-muted;
+}
+
+.bg-gold {
+  background-color: $color-brand !important;
+  font-size: 0.68rem;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+}
+
+.announcement-text {
+  color: #e4e4e7;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.announcement-links {
+  .link-item {
+    color: $color-text-muted;
+    text-decoration: none;
+    font-size: 0.78rem;
+    @include smooth-transition;
+
+    &:hover {
+      color: $color-brand;
+    }
+  }
+
+  .separator {
+    color: rgba(255, 255, 255, 0.2);
+  }
+}

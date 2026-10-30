@@ -18,6 +18,8 @@ export class CartService {
     this.items().reduce((acc, item) => acc + item.cantidad, 0)
   );
 
+  cantidadTotal = computed(() => this.totalItems());
+
   subtotal = computed(() =>
     this.items().reduce((acc, item) => acc + (item.precio * item.cantidad), 0)
   );

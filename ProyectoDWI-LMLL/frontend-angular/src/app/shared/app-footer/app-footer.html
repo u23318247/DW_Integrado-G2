@@ -1,10 +1,79 @@
-<footer class="lmll-footer mt-5 py-4 border-top border-dark">
-  <div class="container text-center">
-    <p class="mb-1 text-muted">
-      <strong class="text-white">LMLL — La Moda te LLama</strong> &copy; {{ anio }} &bull; {{ curso }}
-    </p>
-    <small class="text-muted">
-      Desarrollado para el proyecto integrado por <span class="text-warning fw-bold">{{ estudiante }}</span> (Unidad 3 · Semana 11)
-    </small>
+<footer class="lmll-main-footer pt-5 pb-4 mt-5">
+  <div class="container">
+    <div class="row g-4 pb-4 border-bottom border-secondary-subtle">
+      <!-- Columna 1: Brand & Misión -->
+      <div class="col-lg-4 col-md-6">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <span class="footer-badge">LMLL</span>
+          <h4 class="brand-font text-white h4 mb-0">LA MODA TE LLAMA</h4>
+        </div>
+        <p class="text-muted small pe-lg-4">
+          Marca de moda peruana que fusiona el streetwear contemporáneo con la excelencia del algodón nacional Tangüis y Pima. Diseños auténticos para vestir con carácter.
+        </p>
+        <div class="d-flex gap-3 text-gold fs-5 mt-3">
+          <a href="#" class="social-icon" title="Instagram"><i class="bi bi-instagram"></i></a>
+          <a href="#" class="social-icon" title="TikTok"><i class="bi bi-tiktok"></i></a>
+          <a href="#" class="social-icon" title="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="social-icon" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+        </div>
+      </div>
+
+      <!-- Columna 2: Navegación -->
+      <div class="col-lg-2 col-6">
+        <h5 class="footer-title">Colecciones</h5>
+        <ul class="list-unstyled footer-links">
+          <li><a href="/productos">Novedades 2026</a></li>
+          <li><a href="/productos">Polos Oversize</a></li>
+          <li><a href="/productos">Camisas de Lino</a></li>
+          <li><a href="/productos">Jeans & Cargos</a></li>
+          <li><a href="/productos">Calzado Urbano</a></li>
+          <li><a href="/productos">Accesorios</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna 3: Atención al Cliente -->
+      <div class="col-lg-2 col-6">
+        <h5 class="footer-title">Ayuda & Soporte</h5>
+        <ul class="list-unstyled footer-links">
+          <li><a href="#">Guía de Tallas</a></li>
+          <li><a href="#">Políticas de Envío</a></li>
+          <li><a href="#">Cambios & Devoluciones</a></li>
+          <li><a href="#">Preguntas Frecuentes</a></li>
+          <li><a href="#">Términos del Servicio</a></li>
+          <li><a href="#" class="text-gold"><i class="bi bi-book me-1"></i>Libro de Reclamaciones</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna 4: Newsletter -->
+      <div class="col-lg-4 col-md-6">
+        <h5 class="footer-title">Club LMLL Privado</h5>
+        <p class="text-muted small">
+          Suscríbete para recibir lanzamientos exclusivos, drops limitados y un <strong>10% de descuento</strong> en tu primera compra.
+        </p>
+        <div class="newsletter-box d-flex gap-2 mb-3">
+          <input type="email" class="form-control form-control-sm" placeholder="Ingresa tu correo electrónico..." />
+          <button type="button" class="btn btn-brand btn-sm px-3">Unirme</button>
+        </div>
+        <small class="text-muted d-block" style="font-size: 0.72rem;">
+          Al suscribirte aceptas nuestras políticas de privacidad y protección de datos.
+        </small>
+      </div>
+    </div>
+
+    <!-- Barra Inferior de Métodos de Pago y Derechos -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center pt-4 gap-3">
+      <div class="text-muted small text-center text-md-start">
+        &copy; {{ anio }} <strong>LMLL — La Moda te LLama S.A.C.</strong> Todos los derechos reservados.
+        <span class="d-block d-md-inline ms-md-2 text-gold-light">&bull; Confeccionado en Lima, Perú</span>
+      </div>
+
+      <div class="payment-badges d-flex align-items-center gap-2">
+        <span class="pay-chip">VISA</span>
+        <span class="pay-chip">MASTERCARD</span>
+        <span class="pay-chip yape">YAPE</span>
+        <span class="pay-chip plin">PLIN</span>
+        <span class="pay-chip">PAGO EFECTIVO</span>
+      </div>
+    </div>
   </div>
 </footer>

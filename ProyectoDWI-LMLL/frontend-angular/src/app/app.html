@@ -1,16 +1,20 @@
-<!-- App Header Modular (Laboratorio 11) -->
-<app-header></app-header>
+<!-- 1. Ticker / Anuncio Superior -->
+<app-top-announcement></app-top-announcement>
 
-<!-- Toast Notificación Flotante -->
+<!-- 2. Header de Navegación Principal -->
+<app-header (generoSeleccionado)="filtrarGenero($event)"></app-header>
+
+<!-- 3. Hero Banner de Moda Urbana -->
+<app-hero-banner (verCatalogo)="scrollHaciaCatalogo()"></app-hero-banner>
+
+<!-- Toast Flotante de Notificaciones -->
 <div *ngIf="cartService.mensajeToast()" 
      class="position-fixed bottom-0 end-0 p-3" 
      style="z-index: 1090;">
-  <div class="toast show align-items-center text-white border-0 shadow-lg" 
-       style="background: linear-gradient(135deg, #1f2937, #111827); border-left: 4px solid var(--brand) !important;" 
-       role="alert">
+  <div class="toast show align-items-center text-white border-0 shadow-lg toast-custom" role="alert">
     <div class="d-flex">
       <div class="toast-body d-flex align-items-center gap-2">
-        <i class="bi bi-check-circle-fill" style="color: var(--brand); font-size: 1.2rem;"></i>
+        <i class="bi bi-bag-check-fill text-gold fs-5"></i>
         <span>{{ cartService.mensajeToast() }}</span>
       </div>
       <button type="button" 
@@ -21,220 +25,265 @@
   </div>
 </div>
 
-<div class="container py-4 catalog-wrapper">
-  <!-- Panel de Métricas Modular (Laboratorio 11) -->
+<!-- 4. Contenedor Principal de la Tienda de Ropa -->
+<main class="container py-5 catalog-wrapper" id="seccion-catalogo">
+  
+  <!-- Encabezado de Sección y Panel de Métricas -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+      <span class="badge bg-gold-subtle text-gold text-uppercase letter-spacing-1 mb-1">Catálogo Exclusivo</span>
+      <h2 class="h3 brand-font text-white mb-0">Prendas & Colecciones de Temporada</h2>
+      <p class="text-muted small mb-0">Explora lo último en tendencias streetwear y moda urbana</p>
+    </div>
+
+    <!-- Filtros de Género Rápidos (Pills) -->
+    <div class="d-flex flex-wrap gap-2">
+      <button 
+        type="button" 
+        class="gender-pill" 
+        [class.active]="generoSeleccionado === 'Todos'"
+        (click)="filtrarGenero('Todos')">
+        Todos
+      </button>
+      <button 
+        type="button" 
+        class="gender-pill" 
+        [class.active]="generoSeleccionado === 'Hombre'"
+        (click)="filtrarGenero('Hombre')">
+        Hombre
+      </button>
+      <button 
+        type="button" 
+        class="gender-pill" 
+        [class.active]="generoSeleccionado === 'Mujer'"
+        (click)="filtrarGenero('Mujer')">
+        Mujer
+      </button>
+      <button 
+        type="button" 
+        class="gender-pill" 
+        [class.active]="generoSeleccionado === 'Unisex'"
+        (click)="filtrarGenero('Unisex')">
+        Unisex
+      </button>
+    </div>
+  </div>
+
+  <!-- Panel de Métricas / Resumen (Laboratorio 11) -->
   <app-summary-panel 
     [totalProductos]="totalProductos" 
     [totalDisponibles]="totalDisponibles" 
     [totalSinStock]="totalSinStock" 
-    [articulosEnBolsa]="cartService.cantidadTotal()">
+    [articulosEnBolsa]="cartService.totalItems()">
   </app-summary-panel>
 
-<div class="row g-4">
-  <!-- SIDEBAR DE FILTROS -->
-  <aside class="col-lg-3 anim-2">
-    <div class="card-lmll sticky-top" style="top: 90px;">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="sidebar-title m-0" style="font-size: 1.15rem;">
-          <i class="bi bi-funnel me-1"></i> Filtros
-        </h2>
-        <button class="btn btn-sm text-muted-1 p-0" (click)="limpiarFiltros()" title="Restablecer filtros">
-          <small><i class="bi bi-arrow-counterclockwise"></i> Limpiar</small>
-        </button>
-      </div>
-
-      <!-- Buscador -->
-      <div class="mb-3">
-        <label for="buscar" class="form-label text-muted-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
-          Buscar prenda
-        </label>
-        <div class="input-group">
-          <input 
-            type="text" 
-            id="buscar"
-            class="form-control" 
-            placeholder="Polo, casaca, buzo..." 
-            [(ngModel)]="textoBusqueda"
-            (keyup.enter)="buscar()"
-            style="background: rgba(255, 255, 255, 0.05); border-color: var(--border); color: var(--txt); font-size: 0.85rem;"
-          />
-          <button class="btn-lmll btn-outline-lmll" type="button" (click)="buscar()">
-            <i class="bi bi-search"></i>
+  <!-- Grilla Principal: Sidebar + Listado de Productos -->
+  <div class="row g-4 pt-2">
+    <!-- BARRA LATERAL DE FILTROS -->
+    <aside class="col-lg-3">
+      <div class="filter-sidebar sticky-top" style="top: 100px;">
+        <div class="d-flex justify-content-between align-items-center pb-3 border-bottom border-dark mb-3">
+          <h3 class="h6 mb-0 text-white text-uppercase letter-spacing-1">
+            <i class="bi bi-sliders me-2 text-gold"></i> Filtros
+          </h3>
+          <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" (click)="limpiarFiltros()">
+            <small><i class="bi bi-arrow-counterclockwise"></i> Limpiar</small>
           </button>
         </div>
-      </div>
 
-      <!-- Categorías -->
-      <div class="mb-3">
-        <label class="form-label text-muted-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
-          Categorías
-        </label>
-        <div class="list-group list-group-flush">
-          <button 
-            type="button" 
-            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-            [class.active-cat]="!categoriaSeleccionada"
-            style="background: transparent; border: none; color: var(--txt); font-size: 0.88rem; padding: 0.45rem 0.2rem;"
-            (click)="filtrarCategoria(undefined)">
-            <span>Todas</span>
-            <i class="bi bi-chevron-right" style="font-size: 0.75rem;"></i>
-          </button>
-          <button 
-            *ngFor="let cat of categorias" 
-            type="button" 
-            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-            [class.active-cat]="categoriaSeleccionada === cat.id"
-            style="background: transparent; border: none; color: var(--txt); font-size: 0.88rem; padding: 0.45rem 0.2rem;"
-            (click)="filtrarCategoria(cat.id)">
-            <span>{{ cat.nombre }}</span>
-            <i class="bi bi-chevron-right" style="font-size: 0.75rem;"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Género -->
-      <div>
-        <label class="form-label text-muted-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
-          Género
-        </label>
-        <div class="d-flex flex-wrap gap-1">
-          <button 
-            class="btn btn-sm" 
-            [ngClass]="generoSeleccionado === 'Todos' ? 'btn-lmll btn-primary-lmll' : 'btn-lmll btn-outline-lmll'"
-            style="padding: 0.25rem 0.7rem; font-size: 0.78rem;"
-            (click)="filtrarGenero('Todos')">
-            Todos
-          </button>
-          <button 
-            class="btn btn-sm" 
-            [ngClass]="generoSeleccionado === 'Unisex' ? 'btn-lmll btn-primary-lmll' : 'btn-lmll btn-outline-lmll'"
-            style="padding: 0.25rem 0.7rem; font-size: 0.78rem;"
-            (click)="filtrarGenero('Unisex')">
-            Unisex
-          </button>
-          <button 
-            class="btn btn-sm" 
-            [ngClass]="generoSeleccionado === 'Hombre' ? 'btn-lmll btn-primary-lmll' : 'btn-lmll btn-outline-lmll'"
-            style="padding: 0.25rem 0.7rem; font-size: 0.78rem;"
-            (click)="filtrarGenero('Hombre')">
-            Hombre
-          </button>
-          <button 
-            class="btn btn-sm" 
-            [ngClass]="generoSeleccionado === 'Mujer' ? 'btn-lmll btn-primary-lmll' : 'btn-lmll btn-outline-lmll'"
-            style="padding: 0.25rem 0.7rem; font-size: 0.78rem;"
-            (click)="filtrarGenero('Mujer')">
-            Mujer
-          </button>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- CONTENIDO DE PRODUCTOS ANGULAR -->
-  <div class="col-lg-9 anim-3">
-    <!-- Barra superior con contador y feedback -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <p class="text-muted-1 mb-0" style="font-size: 0.9rem;">
-        Mostrando <strong style="color: var(--txt);">{{ productosFiltrados.length }}</strong> productos exclusivos 
-        <span *ngIf="categoriaSeleccionada" class="text-brand">(filtrado)</span>
-      </p>
-
-      <div class="d-flex align-items-center gap-2">
-        <button class="btn-lmll btn-outline-lmll" style="padding: 0.35rem 0.8rem; font-size: 0.8rem;" (click)="cargarTodo()">
-          <i class="bi bi-arrow-clockwise" [class.spin-anim]="cargando"></i> Actualizar
-        </button>
-      </div>
-    </div>
-
-    <!-- Spinner cargando -->
-    <div *ngIf="cargando" class="text-center py-5">
-      <div class="spinner-border text-danger" role="status">
-        <span class="visually-hidden">Cargando catálogo...</span>
-      </div>
-      <p class="text-muted-1 mt-3">Consultando las últimas colecciones...</p>
-    </div>
-
-    <!-- Alerta de Error -->
-    <div *ngIf="errorMensaje && !cargando" class="alert alert-danger d-flex align-items-center mb-4" role="alert">
-      <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2"></i>
-      <div>{{ errorMensaje }}</div>
-      <button class="btn btn-sm btn-outline-danger ms-auto" (click)="cargarTodo()">Reintentar</button>
-    </div>
-
-    <!-- Grilla de Productos -->
-    <div *ngIf="!cargando && !errorMensaje" class="row g-3">
-      <div class="col-12 col-sm-6 col-xl-4" *ngFor="let producto of productosFiltrados">
-        <div class="card-product h-100 d-flex flex-column">
-          <div class="product-img-wrapper">
-            <img [src]="producto.imagenUrl" [alt]="producto.nombre" onerror="this.src='https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=600'" />
-            
-            <!-- Badge Género -->
-            <span class="badge position-absolute top-0 end-0 m-2" style="background: rgba(13, 9, 9, 0.75); color: var(--accent-2); border: 1px solid var(--border-2); font-size: 0.7rem; font-family: 'DM Sans', sans-serif;">
-              {{ producto.genero }}
-            </span>
-
-            <div class="product-overlay">
-              <button class="btn-lmll btn-primary-lmll btn-glow w-100 justify-content-center" (click)="agregarAlCarrito(producto)">
-                Añadir a bolsa <i class="bi bi-bag-plus ms-1"></i>
-              </button>
-            </div>
+        <!-- Buscador de Prenda -->
+        <div class="mb-4">
+          <label class="filter-label">Buscar por nombre</label>
+          <div class="input-group search-input-group">
+            <input 
+              type="text" 
+              class="form-control form-control-sm" 
+              placeholder="Polo, casaca, jean..." 
+              [(ngModel)]="textoBusqueda"
+              (keyup.enter)="buscar()"
+            />
+            <button class="btn btn-sm btn-brand" type="button" (click)="buscar()">
+              <i class="bi bi-search"></i>
+            </button>
           </div>
-          <div class="product-info p-3 d-flex flex-column flex-grow-1">
-            <h3 class="product-title mb-1" style="font-size: 1.05rem; font-weight: 600; color: var(--txt);">
-              {{ producto.nombre }}
-            </h3>
+        </div>
 
-            <!-- Selector Interactivo de Tallas -->
-            <div class="mt-2 mb-2" *ngIf="producto.tallas && producto.tallas.length > 0">
-              <span class="text-muted-1 d-block mb-1" style="font-size: 0.72rem; text-transform: uppercase;">Talla:</span>
-              <div class="d-flex flex-wrap gap-1">
-                <button *ngFor="let t of producto.tallas"
-                        type="button"
-                        class="btn btn-sm p-1 px-2"
-                        [ngStyle]="{
-                          'font-size': '0.72rem',
-                          'background': (obtenerTallaSeleccionada(producto) === t) ? 'var(--brand)' : 'rgba(255,255,255,0.06)',
-                          'color': (obtenerTallaSeleccionada(producto) === t) ? '#ffffff' : 'var(--txt-2)',
-                          'border': '1px solid ' + ((obtenerTallaSeleccionada(producto) === t) ? 'var(--brand)' : 'var(--border)')
-                        }"
-                        (click)="seleccionarTalla(producto.id!, t)">
-                  {{ t }}
+        <!-- Categorías de Ropa -->
+        <div class="mb-4">
+          <label class="filter-label">Categorías</label>
+          <div class="category-list d-flex flex-column gap-1">
+            <button 
+              type="button" 
+              class="category-btn" 
+              [class.active]="!categoriaSeleccionada"
+              (click)="filtrarCategoria(undefined)">
+              <span>Todas las Categorías</span>
+              <i class="bi bi-chevron-right small"></i>
+            </button>
+            @for (cat of categorias; track cat.id) {
+              <button 
+                type="button" 
+                class="category-btn" 
+                [class.active]="categoriaSeleccionada === cat.id"
+                (click)="filtrarCategoria(cat.id)">
+                <span>{{ cat.nombre }}</span>
+                <i class="bi bi-chevron-right small"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Ordenar por Precio / Relevancia -->
+        <div class="mb-4">
+          <label class="filter-label">Ordenar catálogo</label>
+          <select class="form-select form-select-sm filter-select" [(ngModel)]="ordenSeleccionado">
+            <option value="relevancia">Relevancia / Destacados</option>
+            <option value="precio-menor">Precio: Menor a Mayor</option>
+            <option value="precio-mayor">Precio: Mayor a Menor</option>
+            <option value="nombre">Alfabético (A - Z)</option>
+          </select>
+        </div>
+
+        <!-- Filtro Solo con Stock -->
+        <div class="form-check form-switch pt-2">
+          <input class="form-check-input" type="checkbox" id="soloStockCheck" [(ngModel)]="soloConStock">
+          <label class="form-check-label text-muted small" for="soloStockCheck">
+            Solo prendas disponibles
+          </label>
+        </div>
+      </div>
+    </aside>
+
+    <!-- LISTADO DE PRENDAS DE ROPA -->
+    <section class="col-lg-9">
+      <!-- Barra de Estado de Búsqueda -->
+      <div class="d-flex justify-content-between align-items-center mb-3 text-muted small">
+        <span>Mostrando <strong>{{ productosFiltrados.length }}</strong> de {{ productos.length }} prendas</span>
+        @if (categoriaSeleccionada || generoSeleccionado !== 'Todos' || textoBusqueda) {
+          <span class="badge bg-dark-subtle text-light border border-secondary">Filtros aplicados</span>
+        }
+      </div>
+
+      <!-- Spinner de carga -->
+      @if (cargando) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-warning" role="status"></div>
+          <p class="text-muted mt-2">Cargando colección de moda...</p>
+        </div>
+      }
+
+      <!-- Cuadrícula de Tarjetas de Ropa -->
+      @if (!cargando) {
+        <div class="row g-4">
+          @for (producto of productosFiltrados; track producto.id) {
+            <div class="col-md-6 col-xl-4">
+              <article class="fashion-card h-100 d-flex flex-column" [class.out-of-stock]="obtenerStockActual(producto) === 0">
+                <!-- Wrapper de Imagen con Badges y Acciones Hover -->
+                <div class="fashion-card__img-wrap">
+                  <img [src]="producto.imagenUrl || '/img/logo.png'" [alt]="producto.nombre" loading="lazy" />
+
+                  <!-- Badges Superiores -->
+                  <div class="card-badges">
+                    <span class="badge-tag gender">{{ producto.genero || 'Unisex' }}</span>
+                    @if (obtenerStockActual(producto) > 0) {
+                      <span class="badge-tag in-stock">En Stock</span>
+                    } @else {
+                      <span class="badge-tag out-stock">Agotado</span>
+                    }
+                  </div>
+
+                  <!-- Botón de Vista Rápida en Hover -->
+                  <button type="button" class="btn-quick-view" (click)="abrirVistaRapida(producto)" title="Vista Rápida y Medidas">
+                    <i class="bi bi-eye me-1"></i> Vista Rápida
+                  </button>
+                </div>
+
+                <!-- Cuerpo de la Tarjeta -->
+                <div class="fashion-card__body p-3 d-flex flex-column flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="product-category text-muted">{{ producto.categoriaNombre || 'Colección LMLL' }}</span>
+                    <span class="product-id text-muted">#{{ producto.id }}</span>
+                  </div>
+
+                  <h3 class="product-name h6 mb-2">{{ producto.nombre }}</h3>
+
+                  <!-- Selector Interactivo de Tallas -->
+                  <div class="size-selection mb-3">
+                    <small class="text-muted d-block mb-1" style="font-size: 0.72rem;">Tallas disponibles:</small>
+                    <div class="d-flex flex-wrap gap-1">
+                      @if (producto.tallas && producto.tallas.length > 0) {
+                        @for (t of producto.tallas; track t) {
+                          <button 
+                            type="button" 
+                            class="size-pill" 
+                            [class.active]="obtenerTallaSeleccionada(producto) === t"
+                            (click)="seleccionarTalla(producto.id, t)">
+                            {{ t }}
+                          </button>
+                        }
+                      } @else {
+                        <span class="badge bg-secondary" style="font-size: 0.7rem;">Estándar</span>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Precio y Botón Agregar -->
+                  <div class="mt-auto pt-2 border-top border-dark d-flex justify-content-between align-items-center">
+                    <div>
+                      <span class="price-amount text-gold fw-bold fs-5">
+                        S/ {{ obtenerPrecioActual(producto) | number:'1.2-2' }}
+                      </span>
+                      <small class="stock-info d-block text-muted" style="font-size: 0.7rem;">
+                        @if (obtenerStockActual(producto) > 0) {
+                          Stock: <strong class="text-white">{{ obtenerStockActual(producto) }}</strong> und.
+                        } @else {
+                          <span class="text-danger">Agotado temporalmente</span>
+                        }
+                      </small>
+                    </div>
+
+                    <button 
+                      type="button" 
+                      class="btn btn-sm btn-brand px-3 py-2 d-flex align-items-center gap-1"
+                      [disabled]="obtenerStockActual(producto) === 0"
+                      (click)="agregarAlCarrito(producto)"
+                      title="Añadir a la bolsa">
+                      <i class="bi bi-bag-plus"></i>
+                      <span>Agregar</span>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          } @empty {
+            <!-- Alerta si no se encontraron resultados -->
+            <div class="col-12">
+              <div class="empty-state text-center py-5">
+                <i class="bi bi-search display-3 text-gold mb-3 d-block"></i>
+                <h4 class="text-white">No encontramos prendas coincidentes</h4>
+                <p class="text-muted small mb-3">Intenta cambiar los filtros seleccionados o buscar con otro término.</p>
+                <button type="button" class="btn btn-sm btn-outline-light" (click)="limpiarFiltros()">
+                  Ver todas las prendas
                 </button>
               </div>
             </div>
-
-            <!-- Indicador de Stock y Precio Dinámico -->
-            <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
-              <div>
-                <p class="product-price mb-0" style="color: var(--brand); font-weight: 700; font-size: 1.15rem;">
-                  S/ {{ obtenerPrecioActual(producto) | number:'1.2-2' }}
-                </p>
-                <small style="font-size: 0.7rem; color: var(--txt-3);">
-                  Stock: <strong>{{ obtenerStockActual(producto) }}</strong> und.
-                </small>
-              </div>
-              <button class="btn-lmll btn-primary-lmll p-1 px-3 d-md-none" (click)="agregarAlCarrito(producto)" title="Añadir a bolsa">
-                <i class="bi bi-bag-plus"></i>
-              </button>
-            </div>
-          </div>
+          }
         </div>
-      </div>
-
-      <!-- Alerta si no hay resultados -->
-      <div class="col-12" *ngIf="productosFiltrados.length === 0">
-        <div class="card-lmll text-center py-5">
-          <i class="bi bi-search text-brand mb-3" style="font-size: 2.5rem; display: block;"></i>
-          <h4 class="text-light">No hay prendas disponibles</h4>
-          <p class="text-muted-1 mb-3">No encontramos prendas para este filtro o búsqueda.</p>
-          <button class="btn-lmll btn-outline-lmll" (click)="limpiarFiltros()">Mostrar todos los productos</button>
-        </div>
-      </div>
-    </div>
+      }
+    </section>
   </div>
-</div>
-</div>
+</main>
 
-<!-- App Footer Modular (Laboratorio 11) -->
+<!-- 5. Modal de Vista Rápida de Prenda -->
+<app-product-modal 
+  [producto]="productoParaModal" 
+  [tallaSeleccionada]="tallaParaModal"
+  (cerrar)="cerrarVistaRapida()"
+  (agregar)="agregarDesdeModal($event)">
+</app-product-modal>
+
+<!-- 6. Bolsa de Compras Lateral Deslizable (Cart Drawer) -->
+<app-cart-drawer></app-cart-drawer>
+
+<!-- 7. Pie de Página Corporativo -->
 <app-footer></app-footer>

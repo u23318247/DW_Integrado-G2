@@ -1,45 +1,60 @@
 <header class="lmll-header">
   <div class="container d-flex justify-content-between align-items-center py-3">
-    <!-- Brand -->
+    <!-- Brand Logo -->
     <a href="/" class="lmll-brand text-decoration-none d-flex align-items-center gap-2">
-      <span class="lmll-brand__sparkle">✨</span>
+      <span class="lmll-brand__badge">LMLL</span>
       <div>
-        <h1 class="h4 mb-0 brand-font text-white letter-spacing-1">LMLL</h1>
-        <small class="text-gold-light d-block" style="font-size: 0.72rem; letter-spacing: 1.5px;">LA MODA TE LLAMA · SEMANA 11</small>
+        <h1 class="h4 mb-0 brand-font text-white letter-spacing-1">LA MODA TE LLAMA</h1>
+        <small class="text-gold-light d-block" style="font-size: 0.68rem; letter-spacing: 2px;">PERUVIAN STREETWEAR & FASHION</small>
       </div>
     </a>
 
-    <!-- Navigation / Actions -->
-    <div class="d-flex align-items-center gap-3">
-      <a href="/" class="btn btn-sm btn-outline-light d-none d-md-inline-flex align-items-center gap-1">
-        <span>🏠</span> Tienda Principal
-      </a>
+    <!-- Menú de Categorías / Géneros -->
+    <nav class="d-none d-lg-flex align-items-center gap-4 main-nav">
+      <button type="button" class="nav-link-btn" (click)="onSelectGenero('Todos')">Colección</button>
+      <button type="button" class="nav-link-btn" (click)="onSelectGenero('Hombre')">Hombre</button>
+      <button type="button" class="nav-link-btn" (click)="onSelectGenero('Mujer')">Mujer</button>
+      <button type="button" class="nav-link-btn" (click)="onSelectGenero('Unisex')">Unisex</button>
+      <a href="/productos" class="nav-link-btn text-gold">Catálogo Completo</a>
+    </nav>
 
-      <!-- Si es admin / vendedor / almacenero / repartidor -->
+    <!-- Acciones de Usuario y Bolsa -->
+    <div class="d-flex align-items-center gap-2 gap-md-3">
+      <!-- Si es admin o vendedor, link directo al panel operativo -->
       @if (authService.hasPanelAccess()) {
-        <a href="/admin/dashboard" class="btn btn-sm btn-warning text-dark fw-bold d-inline-flex align-items-center gap-1">
-          <span>⚙️</span> Panel Operativo
+        <a href="/admin/dashboard" class="btn btn-sm btn-panel d-inline-flex align-items-center gap-1" title="Ir al Panel de Administración">
+          <i class="bi bi-speedometer2"></i>
+          <span class="d-none d-sm-inline">Panel Operativo</span>
         </a>
       }
 
-      <!-- Badge de usuario -->
+      <!-- Estado de Usuario -->
       @if (authService.currentUser(); as user) {
         <div class="user-pill d-none d-sm-flex align-items-center gap-2">
-          <span class="user-avatar">👤</span>
+          <i class="bi bi-person-circle text-gold fs-5"></i>
           <div class="user-info text-start">
-            <span class="d-block text-white fw-bold" style="font-size: 0.85rem;">{{ user.nombre }}</span>
-            <span class="badge bg-gold-subtle text-gold" style="font-size: 0.7rem;">{{ user.roles[0] || 'ROLE_CLIENTE' }}</span>
+            <span class="d-block text-white fw-bold" style="font-size: 0.8rem;">{{ user.nombre }}</span>
+            <span class="badge bg-gold-subtle text-gold" style="font-size: 0.65rem;">{{ user.roles[0] || 'ROLE_CLIENTE' }}</span>
           </div>
+          <a href="/auth/logout" class="text-muted ms-1" title="Cerrar Sesión">
+            <i class="bi bi-box-arrow-right"></i>
+          </a>
         </div>
+      } @else {
+        <a href="/auth/login" class="btn btn-sm btn-outline-light d-inline-flex align-items-center gap-1">
+          <i class="bi bi-person"></i>
+          <span class="d-none d-sm-inline">Ingresar</span>
+        </a>
       }
 
-      <!-- Botón Bolsa -->
-      <a href="/carrito" class="btn btn-sm btn-brand position-relative d-inline-flex align-items-center gap-2">
-        <span>🛍️</span> Bolsa
-        @if (cartService.cantidadTotal() > 0) {
-          <span class="badge bg-danger rounded-pill">{{ cartService.cantidadTotal() }}</span>
+      <!-- Botón de Bolsa con Trigger del Drawer -->
+      <button type="button" class="btn btn-sm btn-brand d-inline-flex align-items-center gap-2 position-relative" (click)="onToggleBolsa()" title="Abrir Bolsa de Compras">
+        <i class="bi bi-bag"></i>
+        <span class="d-none d-md-inline">Bolsa</span>
+        @if (cartService.totalItems() > 0) {
+          <span class="badge bg-danger rounded-pill cart-badge-num">{{ cartService.totalItems() }}</span>
         }
-      </a>
+      </button>
     </div>
   </div>
 </header>
