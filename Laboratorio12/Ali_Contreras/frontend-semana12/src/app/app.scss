@@ -1,0 +1,33 @@
+$primary: #0f3d66;
+$accent: #168aad;
+$surface: #ffffff;
+$background: #f4f7fb;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: $background;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .75rem;
+  padding: 1rem 2rem;
+  background: $primary;
+  color: white;
+
+  .brand { display: flex; gap: .6rem; align-items: baseline; }
+  .brand span { opacity: .75; font-size: .9rem; }
+
+  nav { display: flex; gap: 1rem; }
+  a { color: #d9e8f5; text-decoration: none; padding-bottom: 2px; }
+  a.active { color: white; font-weight: 700; border-bottom: 2px solid $accent; }
+}
+
+.container {
+  width: min(1100px, 92%);
+  margin: 2rem auto;
+}

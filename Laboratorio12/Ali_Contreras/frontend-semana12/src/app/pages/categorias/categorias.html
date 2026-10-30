@@ -1,0 +1,13 @@
+<section class="page-heading">
+  <p class="eyebrow">CLASIFICACIÓN</p>
+  <h1>Categorías</h1>
+</section>
+
+<ul class="lista">
+  @for (categoria of categorias; track categoria) {
+    <li>
+      <span>{{ categoria }}</span>
+      <strong>{{ cantidad(categoria) }} producto(s)</strong>
+    </li>
+  }
+</ul>
