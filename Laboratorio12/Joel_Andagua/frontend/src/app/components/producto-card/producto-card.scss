@@ -1,0 +1,22 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  min-height: 250px;
+  padding: 1.25rem;
+  border: 1px solid #d9e2ec;
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 10px 25px rgba(15, 61, 102, .08);
+
+  &.featured { border: 2px solid #f0ad4e; box-shadow: 0 10px 25px rgba(240, 173, 78, .2); }
+  .featured-label { position: absolute; top: .8rem; right: .8rem; color: #a45b00; font-size: .75rem; font-weight: 700; }
+  .badge { color: #168aad; font-size: .8rem; font-weight: 700; }
+  h2 { margin: .35rem 0; color: #102a43; }
+  p { flex: 1; margin: 0; line-height: 1.5; }
+  .price { color: #0f3d66; font-size: 1.2rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+  button { cursor: pointer; padding: .55rem .7rem; border: 0; border-radius: .5rem; background: #0f3d66; color: white; font-weight: 700; }
+  button.ghost { background: #eaf4fb; color: #0f3d66; }
+}
