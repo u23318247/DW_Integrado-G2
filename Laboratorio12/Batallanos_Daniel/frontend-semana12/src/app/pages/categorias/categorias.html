@@ -1,0 +1,10 @@
+<section class="category-page">
+  <p class="eyebrow">catalogo</p>
+  <h1>Categorias</h1>
+  <p>Estas son las categorias disponibles en el catalogo:</p>
+  <ul>
+    @for (categoria of categorias; track categoria) {
+      <li>{{ categoria }}</li>
+    }
+  </ul>
+</section>
