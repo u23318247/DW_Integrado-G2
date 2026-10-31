@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (this.value.length === 8) {
                 timerDni = setTimeout(() => {
                     consultarDni(this.value);
-                }, 300);
+                }, 450);
             } else {
                 if (badgeDni) badgeDni.style.display = "none";
                 if (feedbackDni) feedbackDni.classList.add("d-none");

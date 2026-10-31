@@ -265,11 +265,22 @@
                       feedback.classList.remove("d-none");
                   }
               } else {
-                  alert(data.mensaje || "DNI no encontrado.");
+                  if (feedback && feedbackText) {
+                      feedbackText.textContent = "ℹ " + (data.mensaje || "DNI no encontrado en RENIEC. Por favor ingresa tus datos manualmente.");
+                      feedback.className = "mt-2 text-warning small";
+                      feedback.classList.remove("d-none");
+                  }
+                  if (badge) badge.style.display = "none";
+                  const elNombre = document.getElementById("clienteNombre");
+                  if (elNombre) elNombre.focus();
               }
           } catch (e) {
               console.error("Error al consultar DNI:", e);
-              alert("Error al conectar con el servicio de consulta DNI.");
+              if (feedback && feedbackText) {
+                  feedbackText.textContent = "ℹ No se pudo conectar con el servicio de consulta en este momento. Puedes ingresar tus datos manualmente.";
+                  feedback.className = "mt-2 text-warning small";
+                  feedback.classList.remove("d-none");
+              }
           } finally {
               if (spinner) spinner.classList.add("d-none");
               if (icon) icon.classList.remove("d-none");
@@ -283,7 +294,7 @@
           if (inputDni && inputDni.value !== dni) inputDni.value = dni;
           clearTimeout(timeoutDniAuto);
           if (dni.length === 8) {
-              timeoutDniAuto = setTimeout(ejecutarConsultaDni, 200);
+              timeoutDniAuto = setTimeout(ejecutarConsultaDni, 450);
           }
       }
     </script>

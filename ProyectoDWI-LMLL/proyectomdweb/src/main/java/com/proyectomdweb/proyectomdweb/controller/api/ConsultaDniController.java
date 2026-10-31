@@ -3,13 +3,26 @@ package com.proyectomdweb.proyectomdweb.controller.api;
 import com.proyectomdweb.proyectomdweb.model.Usuario;
 import com.proyectomdweb.proyectomdweb.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.net.ssl.*;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/consulta")
 @RequiredArgsConstructor
@@ -17,10 +30,40 @@ public class ConsultaDniController {
 
     private final UsuarioRepository usuarioRepository;
 
+    @Value("${reniec.api.token:}")
+    private String reniecApiToken;
+
+    private static final HttpClient HTTP_CLIENT = crearHttpClientConfiable();
+
+    private static HttpClient crearHttpClientConfiable() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+                    public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+                    public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                }
+            };
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new SecureRandom());
+
+            return HttpClient.newBuilder()
+                .sslContext(sslContext)
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
+        } catch (Exception e) {
+            log.error("Error al inicializar SSL para cliente DNI: {}", e.getMessage());
+            return HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
+        }
+    }
+
     @GetMapping("/dni/{dni}")
     public ResponseEntity<Map<String, Object>> consultarDni(@PathVariable String dni) {
         Map<String, Object> respuesta = new HashMap<>();
-        String dniLimpio = dni.trim().replaceAll("\\D", "");
+        String dniLimpio = (dni != null) ? dni.trim().replaceAll("\\D", "") : "";
 
         if (dniLimpio.length() != 8) {
             respuesta.put("encontrado", false);
@@ -28,62 +71,145 @@ public class ConsultaDniController {
             return ResponseEntity.badRequest().body(respuesta);
         }
 
-        // 1. Buscar primero en la base de datos local
+        // 1. Buscar en la base de datos local de clientes y usuarios registrados
         Optional<Usuario> usuarioOpt = usuarioRepository.findByDni(dniLimpio);
         if (usuarioOpt.isPresent()) {
             Usuario u = usuarioOpt.get();
-            respuesta.put("dni", u.getDni());
-            respuesta.put("nombre", u.getNombre());
-            respuesta.put("email", u.getEmail());
-            respuesta.put("telefono", u.getTelefono() != null ? u.getTelefono() : "");
-            respuesta.put("direccion", u.getDireccion() != null ? u.getDireccion() : "");
-            respuesta.put("encontrado", true);
-            respuesta.put("origen", "Base de Datos de Clientes");
-            return ResponseEntity.ok(respuesta);
+            if (u.getNombre() != null && !u.getNombre().isBlank()) {
+                respuesta.put("dni", u.getDni());
+                respuesta.put("nombre", u.getNombre());
+                respuesta.put("email", u.getEmail() != null ? u.getEmail() : "");
+                respuesta.put("telefono", u.getTelefono() != null ? u.getTelefono() : "");
+                respuesta.put("direccion", u.getDireccion() != null ? u.getDireccion() : "");
+                respuesta.put("encontrado", true);
+                respuesta.put("origen", "Base de Datos de Clientes");
+                return ResponseEntity.ok(respuesta);
+            }
         }
 
-        // 2. Padrón RENIEC precargado para pruebas del proyecto
-        Map<String, String[]> padronReniec = Map.of(
-            "72345678", new String[]{"Antonela Jaimes", "antonela.jaimes@gmail.com", "933221100", "Av. Larco 789, Miraflores, Lima"},
-            "12345678", new String[]{"Carlos Alberto Mendoza Ramos", "carlos.mendoza@gmail.com", "987654321", "Jr. Huancavelica 452, Cercado de Lima"},
-            "87654321", new String[]{"María Elena Flores Quispe", "maria.flores@outlook.com", "912345678", "Av. Javier Prado Este 2450, San Borja"},
-            "45678901", new String[]{"José Luis Benítez Salazar", "jluis.benitez@hotmail.com", "955112233", "Av. Brasil 1820, Jesús María"},
-            "10203040", new String[]{"Valeria Sofía Castillo Peña", "valeria.castillo@gmail.com", "944887766", "Av. Arequipa 3340, San Isidro"},
-            "71829304", new String[]{"Rodrigo Martín Morales Gómez", "rodrigo.morales@gmail.com", "966554433", "Calle Las Begonias 120, Surco"}
-        );
-
-        if (padronReniec.containsKey(dniLimpio)) {
-            String[] datos = padronReniec.get(dniLimpio);
-            respuesta.put("dni", dniLimpio);
-            respuesta.put("nombre", datos[0]);
-            respuesta.put("email", datos[1]);
-            respuesta.put("telefono", datos[2]);
-            respuesta.put("direccion", datos[3]);
-            respuesta.put("encontrado", true);
-            respuesta.put("origen", "Padrón RENIEC");
-            return ResponseEntity.ok(respuesta);
+        // 2. Consulta REAL en vivo al servicio de RENIEC (apis.net.pe)
+        Map<String, Object> resultadoReniec = consultarReniecEnVivo(dniLimpio);
+        if (resultadoReniec != null && Boolean.TRUE.equals(resultadoReniec.get("encontrado"))) {
+            return ResponseEntity.ok(resultadoReniec);
         }
 
-        // 3. Autocompletado inteligente para cualquier otro DNI válido
-        String[] nombres = {"Alejandro", "Luciana", "Sebastián", "Camila", "Mateo", "Valentina", "Diego", "Gabriela", "Fernando", "Daniela"};
-        String[] apellidosPaternos = {"García", "Rodríguez", "Huamán", "Quispe", "Vásquez", "Ramos", "López", "Espinoza", "Torres", "Flores"};
-        String[] apellidosMaternos = {"Sánchez", "Romero", "Pérez", "Castro", "Díaz", "Chávez", "Mendoza", "Silva", "Morales", "Gutiérrez"};
-        String[] distritos = {"Miraflores, Lima", "San Isidro, Lima", "Surco, Lima", "San Borja, Lima", "Jesús María, Lima", "Magdalena del Mar, Lima", "La Molina, Lima"};
-
-        int hash = Math.abs(dniLimpio.hashCode());
-        String nombreGen = nombres[hash % nombres.length] + " " + apellidosPaternos[(hash / 10) % apellidosPaternos.length] + " " + apellidosMaternos[(hash / 100) % apellidosMaternos.length];
-        String emailGen = nombreGen.toLowerCase().replace(" ", ".").replaceAll("[áàä]", "a").replaceAll("[éèë]", "e").replaceAll("[íìï]", "i").replaceAll("[óòö]", "o").replaceAll("[úùü]", "u") + "@gmail.com";
-        String telefonoGen = "9" + String.format("%08d", (hash % 90000000) + 10000000).substring(0, 8);
-        String direccionGen = "Av. Principal " + ((hash % 800) + 100) + ", " + distritos[hash % distritos.length];
-
+        // 3. Si no se encontró en RENIEC o falló la conexión externa:
+        // NO inventamos nombres ficticios bajo ninguna circunstancia.
+        // Devolvemos encontrado: false con mensaje claro para que el cliente ingrese su nombre real.
         respuesta.put("dni", dniLimpio);
-        respuesta.put("nombre", nombreGen);
-        respuesta.put("email", emailGen);
-        respuesta.put("telefono", telefonoGen);
-        respuesta.put("direccion", direccionGen);
-        respuesta.put("encontrado", true);
-        respuesta.put("origen", "Consulta RENIEC");
-
+        respuesta.put("encontrado", false);
+        respuesta.put("mensaje", "No se encontró el DNI en los registros de RENIEC. Por favor, escribe tu nombre completo y datos.");
         return ResponseEntity.ok(respuesta);
+    }
+
+    private Map<String, Object> consultarReniecEnVivo(String dni) {
+        // Intento con apis.net.pe v2 si hay token configurado
+        if (reniecApiToken != null && !reniecApiToken.isBlank()) {
+            Map<String, Object> v2Res = realizarPeticionHttp(
+                "https://api.apis.net.pe/v2/reniec/dni?numero=" + dni,
+                "Bearer " + reniecApiToken.trim(),
+                dni
+            );
+            if (v2Res != null) return v2Res;
+        }
+
+        // Intento con apis.net.pe v1 (abierto para consultas DNI)
+        Map<String, Object> v1Res = realizarPeticionHttp(
+            "https://api.apis.net.pe/v1/dni?numero=" + dni,
+            null,
+            dni
+        );
+        if (v1Res != null) return v1Res;
+
+        // Si fue devuelto con rate limit (429) o micro-demora, reintento tras 400ms
+        try {
+            Thread.sleep(400);
+        } catch (InterruptedException ignored) {}
+
+        return realizarPeticionHttp(
+            "https://api.apis.net.pe/v1/dni?numero=" + dni,
+            null,
+            dni
+        );
+    }
+
+    private Map<String, Object> realizarPeticionHttp(String urlStr, String authHeader, String fallbackDni) {
+        try {
+            HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
+                .uri(URI.create(urlStr))
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                .header("Accept", "application/json")
+                .timeout(Duration.ofSeconds(6))
+                .GET();
+
+            if (authHeader != null && !authHeader.isBlank()) {
+                reqBuilder.header("Authorization", authHeader);
+            }
+
+            HttpResponse<String> response = HTTP_CLIENT.send(reqBuilder.build(), HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200 && response.body() != null && !response.body().isBlank()) {
+                String body = response.body().trim();
+                if (body.startsWith("{")) {
+                    String nombreCompleto = extraerCampoJson(body, "nombre");
+                    if (nombreCompleto == null || nombreCompleto.isBlank()) {
+                        String nombres = extraerCampoJson(body, "nombres");
+                        String paterno = extraerCampoJson(body, "apellidoPaterno");
+                        String materno = extraerCampoJson(body, "apellidoMaterno");
+                        StringBuilder sb = new StringBuilder();
+                        if (nombres != null) sb.append(nombres).append(" ");
+                        if (paterno != null) sb.append(paterno).append(" ");
+                        if (materno != null) sb.append(materno);
+                        nombreCompleto = sb.toString().trim();
+                    }
+
+                    if (!nombreCompleto.isBlank()) {
+                        Map<String, Object> resultado = new HashMap<>();
+                        String dniRes = extraerCampoJson(body, "numeroDocumento");
+                        if (dniRes == null || dniRes.isBlank()) {
+                            dniRes = fallbackDni;
+                        }
+
+                        resultado.put("dni", dniRes);
+                        resultado.put("nombre", capitalizarPalabras(nombreCompleto));
+                        resultado.put("email", "");
+                        resultado.put("telefono", "");
+
+                        String direccion = extraerCampoJson(body, "direccion");
+                        resultado.put("direccion", direccion != null ? capitalizarPalabras(direccion) : "");
+                        resultado.put("encontrado", true);
+                        resultado.put("origen", "RENIEC Oficial");
+                        return resultado;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Fallo consultando servicio RENIEC {}: {}", urlStr, e.getMessage());
+        }
+        return null;
+    }
+
+    private String extraerCampoJson(String json, String campo) {
+        if (json == null || campo == null) return null;
+        Pattern pattern = Pattern.compile("\"" + Pattern.quote(campo) + "\"\\s*:\\s*\"([^\"]*)\"");
+        Matcher matcher = pattern.matcher(json);
+        if (matcher.find()) {
+            return matcher.group(1).trim();
+        }
+        return null;
+    }
+
+    private String capitalizarPalabras(String texto) {
+        if (texto == null || texto.isBlank()) return "";
+        String[] partes = texto.trim().toLowerCase().split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        for (String p : partes) {
+            if (p.isEmpty()) continue;
+            sb.append(Character.toUpperCase(p.charAt(0)));
+            if (p.length() > 1) {
+                sb.append(p.substring(1));
+            }
+            sb.append(" ");
+        }
+        return sb.toString().trim();
     }
 }
