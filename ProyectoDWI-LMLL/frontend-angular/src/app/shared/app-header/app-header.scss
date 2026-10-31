@@ -81,3 +81,17 @@
 .bg-gold-subtle {
   background-color: rgba(212, 175, 55, 0.18);
 }
+
+.btn-outline-gold {
+  border: 1px solid rgba(212, 175, 55, 0.7);
+  color: $color-brand;
+  background: rgba(212, 175, 55, 0.1);
+  font-weight: 500;
+  @include smooth-transition;
+
+  &:hover {
+    background: $color-brand;
+    color: #000000;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+  }
+}

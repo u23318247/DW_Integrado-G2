@@ -37,12 +37,20 @@ public class SecurityConfig {
                 .requestMatchers("/admin/productos/**").hasAnyRole("ADMIN", "VENDEDOR", "ALMACENERO")
                 // 3. Gestión de Pedidos y Entregas para ADMIN, VENDEDOR, ALMACENERO y REPARTIDOR
                 .requestMatchers("/admin/pedidos/**").hasAnyRole("ADMIN", "VENDEDOR", "ALMACENERO", "REPARTIDOR")
-                // 4. Panel general
+                // 4. Panel general administrativo
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "VENDEDOR", "ALMACENERO", "REPARTIDOR")
-                // 3. Área privada del comprador
+                
+                // 5. Área privada de compras y seguimiento
                 .requestMatchers("/mis-pedidos/**").authenticated()
-                // 4. Rutas públicas indispensables: Auth (login, registro) y recursos estáticos
+                .requestMatchers("/pago/**").authenticated()
+
+                // 6. Rutas públicas de la tienda virtual: inicio, ropa, catálogo, carrito, Angular y recursos estáticos
                 .requestMatchers(
+                    "/",
+                    "/productos/**",
+                    "/angular/**",
+                    "/api/productos/**",
+                    "/carrito/**",
                     "/auth/**",
                     "/api/auth/**",
                     "/css/**",
@@ -52,8 +60,8 @@ public class SecurityConfig {
                     "/error"
                 ).permitAll()
                 
-                // 5. Todo el resto de la plataforma (Inicio, Catálogo, Carrito, Angular, etc.) requiere login inicial
-                .anyRequest().authenticated()
+                // 7. El resto de navegación por defecto es pública
+                .anyRequest().permitAll()
             )
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint((request, response, authException) -> {
