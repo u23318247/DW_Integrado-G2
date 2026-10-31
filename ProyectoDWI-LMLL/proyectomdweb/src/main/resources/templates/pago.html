@@ -28,16 +28,34 @@
   </head>
 
   <body>
-    <!-- =============================
-         NAVBAR — Bootstrap responsive
-         ============================= -->
-    <header class="site-header border-bottom">
+    <!-- ==============================================
+         PARTE SUPERIOR BITONO (1. TONO CLARO / 2. TONO OSCURO)
+         ============================================== -->
+    <!-- Nivel 1: Franja Superior en Tono Claro Luminoso -->
+    <div class="top-announcement-bar">
+      <div class="container d-flex justify-content-between align-items-center py-1">
+        <span class="d-flex align-items-center gap-1">
+          <i class="bi bi-shield-check" style="color: #92691b; font-size: 0.95rem;"></i>
+          <span>Compra 100% Segura & Garantía Oficial</span>
+        </span>
+        <span class="d-none d-md-inline" style="opacity: 0.9;">
+          ✨ Envíos a todo el Perú | Pasarela Protegida SSL
+        </span>
+        <span class="d-flex align-items-center gap-1">
+          <i class="bi bi-patch-check-fill text-success"></i>
+          <span>RENIEC Verificado</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Nivel 2: Barra de Navegación en Tono Oscuro Azul Noche / Midnight Slate -->
+    <header class="site-header">
       <nav class="navbar navbar-expand-md w-100 px-3 py-2">
         <a class="navbar-brand" th:href="@{/}">
           <img
             th:src="@{/img/logo.png}"
             alt="La Moda te LLama"
-            style="height: 63px; width: auto"
+            style="height: 60px; width: auto"
           />
         </a>
         <button
@@ -60,6 +78,12 @@
               <a class="nav-link" th:href="@{/carrito}">Carrito</a>
             </li>
           </ul>
+
+          <div class="d-flex align-items-center mt-2 mt-md-0 gap-3">
+            <a th:href="@{/auth/login}" class="btn-user-icon" title="Iniciar Sesión / Administrador" aria-label="Ingresar">
+              <i class="bi bi-person"></i>
+            </a>
+          </div>
         </div>
       </nav>
     </header>
@@ -70,9 +94,10 @@
 <main class="py-4">
   <div class="container">
     
-    <div class="mb-5 text-center checkout-hero">
+    <!-- Banner Superior con Fondo Bitono (Claro y Oscuro) -->
+    <div class="checkout-hero two-tone-hero text-center mb-5">
       <h1 class="display-font checkout-title">
-        Finalizar <em style="color: var(--brand);">Compra</em>
+        Finalizar <span class="text-gold-gradient">Compra</span>
       </h1>
       <p class="checkout-subtitle">Completa tus datos para procesar tu pedido de forma segura.</p>
     </div>
