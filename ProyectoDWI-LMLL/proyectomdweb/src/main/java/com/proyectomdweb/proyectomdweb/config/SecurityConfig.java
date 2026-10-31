@@ -52,6 +52,7 @@ public class SecurityConfig {
                     "/carrito/**",
                     "/pago/**",
                     "/comprobante/**",
+                    "/api/consulta/**",
                     "/auth/**",
                     "/api/auth/**",
                     "/css/**",

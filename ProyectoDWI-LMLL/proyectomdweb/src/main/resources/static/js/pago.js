@@ -168,5 +168,93 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    //-- LÓGICA DE AUTOCOMPLETADO POR DNI --//
+    const inputDni        = document.getElementById("clienteDni");
+    const btnBuscarDni    = document.getElementById("btn-buscar-dni");
+    const spinnerDni      = document.getElementById("spinner-dni");
+    const iconBuscarDni   = document.getElementById("icon-buscar-dni");
+    const feedbackDni     = document.getElementById("dni-feedback");
+    const feedbackTexto   = document.getElementById("dni-feedback-text");
+    const badgeDni        = document.getElementById("dni-badge");
+
+    const inputNombre     = document.getElementById("clienteNombre");
+    const inputEmail      = document.getElementById("clienteEmail");
+    const inputTelefono   = document.getElementById("clienteTelefono");
+    const inputDireccion  = document.getElementById("clienteDireccion");
+
+    let timeoutDni = null;
+
+    async function consultarDni(dni) {
+        const dniLimpio = (dni || "").trim().replace(/\D/g, "");
+        if (dniLimpio.length !== 8) return;
+
+        // Mostrar spinner
+        if (spinnerDni) spinnerDni.classList.remove("d-none");
+        if (iconBuscarDni) iconBuscarDni.classList.add("d-none");
+        if (feedbackDni) feedbackDni.classList.add("d-none");
+
+        try {
+            const resp = await fetch(`/api/consulta/dni/${dniLimpio}`);
+            if (!resp.ok) throw new Error("No se pudo obtener información del DNI");
+
+            const data = await resp.json();
+            if (data && data.encontrado) {
+                if (inputNombre && data.nombre) inputNombre.value = data.nombre;
+                if (inputEmail && data.email && (!inputEmail.value || inputEmail.value.includes("@"))) inputEmail.value = data.email;
+                if (inputTelefono && data.telefono) inputTelefono.value = data.telefono;
+                if (inputDireccion && data.direccion) inputDireccion.value = data.direccion;
+
+                // Animación visual de campos autocompletados
+                [inputNombre, inputEmail, inputTelefono, inputDireccion].forEach(el => {
+                    if (el) {
+                        el.style.transition = "all 0.3s ease";
+                        el.style.borderColor = "#28a745";
+                        el.style.backgroundColor = "rgba(40, 167, 69, 0.08)";
+                        setTimeout(() => {
+                            el.style.borderColor = "";
+                            el.style.backgroundColor = "";
+                        }, 2500);
+                    }
+                });
+
+                if (badgeDni) {
+                    badgeDni.style.display = "inline-flex";
+                    badgeDni.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> ${data.origen || 'Verificado'}`;
+                }
+
+                if (feedbackDni && feedbackTexto) {
+                    feedbackTexto.textContent = `Datos de ${data.nombre} autocompletados con éxito.`;
+                    feedbackDni.classList.remove("d-none");
+                }
+            }
+        } catch (error) {
+            console.warn("Consulta DNI:", error);
+        } finally {
+            if (spinnerDni) spinnerDni.classList.add("d-none");
+            if (iconBuscarDni) iconBuscarDni.classList.remove("d-none");
+        }
+    }
+
+    if (inputDni) {
+        inputDni.addEventListener("input", function(e) {
+            this.value = this.value.replace(/\D/g, "").slice(0, 8);
+            clearTimeout(timeoutDni);
+            if (this.value.length === 8) {
+                timeoutDni = setTimeout(() => consultarDni(this.value), 350);
+            }
+        });
+
+        if (btnBuscarDni) {
+            btnBuscarDni.addEventListener("click", () => {
+                consultarDni(inputDni.value);
+            });
+        }
+
+        // Si ya viene con DNI precargado al abrir la página y el nombre está vacío o por completar
+        if (inputDni.value && inputDni.value.length === 8 && (!inputNombre.value || inputNombre.value.trim() === "")) {
+            consultarDni(inputDni.value);
+        }
+    }
+
     cargarResumen();
 });

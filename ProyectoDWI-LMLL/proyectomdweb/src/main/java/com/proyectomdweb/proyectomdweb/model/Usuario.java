@@ -28,6 +28,9 @@ public class Usuario implements UserDetails {
     @Column(nullable = false, length = 100)
     private String password;
 
+    @Column(length = 20)
+    private String dni;
+
     @Column(length = 12)
     private String telefono;
 

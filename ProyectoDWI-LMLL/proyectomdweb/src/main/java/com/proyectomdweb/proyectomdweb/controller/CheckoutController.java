@@ -46,6 +46,7 @@ public class CheckoutController {
     public String procesarLocalYPrepararPayU(
             @RequestParam("total")           BigDecimal total, 
             @RequestParam("tipoComprobante") String tipoComprobante,
+            @RequestParam(value = "clienteDni", required = false)       String clienteDni,
             @RequestParam(value = "clienteNombre", required = false)    String clienteNombre,
             @RequestParam(value = "clienteEmail", required = false)     String clienteEmail,
             @RequestParam(value = "clienteDireccion", required = false) String clienteDireccion,
@@ -64,6 +65,7 @@ public class CheckoutController {
                     nuevo.setEmail(clienteEmail.trim());
                     nuevo.setPassword("$2a$10$wN1QeY9uLgq8tXN0Wk2Y..o1QeW1");
                     nuevo.setRol("ROLE_CLIENTE");
+                    nuevo.setDni(clienteDni);
                     nuevo.setDireccion(clienteDireccion != null ? clienteDireccion : "Lima, Perú");
                     nuevo.setTelefono(clienteTelefono != null ? clienteTelefono : "999999999");
                     return usuarioRepository.save(nuevo);
@@ -73,7 +75,10 @@ public class CheckoutController {
                 .orElseGet(() -> usuarioRepository.findAll().get(0));
         }
         
-        // Si el usuario especificó dirección o teléfono en el formulario de pago, los actualizamos
+        // Si el usuario especificó DNI, dirección o teléfono en el formulario de pago, los actualizamos
+        if (clienteDni != null && !clienteDni.isBlank()) {
+            usuarioLogueado.setDni(clienteDni.trim());
+        }
         if (clienteDireccion != null && !clienteDireccion.isBlank()) {
             usuarioLogueado.setDireccion(clienteDireccion);
         }

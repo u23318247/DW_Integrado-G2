@@ -82,23 +82,60 @@
         
         <div class="col-lg-7">
           <div class="card-lmll mb-4">
-            <h2 class="display-font h4 mb-4 text-gold"><i class="bi bi-geo-alt me-2"></i>Datos del Cliente</h2>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="display-font h4 mb-0 text-gold"><i class="bi bi-geo-alt me-2"></i>Datos del Cliente</h2>
+              <span id="dni-badge" class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 0.75rem; display: none;">
+                <i class="bi bi-check-circle me-1"></i> Verificado
+              </span>
+            </div>
+
+            <!-- Campo DNI en la parte superior con Autocompletado Automático -->
+            <div class="mb-4 p-3 rounded" style="background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.25);">
+              <label class="form-label-lmll d-flex justify-content-between align-items-center fw-bold" for="clienteDni">
+                <span><i class="bi bi-person-vcard text-gold me-1"></i> DNI del Comprador</span>
+                <small class="text-muted-1" style="font-size: 0.75rem;">Ingresa 8 dígitos para autocompletar</small>
+              </label>
+              <div class="input-group">
+                <input 
+                  type="text" 
+                  id="clienteDni" 
+                  name="clienteDni" 
+                  th:value="${usuario?.dni}"
+                  class="form-control form-input-lmll" 
+                  placeholder="Ej. 72345678" 
+                  maxlength="8" 
+                  pattern="[0-9]{8}"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  required
+                >
+                <button type="button" id="btn-buscar-dni" class="btn btn-outline-warning d-flex align-items-center gap-1" style="border-color: rgba(212, 175, 55, 0.6); color: #d4af37;">
+                  <span id="spinner-dni" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                  <i id="icon-buscar-dni" class="bi bi-search"></i>
+                  <span>Consultar DNI</span>
+                </button>
+              </div>
+              <div id="dni-feedback" class="mt-2 text-gold small d-none">
+                <i class="bi bi-check-circle-fill me-1"></i> <span id="dni-feedback-text"></span>
+              </div>
+            </div>
+
             <div class="row g-4">
               <div class="col-md-6">
                 <label class="form-label-lmll">Nombre completo</label>
-                <input type="text" name="clienteNombre" th:value="${usuario?.nombre}" class="form-control form-input-lmll" placeholder="Tu nombre y apellido" required>
+                <input type="text" id="clienteNombre" name="clienteNombre" th:value="${usuario?.nombre}" class="form-control form-input-lmll" placeholder="Tu nombre y apellido" required>
               </div>
               <div class="col-md-6">
                 <label class="form-label-lmll">Teléfono (9 dígitos)</label>
-                <input type="tel" name="clienteTelefono" th:value="${usuario?.telefono}" class="form-control form-input-lmll" maxlength="9" pattern="[0-9]{9}" placeholder="987654321" required>
+                <input type="tel" id="clienteTelefono" name="clienteTelefono" th:value="${usuario?.telefono}" class="form-control form-input-lmll" maxlength="9" pattern="[0-9]{9}" placeholder="987654321" required>
               </div>
               <div class="col-12">
                 <label class="form-label-lmll">Correo Electrónico</label>
-                <input type="email" name="clienteEmail" th:value="${usuario?.email}" class="form-control form-input-lmll" placeholder="ejemplo@correo.com" required>
+                <input type="email" id="clienteEmail" name="clienteEmail" th:value="${usuario?.email}" class="form-control form-input-lmll" placeholder="ejemplo@correo.com" required>
               </div>
               <div class="col-12">
                 <label class="form-label-lmll">Dirección de Entrega</label>
-                <input type="text" name="clienteDireccion" th:value="${usuario?.direccion}" class="form-control form-input-lmll" placeholder="Av. / Jr. / Calle, Distrito, Ciudad" required>
+                <input type="text" id="clienteDireccion" name="clienteDireccion" th:value="${usuario?.direccion}" class="form-control form-input-lmll" placeholder="Av. / Jr. / Calle, Distrito, Ciudad" required>
               </div>
             </div>
           </div>
