@@ -121,22 +121,110 @@
               </div>
             </div>
 
-            <div class="row g-4">
+            <input type="hidden" id="clienteNombre" name="clienteNombre" th:value="${usuario?.nombre}">
+
+            <div class="row g-3">
+              <!-- Cuadro 1: Nombres -->
               <div class="col-md-6">
-                <label class="form-label-lmll">Nombre completo</label>
-                <input type="text" id="clienteNombre" name="clienteNombre" th:value="${usuario?.nombre}" class="form-control form-input-lmll" placeholder="Tu nombre y apellido" required>
+                <label class="form-label-lmll d-flex align-items-center justify-content-between">
+                  <span><i class="bi bi-person text-gold me-1"></i> Nombres</span>
+                  <small class="text-gold" style="font-size: 0.72rem;"><i class="bi bi-shield-check"></i> RENIEC</small>
+                </label>
+                <input 
+                  type="text" 
+                  id="clienteNombres" 
+                  name="clienteNombres" 
+                  class="form-control form-input-lmll" 
+                  placeholder="Tus nombres" 
+                  oninput="sincronizarNombreCompleto()"
+                  required
+                >
               </div>
+
+              <!-- Cuadro 2: Apellidos -->
               <div class="col-md-6">
-                <label class="form-label-lmll">Teléfono (9 dígitos)</label>
-                <input type="tel" id="clienteTelefono" name="clienteTelefono" th:value="${usuario?.telefono}" class="form-control form-input-lmll" maxlength="9" pattern="[0-9]{9}" placeholder="987654321" required>
+                <label class="form-label-lmll d-flex align-items-center justify-content-between">
+                  <span><i class="bi bi-people text-gold me-1"></i> Apellidos</span>
+                  <small class="text-gold" style="font-size: 0.72rem;"><i class="bi bi-shield-check"></i> RENIEC</small>
+                </label>
+                <input 
+                  type="text" 
+                  id="clienteApellidos" 
+                  name="clienteApellidos" 
+                  class="form-control form-input-lmll" 
+                  placeholder="Tus apellidos" 
+                  oninput="sincronizarNombreCompleto()"
+                  required
+                >
               </div>
-              <div class="col-12">
-                <label class="form-label-lmll">Correo Electrónico</label>
-                <input type="email" id="clienteEmail" name="clienteEmail" th:value="${usuario?.email}" class="form-control form-input-lmll" placeholder="ejemplo@correo.com" required>
+
+              <!-- Cuadro 3: Teléfono (manual) -->
+              <div class="col-md-6">
+                <label class="form-label-lmll d-flex align-items-center justify-content-between">
+                  <span><i class="bi bi-telephone text-gold me-1"></i> Teléfono (9 dígitos)</span>
+                  <small class="text-muted-1" style="font-size: 0.72rem;">Manual</small>
+                </label>
+                <input 
+                  type="tel" 
+                  id="clienteTelefono" 
+                  name="clienteTelefono" 
+                  th:value="${usuario?.telefono}" 
+                  class="form-control form-input-lmll" 
+                  maxlength="9" 
+                  pattern="[0-9]{9}" 
+                  placeholder="987654321" 
+                  required
+                >
               </div>
+
+              <!-- Cuadro 4: Correo Electrónico (con autocompletado @gmail.com) -->
+              <div class="col-md-6">
+                <label class="form-label-lmll d-flex align-items-center justify-content-between">
+                  <span><i class="bi bi-envelope text-gold me-1"></i> Correo Electrónico</span>
+                  <small class="text-muted-1" style="font-size: 0.72rem;">Auto @gmail.com</small>
+                </label>
+                <input 
+                  type="email" 
+                  id="clienteEmail" 
+                  name="clienteEmail" 
+                  th:value="${usuario?.email}" 
+                  class="form-control form-input-lmll" 
+                  placeholder="ejemplo@gmail.com" 
+                  autocomplete="email"
+                  list="sugerencias-correo"
+                  required
+                >
+                <datalist id="sugerencias-correo">
+                  <option value="@gmail.com"></option>
+                  <option value="@hotmail.com"></option>
+                  <option value="@outlook.com"></option>
+                </datalist>
+                <div class="d-flex align-items-center gap-2 mt-1">
+                  <small class="text-muted-1" style="font-size: 0.72rem;">Completar:</small>
+                  <button type="button" class="btn btn-sm py-0 px-2 rounded-pill text-gold" style="font-size: 0.72rem; border: 1px solid rgba(212,175,55,0.4); background: rgba(212,175,55,0.1);" onclick="autocompletarDominio('@gmail.com')">
+                    + @gmail.com
+                  </button>
+                  <button type="button" class="btn btn-sm py-0 px-2 rounded-pill text-light" style="font-size: 0.72rem; border: 1px solid rgba(255,255,255,0.2); background: transparent;" onclick="autocompletarDominio('@hotmail.com')">
+                    + @hotmail.com
+                  </button>
+                </div>
+              </div>
+
+              <!-- Cuadro 5: Dirección de Entrega (pre-llenado automático con 'Av. ') -->
               <div class="col-12">
-                <label class="form-label-lmll">Dirección de Entrega</label>
-                <input type="text" id="clienteDireccion" name="clienteDireccion" th:value="${usuario?.direccion}" class="form-control form-input-lmll" placeholder="Av. / Jr. / Calle, Distrito, Ciudad" required>
+                <label class="form-label-lmll d-flex align-items-center justify-content-between">
+                  <span><i class="bi bi-geo-alt text-gold me-1"></i> Dirección de Entrega</span>
+                  <small class="text-muted-1" style="font-size: 0.72rem;">Prefijo Av.</small>
+                </label>
+                <input 
+                  type="text" 
+                  id="clienteDireccion" 
+                  name="clienteDireccion" 
+                  th:value="${usuario?.direccion != null && !usuario.direccion.isEmpty() ? usuario.direccion : 'Av. '}" 
+                  class="form-control form-input-lmll" 
+                  placeholder="Av. Principal 123, Distrito" 
+                  required
+                >
               </div>
             </div>
           </div>
@@ -210,14 +298,43 @@
     <!-- Script propio con control de versión -->
     <script th:src="@{/js/pago.js(v=3)}"></script>
 
-    <!-- Script garantizado inline para Consulta DNI -->
+    <!-- Script garantizado inline para Consulta DNI y Autocompletado Inteligente -->
     <script>
+      function sincronizarNombreCompleto() {
+          const n = (document.getElementById("clienteNombres")?.value || "").trim();
+          const a = (document.getElementById("clienteApellidos")?.value || "").trim();
+          const hidden = document.getElementById("clienteNombre");
+          if (hidden) hidden.value = (n + " " + a).trim();
+      }
+
+      function autocompletarDominio(dom) {
+          const emailInput = document.getElementById("clienteEmail");
+          if (!emailInput) return;
+          let val = emailInput.value.trim();
+          if (!val) {
+              emailInput.value = dom;
+              emailInput.focus();
+              return;
+          }
+          if (val.includes("@")) {
+              val = val.substring(0, val.indexOf("@"));
+          }
+          emailInput.value = val + dom;
+          emailInput.focus();
+      }
+
       async function ejecutarConsultaDni() {
           const inputDni = document.getElementById("clienteDni");
           if (!inputDni) return;
           const dni = inputDni.value.replace(/\D/g, "");
           if (dni.length !== 8) {
-              alert("Por favor ingresa un DNI válido de 8 dígitos.");
+              const feedback = document.getElementById("dni-feedback");
+              const feedbackText = document.getElementById("dni-feedback-text");
+              if (feedback && feedbackText) {
+                  feedbackText.textContent = "El DNI debe tener exactamente 8 dígitos.";
+                  feedback.className = "mt-2 text-warning small";
+                  feedback.classList.remove("d-none");
+              }
               return;
           }
           const spinner = document.getElementById("spinner-dni");
@@ -233,17 +350,16 @@
               const resp = await fetch("/api/consulta/dni/" + dni);
               const data = await resp.json();
               if (data && data.encontrado) {
+                  const elNombres = document.getElementById("clienteNombres");
+                  const elApellidos = document.getElementById("clienteApellidos");
                   const elNombre = document.getElementById("clienteNombre");
-                  const elEmail = document.getElementById("clienteEmail");
-                  const elTel = document.getElementById("clienteTelefono");
-                  const elDir = document.getElementById("clienteDireccion");
 
-                  if (elNombre) elNombre.value = data.nombre || "";
-                  if (elEmail) elEmail.value = data.email || "";
-                  if (elTel) elTel.value = data.telefono || "";
-                  if (elDir) elDir.value = data.direccion || "";
+                  // Autocompletar solo nombres y apellidos según solicitud
+                  if (elNombres) elNombres.value = data.nombres || "";
+                  if (elApellidos) elApellidos.value = data.apellidos || "";
+                  if (elNombre) elNombre.value = (data.nombre || ((data.nombres || "") + " " + (data.apellidos || "")).trim());
 
-                  [elNombre, elEmail, elTel, elDir].forEach(el => {
+                  [elNombres, elApellidos].forEach(el => {
                       if (el) {
                           el.style.transition = "all 0.3s ease";
                           el.style.borderColor = "#28a745";
@@ -260,10 +376,15 @@
                       badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> ' + (data.origen || 'Verificado');
                   }
                   if (feedback && feedbackText) {
-                      feedbackText.textContent = "✓ Datos de " + data.nombre + " autocompletados con éxito (" + (data.origen || 'RENIEC') + ").";
+                      feedbackText.textContent = "✓ Datos de " + (data.nombre || (data.nombres + ' ' + data.apellidos)) + " obtenidos de " + (data.origen || 'RENIEC') + ".";
                       feedback.className = "mt-2 text-success small";
                       feedback.classList.remove("d-none");
                   }
+
+                  // Pasar foco a teléfono para ingreso manual
+                  const elTel = document.getElementById("clienteTelefono");
+                  if (elTel && !elTel.value) elTel.focus();
+
               } else {
                   if (feedback && feedbackText) {
                       feedbackText.textContent = "ℹ " + (data.mensaje || "DNI no encontrado en RENIEC. Por favor ingresa tus datos manualmente.");
@@ -271,8 +392,8 @@
                       feedback.classList.remove("d-none");
                   }
                   if (badge) badge.style.display = "none";
-                  const elNombre = document.getElementById("clienteNombre");
-                  if (elNombre) elNombre.focus();
+                  const elNombres = document.getElementById("clienteNombres");
+                  if (elNombres) elNombres.focus();
               }
           } catch (e) {
               console.error("Error al consultar DNI:", e);
@@ -297,6 +418,55 @@
               timeoutDniAuto = setTimeout(ejecutarConsultaDni, 450);
           }
       }
+
+      // Configurar eventos de autocompletado de Correo y Dirección al cargar la página
+      document.addEventListener("DOMContentLoaded", function() {
+          // 1. Correo: autocompletar @gmail.com solito si falta arroba al salir del campo
+          const emailInput = document.getElementById("clienteEmail");
+          if (emailInput) {
+              emailInput.addEventListener("blur", function() {
+                  let val = this.value.trim();
+                  if (val && !val.includes("@") && !val.includes(" ")) {
+                      this.value = val + "@gmail.com";
+                  }
+              });
+
+              emailInput.addEventListener("input", function() {
+                  let val = this.value;
+                  // Si escribe '@' al final sin otro arroba, completar 'gmail.com'
+                  if (val.endsWith("@") && !val.slice(0, -1).includes("@")) {
+                      this.value = val + "gmail.com";
+                  }
+              });
+          }
+
+          // 2. Dirección: asegurar el prefijo 'Av. ' automáticamente
+          const dirInput = document.getElementById("clienteDireccion");
+          if (dirInput) {
+              if (!dirInput.value || dirInput.value.trim() === "") {
+                  dirInput.value = "Av. ";
+              }
+              dirInput.addEventListener("focus", function() {
+                  if (!this.value || this.value.trim() === "") {
+                      this.value = "Av. ";
+                  }
+              });
+          }
+
+          // 3. Separar nombre existente si ya venía precargado en un solo string
+          const hiddenNombre = document.getElementById("clienteNombre");
+          const elNombres = document.getElementById("clienteNombres");
+          const elApellidos = document.getElementById("clienteApellidos");
+          if (hiddenNombre && hiddenNombre.value && elNombres && !elNombres.value) {
+              const partes = hiddenNombre.value.trim().split(" ");
+              if (partes.length === 1) {
+                  elNombres.value = partes[0];
+              } else if (partes.length >= 2) {
+                  elNombres.value = partes[0];
+                  elApellidos.value = partes.slice(1).join(" ");
+              }
+          }
+      });
     </script>
 
   </body>

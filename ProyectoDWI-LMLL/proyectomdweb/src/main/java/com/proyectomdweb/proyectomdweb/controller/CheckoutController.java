@@ -48,11 +48,23 @@ public class CheckoutController {
             @RequestParam("tipoComprobante") String tipoComprobante,
             @RequestParam(value = "clienteDni", required = false)       String clienteDni,
             @RequestParam(value = "clienteNombre", required = false)    String clienteNombre,
+            @RequestParam(value = "clienteNombres", required = false)   String clienteNombres,
+            @RequestParam(value = "clienteApellidos", required = false) String clienteApellidos,
             @RequestParam(value = "clienteEmail", required = false)     String clienteEmail,
             @RequestParam(value = "clienteDireccion", required = false) String clienteDireccion,
             @RequestParam(value = "clienteTelefono", required = false)  String clienteTelefono,
             Principal principal,
             Model model) {
+
+        final String nombreConsolidado;
+        if (clienteNombre != null && !clienteNombre.isBlank()) {
+            nombreConsolidado = clienteNombre.trim();
+        } else if (clienteNombres != null || clienteApellidos != null) {
+            String combined = ((clienteNombres != null ? clienteNombres.trim() : "") + " " + (clienteApellidos != null ? clienteApellidos.trim() : "")).trim();
+            nombreConsolidado = !combined.isBlank() ? combined : "Cliente Tienda";
+        } else {
+            nombreConsolidado = "Cliente Tienda";
+        }
 
         Usuario usuarioLogueado;
         if (principal != null) {
@@ -61,7 +73,7 @@ public class CheckoutController {
             usuarioLogueado = usuarioRepository.findByEmail(clienteEmail.trim())
                 .orElseGet(() -> {
                     Usuario nuevo = new Usuario();
-                    nuevo.setNombre(clienteNombre != null && !clienteNombre.isBlank() ? clienteNombre.trim() : "Cliente Tienda");
+                    nuevo.setNombre(nombreConsolidado);
                     nuevo.setEmail(clienteEmail.trim());
                     nuevo.setPassword("$2a$10$wN1QeY9uLgq8tXN0Wk2Y..o1QeW1");
                     nuevo.setRol("ROLE_CLIENTE");
@@ -75,7 +87,10 @@ public class CheckoutController {
                 .orElseGet(() -> usuarioRepository.findAll().get(0));
         }
         
-        // Si el usuario especificó DNI, dirección o teléfono en el formulario de pago, los actualizamos
+        // Si el usuario especificó DNI, nombre, dirección o teléfono en el formulario de pago, los actualizamos
+        if (!nombreConsolidado.equals("Cliente Tienda")) {
+            usuarioLogueado.setNombre(nombreConsolidado);
+        }
         if (clienteDni != null && !clienteDni.isBlank()) {
             usuarioLogueado.setDni(clienteDni.trim());
         }

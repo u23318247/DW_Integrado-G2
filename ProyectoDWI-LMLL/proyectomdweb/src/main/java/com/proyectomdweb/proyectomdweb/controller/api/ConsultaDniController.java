@@ -76,29 +76,30 @@ public class ConsultaDniController {
         if (usuarioOpt.isPresent()) {
             Usuario u = usuarioOpt.get();
             if (u.getNombre() != null && !u.getNombre().isBlank()) {
+                String nombreCompleto = u.getNombre().trim();
+                String[] partes = separarNombresYApellidos(nombreCompleto);
+
                 respuesta.put("dni", u.getDni());
-                respuesta.put("nombre", u.getNombre());
-                respuesta.put("email", u.getEmail() != null ? u.getEmail() : "");
-                respuesta.put("telefono", u.getTelefono() != null ? u.getTelefono() : "");
-                respuesta.put("direccion", u.getDireccion() != null ? u.getDireccion() : "");
+                respuesta.put("nombres", partes[0]);
+                respuesta.put("apellidos", partes[1]);
+                respuesta.put("nombre", nombreCompleto);
                 respuesta.put("encontrado", true);
                 respuesta.put("origen", "Base de Datos de Clientes");
                 return ResponseEntity.ok(respuesta);
             }
         }
 
-        // 2. Consulta REAL en vivo al servicio de RENIEC (apis.net.pe)
+        // 2. Consulta REAL en vivo al servicio oficial de RENIEC (apis.net.pe)
         Map<String, Object> resultadoReniec = consultarReniecEnVivo(dniLimpio);
         if (resultadoReniec != null && Boolean.TRUE.equals(resultadoReniec.get("encontrado"))) {
             return ResponseEntity.ok(resultadoReniec);
         }
 
         // 3. Si no se encontró en RENIEC o falló la conexión externa:
-        // NO inventamos nombres ficticios bajo ninguna circunstancia.
-        // Devolvemos encontrado: false con mensaje claro para que el cliente ingrese su nombre real.
+        // No inventamos nombres ficticios.
         respuesta.put("dni", dniLimpio);
         respuesta.put("encontrado", false);
-        respuesta.put("mensaje", "No se encontró el DNI en los registros de RENIEC. Por favor, escribe tu nombre completo y datos.");
+        respuesta.put("mensaje", "No se encontró el DNI en los registros de RENIEC. Por favor, escribe tus nombres y apellidos manualmente.");
         return ResponseEntity.ok(respuesta);
     }
 
@@ -121,7 +122,7 @@ public class ConsultaDniController {
         );
         if (v1Res != null) return v1Res;
 
-        // Si fue devuelto con rate limit (429) o micro-demora, reintento tras 400ms
+        // Si hubo microdemora o rate limit (429), reintento tras 400ms
         try {
             Thread.sleep(400);
         } catch (InterruptedException ignored) {}
@@ -150,17 +151,33 @@ public class ConsultaDniController {
             if (response.statusCode() == 200 && response.body() != null && !response.body().isBlank()) {
                 String body = response.body().trim();
                 if (body.startsWith("{")) {
-                    String nombreCompleto = extraerCampoJson(body, "nombre");
-                    if (nombreCompleto == null || nombreCompleto.isBlank()) {
-                        String nombres = extraerCampoJson(body, "nombres");
-                        String paterno = extraerCampoJson(body, "apellidoPaterno");
-                        String materno = extraerCampoJson(body, "apellidoMaterno");
-                        StringBuilder sb = new StringBuilder();
-                        if (nombres != null) sb.append(nombres).append(" ");
-                        if (paterno != null) sb.append(paterno).append(" ");
-                        if (materno != null) sb.append(materno);
-                        nombreCompleto = sb.toString().trim();
+                    String nombresRaw  = extraerCampoJson(body, "nombres");
+                    String paternoRaw  = extraerCampoJson(body, "apellidoPaterno");
+                    String maternoRaw  = extraerCampoJson(body, "apellidoMaterno");
+                    String nombreRaw   = extraerCampoJson(body, "nombre");
+
+                    String nombres = "";
+                    String apellidos = "";
+
+                    if (nombresRaw != null && !nombresRaw.isBlank()) {
+                        nombres = capitalizarPalabras(nombresRaw);
                     }
+                    StringBuilder sbAp = new StringBuilder();
+                    if (paternoRaw != null && !paternoRaw.isBlank()) {
+                        sbAp.append(capitalizarPalabras(paternoRaw)).append(" ");
+                    }
+                    if (maternoRaw != null && !maternoRaw.isBlank()) {
+                        sbAp.append(capitalizarPalabras(maternoRaw));
+                    }
+                    apellidos = sbAp.toString().trim();
+
+                    if (nombres.isBlank() && nombreRaw != null && !nombreRaw.isBlank()) {
+                        String[] sep = separarNombresYApellidos(capitalizarPalabras(nombreRaw));
+                        nombres = sep[0];
+                        apellidos = sep[1];
+                    }
+
+                    String nombreCompleto = (nombres + " " + apellidos).trim();
 
                     if (!nombreCompleto.isBlank()) {
                         Map<String, Object> resultado = new HashMap<>();
@@ -170,12 +187,9 @@ public class ConsultaDniController {
                         }
 
                         resultado.put("dni", dniRes);
-                        resultado.put("nombre", capitalizarPalabras(nombreCompleto));
-                        resultado.put("email", "");
-                        resultado.put("telefono", "");
-
-                        String direccion = extraerCampoJson(body, "direccion");
-                        resultado.put("direccion", direccion != null ? capitalizarPalabras(direccion) : "");
+                        resultado.put("nombres", nombres);
+                        resultado.put("apellidos", apellidos);
+                        resultado.put("nombre", nombreCompleto);
                         resultado.put("encontrado", true);
                         resultado.put("origen", "RENIEC Oficial");
                         return resultado;
@@ -186,6 +200,28 @@ public class ConsultaDniController {
             log.warn("Fallo consultando servicio RENIEC {}: {}", urlStr, e.getMessage());
         }
         return null;
+    }
+
+    private String[] separarNombresYApellidos(String nombreCompleto) {
+        if (nombreCompleto == null || nombreCompleto.isBlank()) {
+            return new String[]{"", ""};
+        }
+        String[] partes = nombreCompleto.trim().split("\\s+");
+        if (partes.length == 1) {
+            return new String[]{partes[0], ""};
+        } else if (partes.length == 2) {
+            return new String[]{partes[0], partes[1]};
+        } else if (partes.length == 3) {
+            return new String[]{partes[0], partes[1] + " " + partes[2]};
+        } else {
+            // 4 o más palabras: primeros dos nombres, el resto apellidos
+            String nombres = partes[0] + " " + partes[1];
+            StringBuilder sb = new StringBuilder();
+            for (int i = 2; i < partes.length; i++) {
+                sb.append(partes[i]).append(" ");
+            }
+            return new String[]{nombres, sb.toString().trim()};
+        }
     }
 
     private String extraerCampoJson(String json, String campo) {

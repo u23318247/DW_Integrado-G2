@@ -18,6 +18,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const badgeDni        = document.getElementById("dni-badge");
 
     // Campos de destino a autocompletar
+    const inputNombres    = document.getElementById("clienteNombres");
+    const inputApellidos  = document.getElementById("clienteApellidos");
     const inputNombre     = document.getElementById("clienteNombre");
     const inputEmail      = document.getElementById("clienteEmail");
     const inputTelefono   = document.getElementById("clienteTelefono");
@@ -51,26 +53,21 @@ document.addEventListener("DOMContentLoaded", function() {
 
             const data = await resp.json();
             if (data && data.encontrado) {
-                // Autocompletar los campos
-                if (inputNombre && data.nombre) {
-                    inputNombre.value = data.nombre;
-                    inputNombre.dispatchEvent(new Event("input", { bubbles: true }));
+                // Autocompletar solo nombres y apellidos según solicitud del usuario
+                if (inputNombres && data.nombres) {
+                    inputNombres.value = data.nombres;
+                    inputNombres.dispatchEvent(new Event("input", { bubbles: true }));
                 }
-                if (inputEmail && data.email) {
-                    inputEmail.value = data.email;
-                    inputEmail.dispatchEvent(new Event("input", { bubbles: true }));
+                if (inputApellidos && data.apellidos) {
+                    inputApellidos.value = data.apellidos;
+                    inputApellidos.dispatchEvent(new Event("input", { bubbles: true }));
                 }
-                if (inputTelefono && data.telefono) {
-                    inputTelefono.value = data.telefono;
-                    inputTelefono.dispatchEvent(new Event("input", { bubbles: true }));
-                }
-                if (inputDireccion && data.direccion) {
-                    inputDireccion.value = data.direccion;
-                    inputDireccion.dispatchEvent(new Event("input", { bubbles: true }));
+                if (inputNombre) {
+                    inputNombre.value = (data.nombre || ((data.nombres || "") + " " + (data.apellidos || "")).trim());
                 }
 
                 // Animación visual de campos autocompletados
-                [inputNombre, inputEmail, inputTelefono, inputDireccion].forEach(el => {
+                [inputNombres, inputApellidos].forEach(el => {
                     if (el) {
                         el.style.transition = "all 0.3s ease";
                         el.style.borderColor = "#28a745";
@@ -88,26 +85,36 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
 
                 if (feedbackDni && feedbackTexto) {
-                    feedbackTexto.textContent = "✓ Datos de " + data.nombre + " autocompletados con éxito.";
+                    feedbackTexto.textContent = "✓ Datos de " + (data.nombre || (data.nombres + ' ' + data.apellidos)) + " obtenidos de " + (data.origen || 'RENIEC') + ".";
                     feedbackDni.className = "mt-2 text-success small";
                     feedbackDni.classList.remove("d-none");
                 }
+
+                // Enfocar teléfono para que el cliente ingrese su teléfono manualmente
+                if (inputTelefono && !inputTelefono.value) {
+                    inputTelefono.focus();
+                }
             } else {
                 if (feedbackDni && feedbackTexto) {
-                    feedbackTexto.textContent = data.mensaje || "DNI no encontrado. Puedes ingresar los datos manualmente.";
+                    feedbackTexto.textContent = data.mensaje || "DNI no encontrado en RENIEC. Puedes ingresar los datos manualmente.";
                     feedbackDni.className = "mt-2 text-warning small";
                     feedbackDni.classList.remove("d-none");
                 }
+                if (badgeDni) badgeDni.style.display = "none";
+                if (inputNombres) inputNombres.focus();
             }
         } catch (err) {
             console.error("Error al consultar DNI:", err);
             if (feedbackDni && feedbackTexto) {
-                feedbackTexto.textContent = "Error al consultar DNI. Por favor ingresa los datos manualmente.";
-                feedbackDni.className = "mt-2 text-danger small";
+                feedbackTexto.textContent = "Error de conexión al consultar DNI. Por favor ingresa los datos manualmente.";
+                feedbackDni.className = "mt-2 text-warning small";
                 feedbackDni.classList.remove("d-none");
             }
         } finally {
             if (spinnerDni) spinnerDni.classList.add("d-none");
+            if (iconBuscarDni) iconBuscarDni.classList.remove("d-none");
+        }
+    }
             if (iconBuscarDni) iconBuscarDni.classList.remove("d-none");
         }
     }
@@ -232,6 +239,33 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             checkoutForm.classList.add("was-validated");
+        });
+    }
+
+    //-- 4. AUTOCOMPLETADO INTELIGENTE DE CORREO Y PREFIJO DE DIRECCIÓN --//
+    if (inputEmail) {
+        inputEmail.addEventListener("blur", function() {
+            let val = this.value.trim();
+            if (val && !val.includes("@") && !val.includes(" ")) {
+                this.value = val + "@gmail.com";
+            }
+        });
+        inputEmail.addEventListener("input", function() {
+            let val = this.value;
+            if (val.endsWith("@") && !val.slice(0, -1).includes("@")) {
+                this.value = val + "gmail.com";
+            }
+        });
+    }
+
+    if (inputDireccion) {
+        if (!inputDireccion.value || inputDireccion.value.trim() === "") {
+            inputDireccion.value = "Av. ";
+        }
+        inputDireccion.addEventListener("focus", function() {
+            if (!this.value || this.value.trim() === "") {
+                this.value = "Av. ";
+            }
         });
     }
 
