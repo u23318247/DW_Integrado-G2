@@ -40,17 +40,18 @@ public class SecurityConfig {
                 // 4. Panel general administrativo
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "VENDEDOR", "ALMACENERO", "REPARTIDOR")
                 
-                // 5. Área privada de compras y seguimiento
+                // 5. Área privada de seguimiento
                 .requestMatchers("/mis-pedidos/**").authenticated()
-                .requestMatchers("/pago/**").authenticated()
 
-                // 6. Rutas públicas de la tienda virtual: inicio, ropa, catálogo, carrito, Angular y recursos estáticos
+                // 6. Rutas públicas de la tienda virtual: inicio, ropa, catálogo, carrito, pago, comprobante, Angular y recursos estáticos
                 .requestMatchers(
                     "/",
                     "/productos/**",
                     "/angular/**",
                     "/api/productos/**",
                     "/carrito/**",
+                    "/pago/**",
+                    "/comprobante/**",
                     "/auth/**",
                     "/api/auth/**",
                     "/css/**",

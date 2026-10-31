@@ -86,19 +86,19 @@
             <div class="row g-4">
               <div class="col-md-6">
                 <label class="form-label-lmll">Nombre completo</label>
-                <input type="text" name="clienteNombre" class="form-control form-input-lmll" required>
+                <input type="text" name="clienteNombre" th:value="${usuario?.nombre}" class="form-control form-input-lmll" placeholder="Tu nombre y apellido" required>
               </div>
               <div class="col-md-6">
                 <label class="form-label-lmll">Teléfono (9 dígitos)</label>
-                <input type="tel" name="clienteTelefono" class="form-control form-input-lmll" maxlength="9" pattern="[0-9]{9}" required>
+                <input type="tel" name="clienteTelefono" th:value="${usuario?.telefono}" class="form-control form-input-lmll" maxlength="9" pattern="[0-9]{9}" placeholder="987654321" required>
               </div>
               <div class="col-12">
                 <label class="form-label-lmll">Correo Electrónico</label>
-                <input type="email" name="clienteEmail" class="form-control form-input-lmll" placeholder="ejemplo@correo.com" required>
+                <input type="email" name="clienteEmail" th:value="${usuario?.email}" class="form-control form-input-lmll" placeholder="ejemplo@correo.com" required>
               </div>
               <div class="col-12">
                 <label class="form-label-lmll">Dirección de Entrega</label>
-                <input type="text" name="clienteDireccion" class="form-control form-input-lmll" placeholder="Av. / Jr. / Calle, Distrito, Ciudad" required>
+                <input type="text" name="clienteDireccion" th:value="${usuario?.direccion}" class="form-control form-input-lmll" placeholder="Av. / Jr. / Calle, Distrito, Ciudad" required>
               </div>
             </div>
           </div>

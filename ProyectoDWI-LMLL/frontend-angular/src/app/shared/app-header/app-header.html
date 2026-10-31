@@ -9,45 +9,39 @@
       </div>
     </a>
 
-    <!-- Men√∫ de Categor√≠as / G√©neros -->
+    <!-- Men˙ de CategorÌas / GÈneros -->
     <nav class="d-none d-lg-flex align-items-center gap-4 main-nav">
-      <button type="button" class="nav-link-btn" (click)="onSelectGenero('Todos')">Colecci√≥n</button>
+      <button type="button" class="nav-link-btn" (click)="onSelectGenero('Todos')">ColecciÛn</button>
       <button type="button" class="nav-link-btn" (click)="onSelectGenero('Hombre')">Hombre</button>
       <button type="button" class="nav-link-btn" (click)="onSelectGenero('Mujer')">Mujer</button>
       <button type="button" class="nav-link-btn" (click)="onSelectGenero('Unisex')">Unisex</button>
-      <a href="/productos" class="nav-link-btn text-gold">Cat√°logo Completo</a>
+      <a href="/productos" class="nav-link-btn text-gold">Cat·logo Completo</a>
     </nav>
 
     <!-- Acciones de Usuario y Bolsa -->
-    <div class="d-flex align-items-center gap-2 gap-md-3">
-      <!-- Si es admin o vendedor, link directo al panel operativo -->
-      @if (authService.hasPanelAccess()) {
-        <a href="/admin/dashboard" class="btn btn-sm btn-panel d-inline-flex align-items-center gap-1" title="Ir al Panel de Administraci√≥n">
-          <i class="bi bi-speedometer2"></i>
-          <span class="d-none d-sm-inline">Panel Operativo</span>
-        </a>
-      }
-
-      <!-- Estado de Usuario -->
+    <div class="d-flex align-items-center gap-2">
+      <!-- Si ya iniciÛ sesiÛn -->
       @if (authService.currentUser(); as user) {
-        <div class="user-pill d-none d-sm-flex align-items-center gap-2">
-          <i class="bi bi-person-circle text-gold fs-5"></i>
-          <div class="user-info text-start">
-            <span class="d-block text-white fw-bold" style="font-size: 0.8rem;">{{ user.nombre }}</span>
-            <span class="badge bg-gold-subtle text-gold" style="font-size: 0.65rem;">{{ user.roles[0] || 'ROLE_CLIENTE' }}</span>
-          </div>
-          <a href="/auth/logout" class="text-muted ms-1" title="Cerrar Sesi√≥n">
-            <i class="bi bi-box-arrow-right"></i>
+        @if (authService.hasPanelAccess()) {
+          <a href="/admin/dashboard" class="btn-user-icon" title="Panel Administrativo" aria-label="Panel">
+            <i class="bi bi-person-gear"></i>
           </a>
-        </div>
+        } @else {
+          <a href="/mis-pedidos" class="btn-user-icon" [title]="'Mis Pedidos (' + user.nombre + ')'" aria-label="Mis Pedidos">
+            <i class="bi bi-box2-heart"></i>
+          </a>
+        }
+        <a href="/auth/logout" class="btn-user-icon" title="Cerrar SesiÛn" aria-label="Salir">
+          <i class="bi bi-box-arrow-right"></i>
+        </a>
       } @else {
-        <a href="/auth/login" class="btn btn-sm btn-outline-gold d-inline-flex align-items-center gap-1">
+        <!-- Modo ingreso: SOLO el Ìcono de la personita -->
+        <a href="/auth/login" class="btn-user-icon" title="Iniciar SesiÛn / Administrador" aria-label="Ingresar">
           <i class="bi bi-person"></i>
-          <span class="d-none d-sm-inline">Ingreso / Admin</span>
         </a>
       }
 
-      <!-- Bot√≥n de Bolsa con Trigger del Drawer -->
+      <!-- BotÛn de Bolsa con Trigger del Drawer -->
       <button type="button" class="btn btn-sm btn-brand d-inline-flex align-items-center gap-2 position-relative" (click)="onToggleBolsa()" title="Abrir Bolsa de Compras">
         <i class="bi bi-bag"></i>
         <span class="d-none d-md-inline">Bolsa</span>

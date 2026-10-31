@@ -84,25 +84,23 @@
               <span class="cart-badge" id="cart-count" style="display: none"></span>
             </button>
             
-            <a sec:authorize="isAnonymous()" th:href="@{/auth/login}" class="btn-lmll btn-outline-lmll d-inline-flex align-items-center" style="border-color: rgba(212, 175, 55, 0.6); color: #d4af37;" title="Iniciar sesión o acceder como Administrador">
-              <i class="bi bi-shield-lock me-1"></i> Ingreso / Admin
+            <!-- Modo ingreso: SOLO el ícono de la personita -->
+            <a sec:authorize="isAnonymous()" th:href="@{/auth/login}" class="btn-user-icon" title="Iniciar Sesión / Administrador" aria-label="Ingresar">
+              <i class="bi bi-person"></i>
             </a>
 
-            <a sec:authorize="hasAnyRole('ADMIN', 'VENDEDOR', 'ALMACENERO', 'REPARTIDOR')" th:href="@{/admin/dashboard}" class="btn-lmll btn-primary-lmll d-inline-flex align-items-center" style="background: #d4af37; color: #000; border: none; font-weight: 600;" title="Panel de Administración y Operaciones">
-              <i class="bi bi-speedometer2 me-1"></i> Panel Operativo
-            </a>
-
+            <!-- Si ya inició sesión -->
             <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
-              <a th:href="@{/mis-pedidos}" class="btn-lmll btn-outline-lmll" style="padding: 0.45rem 0.8rem; font-size: 0.85rem;" title="Ver mis compras y seguimiento">
-                <i class="bi bi-box2-heart me-1"></i> Mis Pedidos
+              <a sec:authorize="hasAnyRole('ADMIN', 'VENDEDOR', 'ALMACENERO', 'REPARTIDOR')" th:href="@{/admin/dashboard}" class="btn-user-icon" title="Panel Administrativo" aria-label="Panel">
+                <i class="bi bi-person-gear"></i>
               </a>
 
-              <span class="text-muted-1 display-font" style="font-size: 0.95rem; letter-spacing: 0.5px;">
-                Hola, <strong style="color: var(--txt);" sec:authentication="name"></strong>
-              </span>
-              
-              <a th:href="@{/auth/logout}" class="btn-lmll" style="background-color: #ffffff; color: #000000; border: none; padding: 0.45rem 0.8rem;" title="Cerrar Sesión">
-                <i class="bi bi-box-arrow-right m-0" style="font-size: 1.1rem;"></i>
+              <a sec:authorize="hasRole('CLIENTE')" th:href="@{/mis-pedidos}" class="btn-user-icon" title="Mis Pedidos" aria-label="Mis Pedidos">
+                <i class="bi bi-box2-heart"></i>
+              </a>
+
+              <a th:href="@{/auth/logout}" class="btn-user-icon" title="Cerrar Sesión" aria-label="Salir">
+                <i class="bi bi-box-arrow-right"></i>
               </a>
             </div>
 

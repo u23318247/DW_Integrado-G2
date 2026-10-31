@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (carrito.length === 0) {
             contenedorResumen.innerHTML = "<p>No hay productos en tu bolsa.</p>";
             // Redirige a productos si intentan entrar a pagar con carrito vacío
-            setTimeout(() => { window.location.href = "productos.html"; }, 2000);
+            setTimeout(() => { window.location.href = "/productos"; }, 2000);
             return;
         }
 

@@ -34,7 +34,11 @@ public class CheckoutController {
     private final String PAYU_URL    = "https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/"; // <--- URL de la pasarela p
 
     @GetMapping
-    public String mostrarPaginaPago() {
+    public String mostrarPaginaPago(Principal principal, Model model) {
+        if (principal != null) {
+            Usuario usuario = usuarioService.obtenerUsuarioEntidadPorEmail(principal.getName());
+            model.addAttribute("usuario", usuario);
+        }
         return "pago";
     }
 
@@ -42,13 +46,32 @@ public class CheckoutController {
     public String procesarLocalYPrepararPayU(
             @RequestParam("total")           BigDecimal total, 
             @RequestParam("tipoComprobante") String tipoComprobante,
+            @RequestParam(value = "clienteNombre", required = false)    String clienteNombre,
+            @RequestParam(value = "clienteEmail", required = false)     String clienteEmail,
             @RequestParam(value = "clienteDireccion", required = false) String clienteDireccion,
             @RequestParam(value = "clienteTelefono", required = false)  String clienteTelefono,
             Principal principal,
             Model model) {
 
-        String  emailLogueado   = principal.getName();
-        Usuario usuarioLogueado = usuarioService.obtenerUsuarioEntidadPorEmail(emailLogueado);
+        Usuario usuarioLogueado;
+        if (principal != null) {
+            usuarioLogueado = usuarioService.obtenerUsuarioEntidadPorEmail(principal.getName());
+        } else if (clienteEmail != null && !clienteEmail.isBlank()) {
+            usuarioLogueado = usuarioRepository.findByEmail(clienteEmail.trim())
+                .orElseGet(() -> {
+                    Usuario nuevo = new Usuario();
+                    nuevo.setNombre(clienteNombre != null && !clienteNombre.isBlank() ? clienteNombre.trim() : "Cliente Tienda");
+                    nuevo.setEmail(clienteEmail.trim());
+                    nuevo.setPassword("$2a$10$wN1QeY9uLgq8tXN0Wk2Y..o1QeW1");
+                    nuevo.setRol("ROLE_CLIENTE");
+                    nuevo.setDireccion(clienteDireccion != null ? clienteDireccion : "Lima, Perú");
+                    nuevo.setTelefono(clienteTelefono != null ? clienteTelefono : "999999999");
+                    return usuarioRepository.save(nuevo);
+                });
+        } else {
+            usuarioLogueado = usuarioRepository.findByEmail("cliente@email.com")
+                .orElseGet(() -> usuarioRepository.findAll().get(0));
+        }
         
         // Si el usuario especificó dirección o teléfono en el formulario de pago, los actualizamos
         if (clienteDireccion != null && !clienteDireccion.isBlank()) {
@@ -57,6 +80,7 @@ public class CheckoutController {
         if (clienteTelefono != null && !clienteTelefono.isBlank()) {
             usuarioLogueado.setTelefono(clienteTelefono);
         }
+        usuarioRepository.save(usuarioLogueado);
         
         Venta   ventaPendiente  = ventaService.crearVentaInicialPendiente(total, tipoComprobante, usuarioLogueado);
         String  referenceCode   = "LMLL-VENTA-" + ventaPendiente.getId(); //*<--*4

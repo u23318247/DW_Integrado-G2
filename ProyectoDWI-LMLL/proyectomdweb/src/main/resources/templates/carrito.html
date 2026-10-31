@@ -86,21 +86,23 @@
               >
             </button>
 
-            <a sec:authorize="isAnonymous()" th:href="@{/auth/login}" class="btn-lmll btn-outline-lmll">
-              <i class="bi bi-person me-1"></i> Entrar
+            <!-- Modo ingreso: SOLO el ícono de la personita -->
+            <a sec:authorize="isAnonymous()" th:href="@{/auth/login}" class="btn-user-icon" title="Iniciar Sesión / Administrador" aria-label="Ingresar">
+              <i class="bi bi-person"></i>
             </a>
 
-            <a sec:authorize="hasAnyRole('ADMIN', 'VENDEDOR')" th:href="@{/admin/dashboard}" class="btn-lmll btn-primary-lmll">
-              <i class="bi bi-gear-fill me-1"></i> Panel
-            </a>
+            <!-- Si ya inició sesión -->
+            <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+              <a sec:authorize="hasAnyRole('ADMIN', 'VENDEDOR', 'ALMACENERO', 'REPARTIDOR')" th:href="@{/admin/dashboard}" class="btn-user-icon" title="Panel Administrativo" aria-label="Panel">
+                <i class="bi bi-person-gear"></i>
+              </a>
 
-            <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-3">
-              <span class="text-muted-1 display-font" style="font-size: 0.95rem; letter-spacing: 0.5px;">
-                Hola, <strong style="color: var(--txt);" sec:authentication="name"></strong>
-              </span>
-              
-              <a th:href="@{/auth/logout}" class="btn-lmll" style="background-color: #ffffff; color: #000000; border: none; padding: 0.45rem 0.8rem;" title="Cerrar Sesión">
-                <i class="bi bi-box-arrow-right m-0" style="font-size: 1.1rem;"></i>
+              <a sec:authorize="hasRole('CLIENTE')" th:href="@{/mis-pedidos}" class="btn-user-icon" title="Mis Pedidos" aria-label="Mis Pedidos">
+                <i class="bi bi-box2-heart"></i>
+              </a>
+
+              <a th:href="@{/auth/logout}" class="btn-user-icon" title="Cerrar Sesión" aria-label="Salir">
+                <i class="bi bi-box-arrow-right"></i>
               </a>
             </div>
           </div>
