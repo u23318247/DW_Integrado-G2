@@ -38,6 +38,134 @@
   --dur:         0.22s;
 }
 
+/* ── MODO CLARO (LIGHT THEME) ────────────────────────────── */
+[data-theme="light"] {
+  --bg:          #f8fafc;
+  --bg-2:        #ffffff;
+  --panel:       #ffffff;
+  --panel-2:     #f1f5f9;
+  --panel-hover: #e2e8f0;
+
+  --txt:         #0f172a;
+  --txt-2:       #334155;
+  --txt-3:       #64748b;
+
+  --brand:       #b48325;
+  --brand-hover: #966b1a;
+
+  --border:      rgba(15, 23, 42, 0.12);
+  --border-2:    rgba(180, 131, 37, 0.35);
+
+  --top-light:   #f1f5f9;
+  --top-light-txt: #0f172a;
+  --top-dark:    #ffffff;
+}
+
+[data-theme="light"] body {
+  background-color: var(--bg);
+  color: var(--txt);
+}
+
+[data-theme="light"] .site-header {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 2px solid rgba(180, 131, 37, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .site-nav .nav-link {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .site-nav .nav-link:hover,
+[data-theme="light"] .site-nav .nav-link.active {
+  color: #b48325 !important;
+}
+
+[data-theme="light"] .top-announcement-bar,
+[data-theme="light"] .ticker-bar {
+  background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f8fafc 100%);
+  color: #0f172a;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+[data-theme="light"] .checkout-hero,
+[data-theme="light"] .two-tone-hero {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 45%, #f1f5f9 70%, #ebd08f 100%);
+  border: 1px solid rgba(180, 131, 37, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .checkout-title {
+  color: #0f172a;
+}
+
+[data-theme="light"] .checkout-subtitle {
+  color: #475569;
+}
+
+[data-theme="light"] .card-lmll,
+[data-theme="light"] .card-oferta,
+[data-theme="light"] .cart-main-panel,
+[data-theme="light"] .checkout-resumen-card,
+[data-theme="light"] .carrito-full-container,
+[data-theme="light"] .product-card-lmll {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .form-input-lmll {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+[data-theme="light"] .form-input-lmll:focus {
+  background-color: #ffffff;
+  border-color: #b48325;
+}
+
+[data-theme="light"] .cart-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #334155 !important;
+}
+
+[data-theme="light"] .cart-btn:hover {
+  background: rgba(180, 131, 37, 0.1);
+  border-color: #b48325;
+  color: #b48325 !important;
+}
+
+[data-theme="light"] .btn-user-icon,
+[data-theme="light"] .btn-theme-toggle {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #334155;
+}
+
+[data-theme="light"] .btn-user-icon:hover,
+[data-theme="light"] .btn-theme-toggle:hover {
+  background: rgba(180, 131, 37, 0.15);
+  border-color: #b48325;
+  color: #b48325;
+}
+
+[data-theme="light"] .footer {
+  background: #f1f5f9;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+  color: #64748b;
+}
+
+[data-theme="light"] .choice-card-content {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .choice-card-title {
+  color: #0f172a;
+}
+
 /* ── 2. RESET & BASE ─────────────────────────────────────── */
 *, *::before, *::after { 
   box-sizing: border-box; 
@@ -53,6 +181,7 @@ body {
   font-size: 15px;
   line-height: 1.65;
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 img { 
@@ -100,6 +229,7 @@ a {
   border-bottom: 2px solid;
   border-image: linear-gradient(90deg, rgba(218, 179, 98, 0.5) 0%, rgba(247, 243, 232, 0.8) 50%, rgba(218, 179, 98, 0.5) 100%) 1;
   box-shadow: 0 4px 22px rgba(0, 0, 0, 0.45);
+  transition: background-color 0.3s ease;
 }
 
 .navbar-brand { 
@@ -157,6 +287,31 @@ a {
   align-items: center; 
   justify-content: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Boton de Tema Claro / Oscuro (Solo icono al lado de Bolsa) */
+.btn-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(218, 179, 98, 0.35);
+  color: #f5f5f7;
+  font-size: 1.15rem;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-theme-toggle:hover {
+  background: rgba(218, 179, 98, 0.2);
+  border-color: var(--brand);
+  color: var(--brand);
+  transform: translateY(-2px) rotate(15deg);
+  box-shadow: 0 4px 12px rgba(218, 179, 98, 0.3);
 }
 
 /* Nivel 3: Banner superior Hero con FONDO BITONO (Claro y Oscuro) */
