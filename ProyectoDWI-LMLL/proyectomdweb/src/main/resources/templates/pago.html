@@ -107,9 +107,10 @@
                   pattern="[0-9]{8}"
                   inputmode="numeric"
                   autocomplete="off"
+                  oninput="verificarDniInput(this.value)"
                   required
                 >
-                <button type="button" id="btn-buscar-dni" class="btn btn-outline-warning d-flex align-items-center gap-1" style="border-color: rgba(212, 175, 55, 0.6); color: #d4af37;">
+                <button type="button" id="btn-buscar-dni" onclick="ejecutarConsultaDni()" class="btn btn-outline-warning d-flex align-items-center gap-1" style="border-color: rgba(212, 175, 55, 0.6); color: #d4af37;">
                   <span id="spinner-dni" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                   <i id="icon-buscar-dni" class="bi bi-search"></i>
                   <span>Consultar DNI</span>
@@ -206,8 +207,86 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Script propio -->
-    <script th:src="@{/js/pago.js}"></script>
+    <!-- Script propio con control de versión -->
+    <script th:src="@{/js/pago.js(v=3)}"></script>
+
+    <!-- Script garantizado inline para Consulta DNI -->
+    <script>
+      async function ejecutarConsultaDni() {
+          const inputDni = document.getElementById("clienteDni");
+          if (!inputDni) return;
+          const dni = inputDni.value.replace(/\D/g, "");
+          if (dni.length !== 8) {
+              alert("Por favor ingresa un DNI válido de 8 dígitos.");
+              return;
+          }
+          const spinner = document.getElementById("spinner-dni");
+          const icon = document.getElementById("icon-buscar-dni");
+          const feedback = document.getElementById("dni-feedback");
+          const feedbackText = document.getElementById("dni-feedback-text");
+          const badge = document.getElementById("dni-badge");
+
+          if (spinner) spinner.classList.remove("d-none");
+          if (icon) icon.classList.add("d-none");
+
+          try {
+              const resp = await fetch("/api/consulta/dni/" + dni);
+              const data = await resp.json();
+              if (data && data.encontrado) {
+                  const elNombre = document.getElementById("clienteNombre");
+                  const elEmail = document.getElementById("clienteEmail");
+                  const elTel = document.getElementById("clienteTelefono");
+                  const elDir = document.getElementById("clienteDireccion");
+
+                  if (elNombre) elNombre.value = data.nombre || "";
+                  if (elEmail) elEmail.value = data.email || "";
+                  if (elTel) elTel.value = data.telefono || "";
+                  if (elDir) elDir.value = data.direccion || "";
+
+                  [elNombre, elEmail, elTel, elDir].forEach(el => {
+                      if (el) {
+                          el.style.transition = "all 0.3s ease";
+                          el.style.borderColor = "#28a745";
+                          el.style.backgroundColor = "rgba(40, 167, 69, 0.08)";
+                          setTimeout(() => {
+                              el.style.borderColor = "";
+                              el.style.backgroundColor = "";
+                          }, 2500);
+                      }
+                  });
+
+                  if (badge) {
+                      badge.style.display = "inline-flex";
+                      badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> ' + (data.origen || 'Verificado');
+                  }
+                  if (feedback && feedbackText) {
+                      feedbackText.textContent = "✓ Datos de " + data.nombre + " autocompletados con éxito (" + (data.origen || 'RENIEC') + ").";
+                      feedback.className = "mt-2 text-success small";
+                      feedback.classList.remove("d-none");
+                  }
+              } else {
+                  alert(data.mensaje || "DNI no encontrado.");
+              }
+          } catch (e) {
+              console.error("Error al consultar DNI:", e);
+              alert("Error al conectar con el servicio de consulta DNI.");
+          } finally {
+              if (spinner) spinner.classList.add("d-none");
+              if (icon) icon.classList.remove("d-none");
+          }
+      }
+
+      let timeoutDniAuto = null;
+      function verificarDniInput(val) {
+          const dni = (val || "").replace(/\D/g, "").slice(0, 8);
+          const inputDni = document.getElementById("clienteDni");
+          if (inputDni && inputDni.value !== dni) inputDni.value = dni;
+          clearTimeout(timeoutDniAuto);
+          if (dni.length === 8) {
+              timeoutDniAuto = setTimeout(ejecutarConsultaDni, 200);
+          }
+      }
+    </script>
 
   </body>
 </html>
