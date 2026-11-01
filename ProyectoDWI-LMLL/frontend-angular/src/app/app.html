@@ -33,7 +33,7 @@
     <div>
       <span class="badge bg-gold-subtle text-gold text-uppercase letter-spacing-1 mb-1">Catálogo Exclusivo</span>
       <h2 class="h3 brand-font text-white mb-0">Prendas & Colecciones de Temporada</h2>
-      <p class="text-muted small mb-0">Explora lo último en tendencias streetwear y moda urbana</p>
+      <p class="text-muted small mb-0">Explora lo último en tendencias streetwear y moda urbana divididas por categoría</p>
     </div>
 
     <!-- Filtros de Género Rápidos (Pills) -->
@@ -77,6 +77,31 @@
     [articulosEnBolsa]="cartService.totalItems()">
   </app-summary-panel>
 
+  <!-- BARRA RÁPIDA DE CATEGORÍAS (TABS / PILLS) -->
+  <div class="category-quickbar-wrapper mb-4 pt-2">
+    <div class="d-flex align-items-center gap-2 pb-2 category-quickbar">
+      <button 
+        type="button" 
+        class="cat-quick-pill" 
+        [class.active]="!categoriaSeleccionada"
+        (click)="filtrarCategoria(undefined)">
+        <span class="pill-icon">🌟</span>
+        <span class="pill-text">Todas</span>
+      </button>
+
+      @for (cat of categorias; track cat.id) {
+        <button 
+          type="button" 
+          class="cat-quick-pill" 
+          [class.active]="categoriaSeleccionada === cat.id"
+          (click)="filtrarCategoria(cat.id)">
+          <span class="pill-icon">{{ obtenerIconoCategoria(cat.nombre) }}</span>
+          <span class="pill-text">{{ obtenerNombreMostrarCategoria(cat.nombre) }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
   <!-- Grilla Principal: Sidebar + Listado de Productos -->
   <div class="row g-4 pt-2">
     <!-- BARRA LATERAL DE FILTROS -->
@@ -98,7 +123,7 @@
             <input 
               type="text" 
               class="form-control form-control-sm" 
-              placeholder="Polo, casaca, jean..." 
+              placeholder="Zapatilla, polo, casaca..." 
               [(ngModel)]="textoBusqueda"
               (keyup.enter)="buscar()"
             />
@@ -108,7 +133,7 @@
           </div>
         </div>
 
-        <!-- Categorías de Ropa -->
+        <!-- Categorías de Ropa con Íconos y Nombres Formateados -->
         <div class="mb-4">
           <label class="filter-label">Categorías</label>
           <div class="category-list d-flex flex-column gap-1">
@@ -117,7 +142,10 @@
               class="category-btn" 
               [class.active]="!categoriaSeleccionada"
               (click)="filtrarCategoria(undefined)">
-              <span>Todas las Categorías</span>
+              <span class="d-flex align-items-center gap-2">
+                <span>🌟</span>
+                <span>Todas las Categorías</span>
+              </span>
               <i class="bi bi-chevron-right small"></i>
             </button>
             @for (cat of categorias; track cat.id) {
@@ -126,7 +154,10 @@
                 class="category-btn" 
                 [class.active]="categoriaSeleccionada === cat.id"
                 (click)="filtrarCategoria(cat.id)">
-                <span>{{ cat.nombre }}</span>
+                <span class="d-flex align-items-center gap-2">
+                  <span>{{ obtenerIconoCategoria(cat.nombre) }}</span>
+                  <span>{{ obtenerNombreMostrarCategoria(cat.nombre) }}</span>
+                </span>
                 <i class="bi bi-chevron-right small"></i>
               </button>
             }
@@ -154,10 +185,10 @@
       </div>
     </aside>
 
-    <!-- LISTADO DE PRENDAS DE ROPA -->
+    <!-- LISTADO DE PRENDAS DE ROPA DIVIDIDAS POR CATEGORÍA -->
     <section class="col-lg-9">
       <!-- Barra de Estado de Búsqueda -->
-      <div class="d-flex justify-content-between align-items-center mb-3 text-muted small">
+      <div class="d-flex justify-content-between align-items-center mb-4 text-muted small">
         <span>Mostrando <strong>{{ productosFiltrados.length }}</strong> de {{ productos.length }} prendas</span>
         @if (categoriaSeleccionada || generoSeleccionado !== 'Todos' || textoBusqueda) {
           <span class="badge bg-dark-subtle text-light border border-secondary">Filtros aplicados</span>
@@ -172,118 +203,138 @@
         </div>
       }
 
-      <!-- Cuadrícula de Tarjetas de Ropa -->
+      <!-- Cuadrículas Divididas por Categoría (Zapatillas, Polos, Casacas, Pantalones, etc.) -->
       @if (!cargando) {
-        <div class="row g-4">
-          @for (producto of productosFiltrados; track producto.id) {
-            <div class="col-md-6 col-xl-4">
-              <article class="fashion-card h-100 d-flex flex-column" [class.out-of-stock]="obtenerStockActual(producto) === 0">
-                <!-- Wrapper de Imagen con Badges y Acciones Hover -->
-                <div class="fashion-card__img-wrap">
-                  <img [src]="producto.imagenUrl || '/img/logo.png'" [alt]="producto.nombre" loading="lazy" />
-
-                  <!-- Badges Superiores -->
-                  <div class="card-badges">
-                    <span class="badge-tag gender">{{ producto.genero || 'Unisex' }}</span>
-                    @if (obtenerStockActual(producto) > 0) {
-                      <span class="badge-tag in-stock">En Stock</span>
-                    } @else {
-                      <span class="badge-tag out-stock">Agotado</span>
-                    }
-                  </div>
-
-                  <!-- Botón de Vista Rápida en Hover -->
-                  <button type="button" class="btn-quick-view" (click)="abrirVistaRapida(producto)" title="Vista Rápida y Medidas">
-                    <i class="bi bi-eye me-1"></i> Vista Rápida
-                  </button>
+        @for (grupo of gruposPorCategoria; track grupo.nombre) {
+          <div class="category-block mb-5" [id]="'cat-sec-' + grupo.slug">
+            <!-- Encabezado de la Categoría Dividida -->
+            <div class="category-block-header d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-dark">
+              <div class="d-flex align-items-center gap-3">
+                <span class="category-block-icon">{{ grupo.icono }}</span>
+                <div>
+                  <h3 class="h5 text-white mb-0 fw-bold">{{ grupo.nombre }}</h3>
+                  <small class="text-muted">{{ grupo.subtitulo }}</small>
                 </div>
-
-                <!-- Cuerpo de la Tarjeta -->
-                <div class="fashion-card__body p-3 d-flex flex-column flex-grow-1">
-                  <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="product-category text-muted">{{ producto.categoriaNombre || 'Colección LMLL' }}</span>
-                    <span class="product-id text-muted">#{{ producto.id }}</span>
-                  </div>
-
-                  <h3 class="product-name h6 mb-2">{{ producto.nombre }}</h3>
-
-                  <!-- Selector Interactivo de Tallas -->
-                  <div class="size-selection mb-3">
-                    <small class="text-muted d-block mb-1" style="font-size: 0.72rem;">Tallas disponibles:</small>
-                    <div class="d-flex flex-wrap gap-1">
-                      @if (producto.tallas && producto.tallas.length > 0) {
-                        @for (t of producto.tallas; track t) {
-                          <button 
-                            type="button" 
-                            class="size-pill" 
-                            [class.active]="obtenerTallaSeleccionada(producto) === t"
-                            (click)="seleccionarTalla(producto.id, t)">
-                            {{ t }}
-                          </button>
-                        }
-                      } @else {
-                        <span class="badge bg-secondary" style="font-size: 0.7rem;">Estándar</span>
-                      }
-                    </div>
-                  </div>
-
-                  <!-- Precio y Botón Agregar -->
-                  <div class="mt-auto pt-2 border-top border-dark d-flex justify-content-between align-items-center">
-                    <div>
-                      <span class="price-amount text-gold fw-bold fs-5">
-                        S/ {{ obtenerPrecioActual(producto) | number:'1.2-2' }}
-                      </span>
-                      <small class="stock-info d-block text-muted" style="font-size: 0.7rem;">
-                        @if (obtenerStockActual(producto) > 0) {
-                          Stock: <strong class="text-white">{{ obtenerStockActual(producto) }}</strong> und.
-                        } @else {
-                          <span class="text-danger">Agotado temporalmente</span>
-                        }
-                      </small>
-                    </div>
-
-                    <button 
-                      type="button" 
-                      class="btn btn-sm btn-brand px-3 py-2 d-flex align-items-center gap-1"
-                      [disabled]="obtenerStockActual(producto) === 0"
-                      (click)="agregarAlCarrito(producto)"
-                      title="Añadir a la bolsa">
-                      <i class="bi bi-bag-plus"></i>
-                      <span>Agregar</span>
-                    </button>
-                  </div>
-                </div>
-              </article>
-            </div>
-          } @empty {
-            <!-- Alerta si no se encontraron resultados -->
-            <div class="col-12">
-              <div class="empty-state text-center py-5">
-                <i class="bi bi-search display-3 text-gold mb-3 d-block"></i>
-                <h4 class="text-white">No encontramos prendas coincidentes</h4>
-                <p class="text-muted small mb-3">Intenta cambiar los filtros seleccionados o buscar con otro término.</p>
-                <button type="button" class="btn btn-sm btn-outline-light" (click)="limpiarFiltros()">
-                  Ver todas las prendas
-                </button>
               </div>
+              <span class="badge category-count-badge">
+                {{ grupo.productos.length }} {{ grupo.productos.length === 1 ? 'modelo' : 'modelos' }}
+              </span>
             </div>
-          }
-        </div>
+
+            <!-- Grilla de Tarjetas para esta categoría -->
+            <div class="row g-4">
+              @for (producto of grupo.productos; track producto.id) {
+                <div class="col-md-6 col-xl-4">
+                  <article class="fashion-card h-100 d-flex flex-column" [class.out-of-stock]="obtenerStockActual(producto) === 0">
+                    <!-- Wrapper de Imagen con Badges y Acciones Hover -->
+                    <div class="fashion-card__img-wrap">
+                      <img [src]="producto.imagenUrl || '/img/logo.png'" [alt]="producto.nombre" loading="lazy" />
+
+                      <!-- Badges Superiores -->
+                      <div class="card-badges">
+                        <span class="badge-tag gender">{{ producto.genero || 'Unisex' }}</span>
+                        @if (obtenerStockActual(producto) > 0) {
+                          <span class="badge-tag in-stock">En Stock</span>
+                        } @else {
+                          <span class="badge-tag out-stock">Agotado</span>
+                        }
+                      </div>
+
+                      <!-- Botón de Vista Rápida en Hover -->
+                      <button type="button" class="btn-quick-view" (click)="abrirVistaRapida(producto)" title="Vista Rápida y Medidas">
+                        <i class="bi bi-eye me-1"></i> Vista Rápida
+                      </button>
+                    </div>
+
+                    <!-- Cuerpo de la Tarjeta -->
+                    <div class="fashion-card__body p-3 d-flex flex-column flex-grow-1">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="product-category text-muted">{{ producto.categoriaNombre || 'Colección LMLL' }}</span>
+                        <span class="product-id text-muted">#{{ producto.id }}</span>
+                      </div>
+
+                      <h3 class="product-name h6 mb-2">{{ producto.nombre }}</h3>
+
+                      <!-- Selector Interactivo de Tallas -->
+                      <div class="size-selection mb-3">
+                        <small class="text-muted d-block mb-1" style="font-size: 0.72rem;">Tallas disponibles:</small>
+                        <div class="d-flex flex-wrap gap-1">
+                          @if (producto.tallas && producto.tallas.length > 0) {
+                            @for (t of producto.tallas; track t) {
+                              <button 
+                                type="button" 
+                                class="size-pill" 
+                                [class.active]="obtenerTallaSeleccionada(producto) === t"
+                                (click)="seleccionarTalla(producto.id, t)">
+                                {{ t }}
+                              </button>
+                            }
+                          } @else {
+                            <span class="badge bg-secondary" style="font-size: 0.7rem;">Estándar</span>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- Precio y Botón Agregar -->
+                      <div class="mt-auto pt-2 border-top border-dark d-flex justify-content-between align-items-center">
+                        <div>
+                          <span class="price-amount text-gold fw-bold fs-5">
+                            S/ {{ obtenerPrecioActual(producto) | number:'1.2-2' }}
+                          </span>
+                          <small class="stock-info d-block text-muted" style="font-size: 0.7rem;">
+                            @if (obtenerStockActual(producto) > 0) {
+                              Stock: <strong class="text-white">{{ obtenerStockActual(producto) }}</strong> und.
+                            } @else {
+                              <span class="text-danger">Agotado temporalmente</span>
+                            }
+                          </small>
+                        </div>
+
+                        <button 
+                          type="button" 
+                          class="btn btn-sm btn-brand px-3 py-2 d-flex align-items-center gap-1"
+                          [disabled]="obtenerStockActual(producto) === 0"
+                          (click)="agregarAlCarrito(producto)"
+                          title="Añadir a la bolsa">
+                          <i class="bi bi-bag-plus"></i>
+                          <span>Agregar</span>
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+              }
+            </div>
+          </div>
+        } @empty {
+          <!-- Alerta si no se encontraron resultados -->
+          <div class="col-12">
+            <div class="empty-state text-center py-5">
+              <i class="bi bi-search display-3 text-gold mb-3 d-block"></i>
+              <h4 class="text-white">No encontramos prendas coincidentes</h4>
+              <p class="text-muted small mb-3">Intenta cambiar los filtros seleccionados o buscar con otro término.</p>
+              <button type="button" class="btn btn-sm btn-outline-light" (click)="limpiarFiltros()">
+                Ver todas las prendas
+              </button>
+            </div>
+          </div>
+        }
       }
     </section>
   </div>
 </main>
 
-<!-- 5. Modal de Vista Rápida de Prenda -->
+<!-- Modal de Vista Rápida -->
 <app-product-modal 
+  *ngIf="productoParaModal" 
   [producto]="productoParaModal" 
   [tallaSeleccionada]="tallaParaModal"
   (cerrar)="cerrarVistaRapida()"
   (agregar)="agregarDesdeModal($event)">
 </app-product-modal>
 
-<!-- 6. Bolsa de Compras Lateral Deslizable (Cart Drawer) -->
+<!-- 5. Carrito Lateral (Drawer) -->
 <app-cart-drawer></app-cart-drawer>
 
-<!-- 7. Pie de Página Corporativo -->
+<!-- 6. Footer de Marca -->
 <app-footer></app-footer>

@@ -15,6 +15,35 @@ import { CartDrawer } from './features/cart-drawer/cart-drawer';
 import { ProductModal } from './features/product-modal/product-modal';
 import { AppFooter } from './shared/app-footer/app-footer';
 
+export interface GrupoCategoria {
+  id?: number;
+  nombre: string;
+  slug: string;
+  icono: string;
+  subtitulo: string;
+  productos: Producto[];
+}
+
+interface CategoriaMeta {
+  orden: number;
+  nombreMostrar: string;
+  icono: string;
+  subtitulo: string;
+}
+
+export const CATEGORIA_META: Record<string, CategoriaMeta> = {
+  'calzado': { orden: 1, nombreMostrar: 'Zapatillas & Calzado', icono: '👟', subtitulo: 'Sneakers urbanos, running y calzado streetwear' },
+  'polos': { orden: 2, nombreMostrar: 'Polos & Camisetas', icono: '👕', subtitulo: 'Cortes oversize, básicos y estampados urbanos' },
+  'abrigos': { orden: 3, nombreMostrar: 'Casacas & Abrigos', icono: '🧥', subtitulo: 'Casacas denim oversize, impermeables y cortavientos' },
+  'pantalones': { orden: 4, nombreMostrar: 'Pantalones & Jeans', icono: '👖', subtitulo: 'Pantalones cargo, skinny y rectos clásicos' },
+  'gorras y chullos': { orden: 5, nombreMostrar: 'Gorros & Chullos', icono: '🧢', subtitulo: 'Gorras trucker LMTL y beanies urbanos' },
+  'superiores': { orden: 6, nombreMostrar: 'Superiores & Chompas', icono: '🧶', subtitulo: 'Chompas con diseño, sudaderas con capucha y camisas' },
+  'accesorios': { orden: 7, nombreMostrar: 'Accesorios & Mochilas', icono: '🎒', subtitulo: 'Cangureras streetwear y mochilas minimal' },
+  'medias': { orden: 8, nombreMostrar: 'Medias Urbanas', icono: '🧦', subtitulo: 'Medias altas flame y estilo skate' },
+  'joyería y pines': { orden: 9, nombreMostrar: 'Joyería & Pines', icono: '✨', subtitulo: 'Cadenas de acero cubanas y pines exclusivos' },
+  'joyeria y pines': { orden: 9, nombreMostrar: 'Joyería & Pines', icono: '✨', subtitulo: 'Cadenas de acero cubanas y pines exclusivos' }
+};
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -121,6 +150,63 @@ export class App implements OnInit {
     }
 
     return resultado;
+  }
+
+  get gruposPorCategoria(): GrupoCategoria[] {
+    const prods = this.productosFiltrados;
+    if (prods.length === 0) return [];
+
+    const gruposMap = new Map<string, { catId?: number; catNombre: string; productos: Producto[] }>();
+
+    for (const p of prods) {
+      const key = (p.categoriaNombre || 'Otras Prendas').toLowerCase().trim();
+      if (!gruposMap.has(key)) {
+        gruposMap.set(key, {
+          catId: p.categoriaId,
+          catNombre: p.categoriaNombre || 'Otras Prendas',
+          productos: []
+        });
+      }
+      gruposMap.get(key)!.productos.push(p);
+    }
+
+    const resultado: GrupoCategoria[] = [];
+    for (const [key, val] of gruposMap.entries()) {
+      const meta = CATEGORIA_META[key] || {
+        orden: 99,
+        nombreMostrar: val.catNombre,
+        icono: '🏷️',
+        subtitulo: 'Colección exclusiva de temporada'
+      };
+
+      resultado.push({
+        id: val.catId,
+        nombre: meta.nombreMostrar,
+        slug: key,
+        icono: meta.icono,
+        subtitulo: meta.subtitulo,
+        productos: val.productos
+      });
+    }
+
+    // Ordenar con la prioridad deseada: Zapatillas (1), Polos (2), Casacas (3), Pantalones (4), Gorros (5)...
+    resultado.sort((a, b) => {
+      const ordenA = (CATEGORIA_META[a.slug] || { orden: 99 }).orden;
+      const ordenB = (CATEGORIA_META[b.slug] || { orden: 99 }).orden;
+      return ordenA - ordenB;
+    });
+
+    return resultado;
+  }
+
+  obtenerIconoCategoria(nombre: string): string {
+    const key = (nombre || '').toLowerCase().trim();
+    return (CATEGORIA_META[key] || { icono: '🏷️' }).icono;
+  }
+
+  obtenerNombreMostrarCategoria(nombre: string): string {
+    const key = (nombre || '').toLowerCase().trim();
+    return (CATEGORIA_META[key] || { nombreMostrar: nombre }).nombreMostrar;
   }
 
   get totalProductos(): number {
