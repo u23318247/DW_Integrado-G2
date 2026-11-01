@@ -49,35 +49,6 @@ public class ConsultaDniController {
         IDENTIDADES_CONOCIDAS.put("76543210", new String[]{"Yair Jans", "Quispe Flores"});
     }
 
-    private static final String[] NOMBRES_MASCULINOS = {
-        "Carlos Eduardo", "Luis Alberto", "Jorge Luis", "Juan Carlos", "Miguel Angel",
-        "Jose Antonio", "Alejandro Manuel", "Pedro David", "Fernando Jose", "Victor Manuel",
-        "Diego Alonso", "Ricardo Andres", "Daniel Enrique", "Christian Stefano", "Cesar Augusto",
-        "Roberto Carlos", "Javier Alexander", "Rodrigo Jesus", "Gonzalo Fabian", "Gabriel Omar",
-        "Sebastian Andre", "Mateo Nicolas", "Joaquin Alonso", "Alvaro Renzo", "Leonardo David"
-    };
-
-    private static final String[] NOMBRES_FEMENINOS = {
-        "Maria Fernanda", "Ana Lucia", "Carmen Rosa", "Rosa Maria", "Lucia Valeria",
-        "Camila Sofia", "Valeria Nicole", "Daniela Andrea", "Andrea Carolina", "Gabriela Isabel",
-        "Claudia Patricia", "Paola Estefania", "Diana Carolina", "Fiorella Milagros", "Ximena Rocio",
-        "Natalia Alexandra", "Stefany Maricielo", "Brenda Romina", "Vanessa Kiara", "Jessica Paola",
-        "Antonela", "Ariana Belen", "Fabiana Nicole", "Milagros Del Pilar", "Dayana Marisol"
-    };
-
-    private static final String[] APELLIDOS_PATERNOS = {
-        "Quispe", "Flores", "Rodriguez", "Sanchez", "Garcia", "Rojas", "Diaz", "Torres",
-        "Lopez", "Gonzales", "Perez", "Chavez", "Vasquez", "Ramos", "Castro", "Romero",
-        "Espinoza", "Mendoza", "Morales", "Huaman", "Jaimes", "Castillo", "Silva", "Gutierrez",
-        "Reyes", "Vargas", "Mamani", "Medina", "Aguilar", "Peña", "Leon", "Salazar",
-        "Herrera", "Alva", "Salcedo", "Contreras", "Batallanos", "Andagua"
-    };
-
-    private static final String[] APELLIDOS_MATERNOS = {
-        "Daza", "Morales", "Huancas", "Quispe", "Flores", "Chavez", "Vargas", "Mendoza",
-        "Perez", "Ramos", "Gomez", "Rojas", "Torres", "Lopez", "Castillo", "Silva",
-        "Galvan", "Ibarra", "Espinoza", "Alvarez", "Vasquez", "Gutierrez", "Navarro", "Campos"
-    };
 
     private static HttpClient crearHttpClientConfiable() {
         try {
@@ -113,7 +84,8 @@ public class ConsultaDniController {
     @GetMapping("/dni/{dni}")
     public ResponseEntity<Map<String, Object>> consultarDni(@PathVariable String dni) {
         Map<String, Object> respuesta = new HashMap<>();
-        String dniLimpio = (dni != null) ? dni.trim().replaceAll("\\D", "") : "";
+        String dniLimpio = (dni != null) ? dni.trim().replaceAll("\\\\D", "") : "";
+        log.info(">>> Consulta DNI recibida en servidor: [{}]", dniLimpio);
 
         if (dniLimpio.length() != 8) {
             respuesta.put("encontrado", false);
@@ -157,11 +129,13 @@ public class ConsultaDniController {
             return ResponseEntity.ok(resultadoReniec);
         }
 
-        // 4. Si el servicio externo no responde o tiene límite de consultas,
-        // generar de forma determinista la identidad basada en padrón de nombres peruanos reales
-        // para garantizar que NINGÚN cliente se quede sin autocompletado automático de nombre y apellido.
-        Map<String, Object> fallbackDeterminista = generarIdentidadPeruanaDeterminista(dniLimpio);
-        return ResponseEntity.ok(fallbackDeterminista);
+        // 4. Si la API oficial de RENIEC no lo encuentra, NUNCA inventar datos falsos:
+        // Informar con transparencia para que el cliente ingrese sus datos reales.
+        log.warn("DNI {} no encontrado en registros oficiales de RENIEC", dniLimpio);
+        respuesta.put("dni", dniLimpio);
+        respuesta.put("encontrado", false);
+        respuesta.put("mensaje", "DNI no registrado en la base de datos de RENIEC. Por favor ingresa tus nombres y apellidos.");
+        return ResponseEntity.ok(respuesta);
     }
 
     private Map<String, Object> consultarReniecEnVivo(String dni) {
@@ -300,36 +274,6 @@ public class ConsultaDniController {
         return null;
     }
 
-    private Map<String, Object> generarIdentidadPeruanaDeterminista(String dni) {
-        long seed = 0;
-        try {
-            seed = Long.parseLong(dni);
-        } catch (NumberFormatException e) {
-            seed = Math.abs(dni.hashCode());
-        }
-
-        int lastDigit = (int) (seed % 10);
-        boolean esFemenino = (lastDigit % 2 == 0);
-
-        int idxNombre = (int) (Math.abs(seed / 10) % (esFemenino ? NOMBRES_FEMENINOS.length : NOMBRES_MASCULINOS.length));
-        int idxPaterno = (int) (Math.abs(seed / 100) % APELLIDOS_PATERNOS.length);
-        int idxMaterno = (int) (Math.abs(seed / 1000) % APELLIDOS_MATERNOS.length);
-
-        String nombres = esFemenino ? NOMBRES_FEMENINOS[idxNombre] : NOMBRES_MASCULINOS[idxNombre];
-        String paterno = APELLIDOS_PATERNOS[idxPaterno];
-        String materno = APELLIDOS_MATERNOS[idxMaterno];
-        String apellidos = paterno + " " + materno;
-        String nombreCompleto = nombres + " " + apellidos;
-
-        Map<String, Object> resultado = new HashMap<>();
-        resultado.put("dni", dni);
-        resultado.put("nombres", nombres);
-        resultado.put("apellidos", apellidos);
-        resultado.put("nombre", nombreCompleto);
-        resultado.put("encontrado", true);
-        resultado.put("origen", "RENIEC Verificado");
-        return resultado;
-    }
 
     private String[] separarNombresYApellidos(String nombreCompleto) {
         if (nombreCompleto == null || nombreCompleto.isBlank()) {
