@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductoService } from './services/producto.service';
 import { CartService } from './services/cart.service';
 import { AuthService } from './services/auth.service';
-import { Producto } from './models/producto.model';
+import { Producto, ProductoDetalle } from './models/producto.model';
 import { Categoria } from './models/categoria.model';
 
 import { TopAnnouncement } from './shared/top-announcement/top-announcement';
@@ -78,12 +78,14 @@ export class App implements OnInit {
   ordenSeleccionado: string = 'relevancia';
   soloConStock: boolean = false;
 
-  // Mapa de talla seleccionada por cada producto (id -> talla)
+  // Mapa de talla y color seleccionados por producto
   tallasSeleccionadas: Record<number, string> = {};
+  coloresSeleccionados: Record<number, string> = {};
 
   // Estado para modal de vista rápida
   productoParaModal: Producto | null = null;
   tallaParaModal: string = 'M';
+  colorParaModal: string = 'Negro';
 
   ngOnInit(): void {
     this.cargarTodo();
@@ -109,10 +111,15 @@ export class App implements OnInit {
     this.productoService.listarProductos(this.categoriaSeleccionada, this.textoBusqueda).subscribe({
       next: (data) => {
         this.productos = data;
-        // Inicializar tallas por defecto
+        // Inicializar tallas y colores por defecto
         for (const p of this.productos) {
-          if (p.id && p.tallas && p.tallas.length > 0 && !this.tallasSeleccionadas[p.id]) {
-            this.tallasSeleccionadas[p.id] = p.tallas[0];
+          if (p.id) {
+            if (p.tallas && p.tallas.length > 0 && !this.tallasSeleccionadas[p.id]) {
+              this.tallasSeleccionadas[p.id] = p.tallas[0];
+            }
+            if (!this.coloresSeleccionados[p.id]) {
+              this.coloresSeleccionados[p.id] = (p.colores && p.colores.length > 0) ? p.colores[0] : 'Negro';
+            }
           }
         }
         this.cargando = false;
@@ -255,10 +262,60 @@ export class App implements OnInit {
     return this.tallasSeleccionadas[prod.id] || (prod.tallas && prod.tallas.length > 0 ? prod.tallas[0] : 'Estándar');
   }
 
-  obtenerVarianteActual(prod: Producto) {
+  seleccionarColor(productoId: number | undefined, color: string): void {
+    if (productoId !== undefined) {
+      this.coloresSeleccionados[productoId] = color;
+      this.cdr.markForCheck();
+    }
+  }
+
+  obtenerColorSeleccionado(prod: Producto): string {
+    if (!prod.id) return 'Negro';
+    return this.coloresSeleccionados[prod.id] || (prod.colores && prod.colores.length > 0 ? prod.colores[0] : 'Negro');
+  }
+
+  obtenerColoresProducto(prod: Producto): string[] {
+    if (prod.colores && prod.colores.length > 0) {
+      return prod.colores;
+    }
+    return ['Negro', 'Blanco', 'Azul Marino'];
+  }
+
+  obtenerHexColor(color: string): string {
+    const mapa: Record<string, string> = {
+      'negro': '#161616',
+      'blanco': '#f5f5f7',
+      'azul marino': '#0d2b45',
+      'azul': '#1b4965',
+      'gris melange': '#7d8597',
+      'gris': '#6c757d',
+      'beige arena': '#d8c4b6',
+      'beige': '#d8c4b6',
+      'rojo borgoña': '#780000',
+      'rojo': '#b00020',
+      'verde oliva': '#475841',
+      'verde': '#2d6a4f',
+      'rosa pastel': '#f3c4fb',
+      'rosa': '#ffb4a2',
+      'amarillo mostaza': '#d4a373',
+      'amarillo': '#f4a261',
+      'lavanda': '#a29bfe',
+      'plateado': '#c0c0c0',
+      'dorado': '#d4af37',
+      'celeste': '#89c2d9'
+    };
+    const key = (color || '').toLowerCase().trim();
+    return mapa[key] || '#333333';
+  }
+
+  obtenerVarianteActual(prod: Producto): ProductoDetalle | undefined {
     const talla = this.obtenerTallaSeleccionada(prod);
+    const color = this.obtenerColorSeleccionado(prod);
     if (prod.variantes && prod.variantes.length > 0) {
-      return prod.variantes.find(v => v.talla === talla);
+      return prod.variantes.find(v => v.talla === talla && v.color === color)
+          || prod.variantes.find(v => v.talla === talla)
+          || prod.variantes.find(v => v.color === color)
+          || prod.variantes[0];
     }
     return undefined;
   }
@@ -275,21 +332,23 @@ export class App implements OnInit {
 
   agregarAlCarrito(prod: Producto): void {
     const talla = this.obtenerTallaSeleccionada(prod);
-    this.cartService.agregarProducto(prod, talla);
+    const color = this.obtenerColorSeleccionado(prod);
+    this.cartService.agregarProducto(prod, talla, color);
     this.cdr.markForCheck();
   }
 
   abrirVistaRapida(prod: Producto): void {
     this.productoParaModal = prod;
     this.tallaParaModal = this.obtenerTallaSeleccionada(prod);
+    this.colorParaModal = this.obtenerColorSeleccionado(prod);
   }
 
   cerrarVistaRapida(): void {
     this.productoParaModal = null;
   }
 
-  agregarDesdeModal(event: { producto: Producto; talla: string }): void {
-    this.cartService.agregarProducto(event.producto, event.talla);
+  agregarDesdeModal(event: { producto: Producto; talla: string; color: string }): void {
+    this.cartService.agregarProducto(event.producto, event.talla, event.color);
     this.cerrarVistaRapida();
     this.cdr.markForCheck();
   }

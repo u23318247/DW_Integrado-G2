@@ -1,4 +1,4 @@
-﻿@use '../../../styles/variables' as *;
+@use '../../../styles/variables' as *;
 
 .modal-backdrop-custom {
   position: fixed;
@@ -81,6 +81,28 @@
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   text-transform: uppercase;
+}
+
+.modal-color-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  position: relative;
+  outline: none;
+  @include smooth-transition;
+
+  &:hover {
+    transform: scale(1.15);
+    border-color: #ffffff;
+  }
+
+  &.active {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 3px $color-brand, 0 4px 10px rgba(0, 0, 0, 0.5);
+    border-color: #ffffff;
+  }
 }
 
 .size-chip-lg {

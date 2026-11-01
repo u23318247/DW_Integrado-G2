@@ -36,32 +36,36 @@ export class CartService {
     this.sincronizarConThymeleaf();
   }
 
-  agregarProducto(producto: Producto, tallaSeleccionada?: string): void {
+  agregarProducto(producto: Producto, tallaSeleccionada?: string, colorSeleccionado?: string): void {
     const lista = [...this.items()];
     const talla = tallaSeleccionada || (producto.tallas && producto.tallas.length > 0 ? producto.tallas[0] : 'Estándar');
+    const color = colorSeleccionado || (producto.colores && producto.colores.length > 0 ? producto.colores[0] : 'Negro');
 
-    // Buscar variante que coincida con la talla si existe
+    // Buscar variante que coincida con talla y color si existen
     let variante: ProductoDetalle | undefined;
     if (producto.variantes && producto.variantes.length > 0) {
-      variante = producto.variantes.find(v => v.talla === talla);
+      variante = producto.variantes.find(v => v.talla === talla && v.color === color)
+              || producto.variantes.find(v => v.talla === talla)
+              || producto.variantes.find(v => v.color === color)
+              || producto.variantes[0];
     }
 
     const precioFinal = variante ? Number(variante.precioTotal) : Number(producto.precioBase);
-    const sku = variante ? variante.sku : `PROD-${producto.id}-${talla}`;
+    const sku = variante ? variante.sku : `PROD-${producto.id}-${talla}-${color}`;
     const marca = variante ? variante.marca : 'LMLL';
-    const color = variante ? variante.color : 'Único';
+    const colorFinal = variante?.color || color;
     const stockMax = variante ? variante.stock : 99;
 
     const indexExistente = lista.findIndex(i =>
-      (i.sku && i.sku === sku) || (i.nombre === producto.nombre && i.talla === talla)
+      (i.sku && i.sku === sku) || (i.productoId === producto.id && i.talla === talla && i.color === colorFinal)
     );
 
     if (indexExistente >= 0) {
       if (lista[indexExistente].cantidad < stockMax) {
         lista[indexExistente].cantidad += 1;
-        this.mostrarToast(`Se agregó una unidad más de ${producto.nombre} (${talla})`);
+        this.mostrarToast(`Se agregó una unidad más de ${producto.nombre} (${talla} - ${colorFinal})`);
       } else {
-        this.mostrarToast(`Stock máximo alcanzado para talla ${talla}`);
+        this.mostrarToast(`Stock máximo alcanzado para talla ${talla} (${colorFinal})`);
         return;
       }
     } else {
@@ -74,11 +78,11 @@ export class CartService {
         cantidad: 1,
         imagen: producto.imagenUrl,
         talla: talla,
-        color: color,
+        color: colorFinal,
         marca: marca,
         stockMaximo: stockMax
       });
-      this.mostrarToast(`¡${producto.nombre} (${talla}) añadido a tu bolsa!`);
+      this.mostrarToast(`¡${producto.nombre} (${talla} - ${colorFinal}) añadido a tu bolsa!`);
     }
 
     this.actualizarEstado(lista);

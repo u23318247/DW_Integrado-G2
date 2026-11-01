@@ -33,6 +33,27 @@
 
             <hr class="border-secondary my-3" />
 
+            <!-- Selector de Color en Modal -->
+            <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase mb-2 d-flex align-items-center justify-content-between">
+                <span>Color: <strong class="text-white ms-1">{{ colorSeleccionado }}</strong></span>
+                <small class="text-gold"><i class="bi bi-palette-fill me-1"></i>Paleta oficial</small>
+              </label>
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                @for (c of obtenerColores(); track c) {
+                  <button
+                    type="button"
+                    class="modal-color-swatch"
+                    [class.active]="colorSeleccionado === c"
+                    [style.background-color]="obtenerHexColor(c)"
+                    [title]="c"
+                    (click)="seleccionarColor(c)">
+                    <span class="visually-hidden">{{ c }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+
             <!-- Selector de Tallas en Modal -->
             <div class="mb-3">
               <div class="d-flex justify-content-between align-items-center mb-2">

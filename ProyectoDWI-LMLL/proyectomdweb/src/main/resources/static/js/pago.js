@@ -271,7 +271,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <img src="${item.imagen || '/img/logo.png'}" alt="${item.nombre}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-2, #333);">
                     <div>
                         <h6 class="mb-0 text-white" style="font-size: 0.92rem;">${item.nombre}</h6>
-                        <small class="text-muted" style="font-size: 0.78rem;">Cant: ${cantidad} ${item.talla ? ' | Talla: ' + item.talla : ''}</small>
+                        <small class="text-muted" style="font-size: 0.78rem;">Cant: ${cantidad} ${item.talla ? ' | Talla: ' + item.talla : ''} ${item.color ? ' | Color: ' + item.color : ''}</small>
                     </div>
                 </div>
                 <span class="fw-bold text-gold" style="font-size: 0.95rem;">
