@@ -44,7 +44,7 @@ public class CheckoutController {
 
     @PostMapping("/procesar-local")
     public String procesarLocalYPrepararPayU(
-            @RequestParam("total")           BigDecimal total, 
+            @RequestParam(value = "total", required = false, defaultValue = "0.00") BigDecimal total, 
             @RequestParam("tipoComprobante") String tipoComprobante,
             @RequestParam(value = "clienteDni", required = false)       String clienteDni,
             @RequestParam(value = "clienteNombre", required = false)    String clienteNombre,

@@ -159,7 +159,11 @@ public class ConsultaDniController {
     }
 
     private Map<String, Object> consultarReniecEnVivo(String dni) {
-        // Intento con apis.net.pe v2 si hay token configurado
+        // 1. Prioridad: Consulta oficial en vivo a la API nacional abierta de RENIEC
+        Map<String, Object> liveScrall = consultarScrall(dni);
+        if (liveScrall != null) return liveScrall;
+
+        // 2. Intento con apis.net.pe v2 si hay token configurado
         if (reniecApiToken != null && !reniecApiToken.isBlank()) {
             Map<String, Object> v2Res = realizarPeticionHttp(
                 "https://api.apis.net.pe/v2/reniec/dni?numero=" + dni,
@@ -169,7 +173,7 @@ public class ConsultaDniController {
             if (v2Res != null) return v2Res;
         }
 
-        // Intento con apis.net.pe v1 (abierto para consultas DNI)
+        // 3. Intento con apis.net.pe v1
         Map<String, Object> v1Res = realizarPeticionHttp(
             "https://api.apis.net.pe/v1/dni?numero=" + dni,
             null,
@@ -177,6 +181,48 @@ public class ConsultaDniController {
         );
         if (v1Res != null) return v1Res;
 
+        return null;
+    }
+
+    private Map<String, Object> consultarScrall(String dni) {
+        try {
+            String jsonPayload = "{\"dni\":\"" + dni + "\"}";
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.scrall.net/v1/reniec/basico"))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+                .timeout(Duration.ofSeconds(4))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                .build();
+
+            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200 && response.body() != null) {
+                String body = response.body().trim();
+                if (body.contains("\"found data\"") || body.contains("D_PRENOMBRES")) {
+                    String nombresRaw = extraerCampoJson(body, "D_PRENOMBRES");
+                    String apePaterno = extraerCampoJson(body, "D_APEPATERNO");
+                    String apeMaterno = extraerCampoJson(body, "D_APEMATERNO");
+
+                    if (nombresRaw != null && !nombresRaw.isBlank()) {
+                        String nombres = capitalizarPalabras(nombresRaw);
+                        String apellidos = capitalizarPalabras(((apePaterno != null ? apePaterno : "") + " " + (apeMaterno != null ? apeMaterno : "")).trim());
+                        String nombreCompleto = (nombres + " " + apellidos).trim();
+
+                        Map<String, Object> res = new HashMap<>();
+                        res.put("dni", dni);
+                        res.put("nombres", nombres);
+                        res.put("apellidos", apellidos);
+                        res.put("nombre", nombreCompleto);
+                        res.put("encontrado", true);
+                        res.put("origen", "RENIEC Oficial");
+                        return res;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Consulta RENIEC en vivo fallo para DNI {}: {}", dni, e.getMessage());
+        }
         return null;
     }
 

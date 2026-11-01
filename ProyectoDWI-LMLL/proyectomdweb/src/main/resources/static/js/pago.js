@@ -1,166 +1,228 @@
 /* =========================================================
-   LÓGICA DE PAGO Y AUTOCOMPLETADO POR DNI (LMLL)
+   LOGICA DE PAGO Y AUTOCOMPLETADO POR DNI RENIEC (LMLL)
    ========================================================= */
+
+function sincronizarNombreCompleto() {
+    const elNombres = document.getElementById("clienteNombres");
+    const elApellidos = document.getElementById("clienteApellidos");
+    const elNombre = document.getElementById("clienteNombre");
+    const n = (elNombres ? elNombres.value : "").trim();
+    const a = (elApellidos ? elApellidos.value : "").trim();
+    if (elNombre) {
+        elNombre.value = (n + " " + a).trim();
+    }
+}
+window.sincronizarNombreCompleto = sincronizarNombreCompleto;
+
+function autocompletarDominio(dom) {
+    const emailInput = document.getElementById("clienteEmail");
+    if (!emailInput) return;
+    let val = emailInput.value.trim();
+    if (!val) {
+        emailInput.value = dom;
+        emailInput.focus();
+        return;
+    }
+    if (val.includes("@")) {
+        val = val.substring(0, val.indexOf("@"));
+    }
+    emailInput.value = val + dom;
+    emailInput.focus();
+}
+window.autocompletarDominio = autocompletarDominio;
+
+async function consultarDni(dni) {
+    const inputDni = document.getElementById("clienteDni");
+    const spinnerDni = document.getElementById("spinner-dni");
+    const iconBuscarDni = document.getElementById("icon-buscar-dni");
+    const feedbackDni = document.getElementById("dni-feedback");
+    const feedbackTexto = document.getElementById("dni-feedback-text");
+    const badgeDni = document.getElementById("dni-badge");
+    const inputNombres = document.getElementById("clienteNombres");
+    const inputApellidos = document.getElementById("clienteApellidos");
+    const inputNombre = document.getElementById("clienteNombre");
+    const inputTelefono = document.getElementById("clienteTelefono");
+
+    const valDni = (dni || (inputDni ? inputDni.value : "")).toString().trim().replace(/\D/g, "");
+    if (valDni.length !== 8) {
+        if (feedbackDni && feedbackTexto) {
+            feedbackTexto.textContent = "El DNI debe contener exactamente 8 digitos.";
+            feedbackDni.className = "mt-2 text-warning small";
+            feedbackDni.classList.remove("d-none");
+        }
+        return;
+    }
+
+    if (spinnerDni) spinnerDni.classList.remove("d-none");
+    if (iconBuscarDni) iconBuscarDni.classList.add("d-none");
+    if (feedbackDni) feedbackDni.classList.add("d-none");
+
+    try {
+        const resp = await fetch("/api/consulta/dni/" + valDni);
+        if (!resp.ok) {
+            throw new Error("Respuesta no satisfactoria del servidor");
+        }
+
+        const data = await resp.json();
+        if (data && data.encontrado) {
+            if (inputNombres && data.nombres) {
+                inputNombres.value = data.nombres;
+            }
+            if (inputApellidos && data.apellidos) {
+                inputApellidos.value = data.apellidos;
+            }
+            sincronizarNombreCompleto();
+
+            [inputNombres, inputApellidos].forEach(el => {
+                if (el) {
+                    el.style.transition = "all 0.3s ease";
+                    el.style.borderColor = "#28a745";
+                    el.style.backgroundColor = "rgba(40, 167, 69, 0.08)";
+                    setTimeout(() => {
+                        el.style.borderColor = "";
+                        el.style.backgroundColor = "";
+                    }, 2500);
+                }
+            });
+
+            if (badgeDni) {
+                badgeDni.style.display = "inline-flex";
+                badgeDni.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> ' + (data.origen || 'Verificado');
+            }
+
+            if (feedbackDni && feedbackTexto) {
+                const nombreMostrar = data.nombre || ((data.nombres || "") + " " + (data.apellidos || "")).trim();
+                feedbackTexto.textContent = "Datos de " + nombreMostrar + " obtenidos de " + (data.origen || 'RENIEC') + ".";
+                feedbackDni.className = "mt-2 text-success small";
+                feedbackDni.classList.remove("d-none");
+            }
+
+            if (inputTelefono && !inputTelefono.value) {
+                inputTelefono.focus();
+            }
+        } else {
+            if (feedbackDni && feedbackTexto) {
+                feedbackTexto.textContent = (data && data.mensaje) ? data.mensaje : "DNI no encontrado. Puedes ingresar los datos manualmente.";
+                feedbackDni.className = "mt-2 text-warning small";
+                feedbackDni.classList.remove("d-none");
+            }
+            if (badgeDni) badgeDni.style.display = "none";
+            if (inputNombres) inputNombres.focus();
+        }
+    } catch (err) {
+        console.error("Error al consultar DNI:", err);
+        if (feedbackDni && feedbackTexto) {
+            feedbackTexto.textContent = "Error de conexion al consultar DNI. Por favor ingresa los datos manualmente.";
+            feedbackDni.className = "mt-2 text-warning small";
+            feedbackDni.classList.remove("d-none");
+        }
+    } finally {
+        if (spinnerDni) spinnerDni.classList.add("d-none");
+        if (iconBuscarDni) iconBuscarDni.classList.remove("d-none");
+    }
+}
+window.consultarDni = consultarDni;
+window.ejecutarConsultaDni = function() {
+    const inputDni = document.getElementById("clienteDni");
+    if (inputDni) consultarDni(inputDni.value);
+};
+
+let timerDniAuto = null;
+function verificarDniInput(val) {
+    const dni = (val || "").replace(/\D/g, "").slice(0, 8);
+    const inputDni = document.getElementById("clienteDni");
+    if (inputDni && inputDni.value !== dni) {
+        inputDni.value = dni;
+    }
+    clearTimeout(timerDniAuto);
+    if (dni.length === 8) {
+        timerDniAuto = setTimeout(() => {
+            consultarDni(dni);
+        }, 350);
+    }
+}
+window.verificarDniInput = verificarDniInput;
 
 document.addEventListener("DOMContentLoaded", function() {
     const contenedorResumen = document.getElementById("pago-productos-lista");
     const totalSpan         = document.getElementById("pago-total");
     const checkoutForm      = document.getElementById("checkout-form");
     const inputTotalHidden  = document.getElementById("input-total-hidden");
-
-    // Elementos de DNI y autocompletado
-    const inputDni        = document.getElementById("clienteDni");
-    const btnBuscarDni    = document.getElementById("btn-buscar-dni");
-    const spinnerDni      = document.getElementById("spinner-dni");
-    const iconBuscarDni   = document.getElementById("icon-buscar-dni");
-    const feedbackDni     = document.getElementById("dni-feedback");
-    const feedbackTexto   = document.getElementById("dni-feedback-text");
-    const badgeDni        = document.getElementById("dni-badge");
-
-    // Campos de destino a autocompletar
-    const inputNombres    = document.getElementById("clienteNombres");
-    const inputApellidos  = document.getElementById("clienteApellidos");
-    const inputNombre     = document.getElementById("clienteNombre");
-    const inputEmail      = document.getElementById("clienteEmail");
-    const inputTelefono   = document.getElementById("clienteTelefono");
-    const inputDireccion  = document.getElementById("clienteDireccion");
+    const inputDni          = document.getElementById("clienteDni");
+    const btnBuscarDni      = document.getElementById("btn-buscar-dni");
+    const inputEmail        = document.getElementById("clienteEmail");
+    const inputDireccion    = document.getElementById("clienteDireccion");
+    const inputNombres      = document.getElementById("clienteNombres");
+    const inputApellidos    = document.getElementById("clienteApellidos");
+    const hiddenNombre      = document.getElementById("clienteNombre");
 
     let carrito = [];
 
-    //-- 1. FUNCIÓN DE CONSULTA Y AUTOCOMPLETADO POR DNI --//
-    async function consultarDni(dni) {
-        if (!dni) return;
-        const dniLimpio = dni.toString().trim().replace(/\D/g, "");
-        if (dniLimpio.length !== 8) {
-            if (feedbackDni && feedbackTexto) {
-                feedbackTexto.textContent = "El DNI debe contener exactamente 8 dígitos.";
-                feedbackDni.className = "mt-2 text-warning small";
-                feedbackDni.classList.remove("d-none");
-            }
-            return;
-        }
-
-        // Mostrar estado de búsqueda
-        if (spinnerDni) spinnerDni.classList.remove("d-none");
-        if (iconBuscarDni) iconBuscarDni.classList.add("d-none");
-        if (feedbackDni) feedbackDni.classList.add("d-none");
-
-        try {
-            const resp = await fetch("/api/consulta/dni/" + dniLimpio);
-            if (!resp.ok) {
-                throw new Error("No se pudo obtener información del DNI");
-            }
-
-            const data = await resp.json();
-            if (data && data.encontrado) {
-                // Autocompletar solo nombres y apellidos según solicitud del usuario
-                if (inputNombres && data.nombres) {
-                    inputNombres.value = data.nombres;
-                    inputNombres.dispatchEvent(new Event("input", { bubbles: true }));
-                }
-                if (inputApellidos && data.apellidos) {
-                    inputApellidos.value = data.apellidos;
-                    inputApellidos.dispatchEvent(new Event("input", { bubbles: true }));
-                }
-                if (inputNombre) {
-                    inputNombre.value = (data.nombre || ((data.nombres || "") + " " + (data.apellidos || "")).trim());
-                }
-
-                // Animación visual de campos autocompletados
-                [inputNombres, inputApellidos].forEach(el => {
-                    if (el) {
-                        el.style.transition = "all 0.3s ease";
-                        el.style.borderColor = "#28a745";
-                        el.style.backgroundColor = "rgba(40, 167, 69, 0.08)";
-                        setTimeout(() => {
-                            el.style.borderColor = "";
-                            el.style.backgroundColor = "";
-                        }, 2500);
-                    }
-                });
-
-                if (badgeDni) {
-                    badgeDni.style.display = "inline-flex";
-                    badgeDni.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> ' + (data.origen || 'Verificado');
-                }
-
-                if (feedbackDni && feedbackTexto) {
-                    feedbackTexto.textContent = "✓ Datos de " + (data.nombre || (data.nombres + ' ' + data.apellidos)) + " obtenidos de " + (data.origen || 'RENIEC') + ".";
-                    feedbackDni.className = "mt-2 text-success small";
-                    feedbackDni.classList.remove("d-none");
-                }
-
-                // Enfocar teléfono para que el cliente ingrese su teléfono manualmente
-                if (inputTelefono && !inputTelefono.value) {
-                    inputTelefono.focus();
-                }
-            } else {
-                if (feedbackDni && feedbackTexto) {
-                    feedbackTexto.textContent = data.mensaje || "DNI no encontrado en RENIEC. Puedes ingresar los datos manualmente.";
-                    feedbackDni.className = "mt-2 text-warning small";
-                    feedbackDni.classList.remove("d-none");
-                }
-                if (badgeDni) badgeDni.style.display = "none";
-                if (inputNombres) inputNombres.focus();
-            }
-        } catch (err) {
-            console.error("Error al consultar DNI:", err);
-            if (feedbackDni && feedbackTexto) {
-                feedbackTexto.textContent = "Error de conexión al consultar DNI. Por favor ingresa los datos manualmente.";
-                feedbackDni.className = "mt-2 text-warning small";
-                feedbackDni.classList.remove("d-none");
-            }
-        } finally {
-            if (spinnerDni) spinnerDni.classList.add("d-none");
-            if (iconBuscarDni) iconBuscarDni.classList.remove("d-none");
-        }
-    }
-            if (iconBuscarDni) iconBuscarDni.classList.remove("d-none");
-        }
-    }
-
-    //-- EVENTOS DEL CAMPO DNI --//
+    // Manejo de eventos del campo DNI
     if (inputDni) {
-        let timerDni = null;
-
-        inputDni.addEventListener("input", function(e) {
-            // Permitir solo números y máximo 8 dígitos
-            this.value = this.value.replace(/\D/g, "").slice(0, 8);
-            clearTimeout(timerDni);
-
-            if (this.value.length === 8) {
-                timerDni = setTimeout(() => {
-                    consultarDni(this.value);
-                }, 450);
-            } else {
-                if (badgeDni) badgeDni.style.display = "none";
-                if (feedbackDni) feedbackDni.classList.add("d-none");
-            }
+        inputDni.addEventListener("input", function() {
+            verificarDniInput(this.value);
         });
 
         inputDni.addEventListener("keydown", function(e) {
             if (e.key === "Enter") {
                 e.preventDefault();
-                if (this.value.length === 8) {
-                    consultarDni(this.value);
-                }
+                consultarDni(this.value);
             }
         });
 
-        if (btnBuscarDni) {
-            btnBuscarDni.addEventListener("click", function(e) {
-                e.preventDefault();
-                consultarDni(inputDni.value);
-            });
-        }
-
-        // Si ya hay un DNI en el campo al cargar y el nombre está vacío, consultar automáticamente
         if (inputDni.value && inputDni.value.trim().length === 8) {
             consultarDni(inputDni.value.trim());
         }
     }
 
-    //-- 2. CARGA DE PRODUCTOS DE LA BOLSA --//
+    if (btnBuscarDni) {
+        btnBuscarDni.addEventListener("click", function(e) {
+            e.preventDefault();
+            if (inputDni) consultarDni(inputDni.value);
+        });
+    }
+
+    // Separar nombre precargado si existe
+    if (hiddenNombre && hiddenNombre.value && inputNombres && !inputNombres.value) {
+        const partes = hiddenNombre.value.trim().split(" ");
+        if (partes.length === 1) {
+            inputNombres.value = partes[0];
+        } else if (partes.length >= 2) {
+            inputNombres.value = partes[0];
+            if (inputApellidos) inputApellidos.value = partes.slice(1).join(" ");
+        }
+    }
+
+    // Autocompletado inteligente de correo
+    if (inputEmail) {
+        inputEmail.addEventListener("blur", function() {
+            let val = this.value.trim();
+            if (val && !val.includes("@") && !val.includes(" ")) {
+                this.value = val + "@gmail.com";
+            }
+        });
+        inputEmail.addEventListener("input", function() {
+            let val = this.value;
+            if (val.endsWith("@") && !val.slice(0, -1).includes("@")) {
+                this.value = val + "gmail.com";
+            }
+        });
+    }
+
+    // Autocompletado inteligente de dirección con prefijo 'Av. '
+    if (inputDireccion) {
+        if (!inputDireccion.value || inputDireccion.value.trim() === "") {
+            inputDireccion.value = "Av. ";
+        }
+        inputDireccion.addEventListener("focus", function() {
+            if (!this.value || this.value.trim() === "") {
+                this.value = "Av. ";
+            }
+        });
+    }
+
+    // Cargar productos del carrito
     function cargarResumen() {
         if (!contenedorResumen || !totalSpan) return;
 
@@ -177,9 +239,9 @@ document.addEventListener("DOMContentLoaded", function() {
             contenedorResumen.innerHTML = `
                 <div class="alert alert-dark text-center p-3 mb-3 border-secondary" style="background: rgba(255,255,255,0.03);">
                     <i class="bi bi-bag-x text-gold fs-3 d-block mb-2"></i>
-                    <p class="mb-2 text-white small">Tu bolsa de compra está vacía.</p>
+                    <p class="mb-2 text-white small">Tu bolsa de compra esta vacia.</p>
                     <a href="/productos" class="btn btn-sm btn-outline-warning" style="font-size: 0.8rem;">
-                        <i class="bi bi-bag-plus me-1"></i> Explorar Catálogo
+                        <i class="bi bi-bag-plus me-1"></i> Explorar Catalogo
                     </a>
                 </div>
             `;
@@ -225,47 +287,19 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    //-- 3. VALIDACIÓN Y ENVÍO DEL FORMULARIO --//
+    // Validación y envío del formulario
     if (checkoutForm) {
         checkoutForm.addEventListener("submit", function(e) {
-            // Asegurar que el total esté en el input oculto
+            sincronizarNombreCompleto();
             if (inputTotalHidden && totalSpan) {
-                inputTotalHidden.value = totalSpan.textContent.trim();
+                const txt = totalSpan.textContent.trim();
+                inputTotalHidden.value = txt !== "" ? txt : "0.00";
             }
-
             if (!checkoutForm.checkValidity()) {
                 e.preventDefault();
                 e.stopPropagation();
             }
-
             checkoutForm.classList.add("was-validated");
-        });
-    }
-
-    //-- 4. AUTOCOMPLETADO INTELIGENTE DE CORREO Y PREFIJO DE DIRECCIÓN --//
-    if (inputEmail) {
-        inputEmail.addEventListener("blur", function() {
-            let val = this.value.trim();
-            if (val && !val.includes("@") && !val.includes(" ")) {
-                this.value = val + "@gmail.com";
-            }
-        });
-        inputEmail.addEventListener("input", function() {
-            let val = this.value;
-            if (val.endsWith("@") && !val.slice(0, -1).includes("@")) {
-                this.value = val + "gmail.com";
-            }
-        });
-    }
-
-    if (inputDireccion) {
-        if (!inputDireccion.value || inputDireccion.value.trim() === "") {
-            inputDireccion.value = "Av. ";
-        }
-        inputDireccion.addEventListener("focus", function() {
-            if (!this.value || this.value.trim() === "") {
-                this.value = "Av. ";
-            }
         });
     }
 
