@@ -82,10 +82,14 @@ public class ConsultaDniController {
     private static HttpClient crearHttpClientConfiable() {
         try {
             TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
+                new X509ExtendedTrustManager() {
                     public void checkClientTrusted(X509Certificate[] chain, String authType) {}
                     public void checkServerTrusted(X509Certificate[] chain, String authType) {}
                     public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                    public void checkClientTrusted(X509Certificate[] chain, String authType, java.net.Socket socket) {}
+                    public void checkServerTrusted(X509Certificate[] chain, String authType, java.net.Socket socket) {}
+                    public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {}
+                    public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {}
                 }
             };
 
@@ -94,12 +98,14 @@ public class ConsultaDniController {
 
             return HttpClient.newBuilder()
                 .sslContext(sslContext)
-                .connectTimeout(Duration.ofSeconds(4))
+                .version(HttpClient.Version.HTTP_1_1)
+                .connectTimeout(Duration.ofSeconds(6))
+                .followRedirects(HttpClient.Redirect.ALWAYS)
                 .build();
         } catch (Exception e) {
             log.error("Error al inicializar SSL para cliente DNI: {}", e.getMessage());
             return HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(4))
+                .connectTimeout(Duration.ofSeconds(6))
                 .build();
         }
     }
@@ -196,7 +202,7 @@ public class ConsultaDniController {
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                 .build();
 
-            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString(java.nio.charset.StandardCharsets.UTF_8));
             if (response.statusCode() == 200 && response.body() != null) {
                 String body = response.body().trim();
                 if (body.contains("\"found data\"") || body.contains("D_PRENOMBRES")) {
