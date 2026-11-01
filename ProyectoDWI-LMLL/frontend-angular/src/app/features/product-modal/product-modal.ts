@@ -60,7 +60,11 @@ export class ProductModal {
       'plateado': '#c0c0c0',
       'plata': '#c0c0c0',
       'café': '#6f4e37',
+      'café coñac': '#6f4e37',
       'coñac': '#8b5a2b',
+      'oro rosa': '#b76e79',
+      'blanco perla': '#f4edea',
+      'perla': '#f4edea',
       'nude': '#e8d8c8'
     };
     const key = (color || '').toLowerCase().trim();

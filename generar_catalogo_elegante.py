@@ -406,15 +406,60 @@ CAT_PRODUCTS_ELEGANTE = {
     ]
 }
 
-# Real formal & elegant color palette
-COLORS_ELEGANTE = ["Negro Azabache", "Azul Marino", "Blanco Marfil", "Gris Oxford", "Vino Tinto", "Beige Camel", "Dorado", "Plateado"]
+# Real formal & elegant color palette (AMPLIADA CON MÁS COLORES)
+# 6 a 7 colores por prenda
+COLORES_ROPA = [
+    "Negro Azabache",
+    "Azul Marino",
+    "Blanco Marfil",
+    "Gris Oxford",
+    "Vino Tinto",
+    "Beige Camel",
+    "Verde Esmeralda"
+]
+
+COLORES_CALZADO = [
+    "Negro Azabache",
+    "Café Coñac",
+    "Azul Marino",
+    "Beige Camel",
+    "Vino Tinto",
+    "Blanco Marfil"
+]
+
+COLORES_ACCESORIOS = [
+    "Negro Azabache",
+    "Café Coñac",
+    "Azul Marino",
+    "Beige Camel",
+    "Vino Tinto",
+    "Azul Noche"
+]
+
+COLORES_SOMBREROS = [
+    "Negro Azabache",
+    "Beige Camel",
+    "Gris Oxford",
+    "Azul Marino",
+    "Blanco Marfil",
+    "Vino Tinto"
+]
+
+COLORES_JOYERIA = [
+    "Plateado",
+    "Dorado",
+    "Oro Rosa",
+    "Negro Azabache",
+    "Azul Noche",
+    "Blanco Perla"
+]
 
 TALLAS_ELEGANTE = {
-    4: ["39", "40", "41", "42", "43"],
-    1: ["38R", "40R", "42R", "44R"],
-    2: ["S", "M", "L", "XL"],
-    6: ["S", "M", "L", "XL"],
-    3: ["30", "32", "34", "36"],
+    4: ["40", "41", "42"],
+    1: ["38R", "40R", "42R"],
+    2: ["S", "M", "L"],
+    6: ["S", "M", "L"],
+    3: ["30", "32", "34"],
     7: ["Única", "Ajustable"],
     5: ["Única"],
     8: ["39-42", "43-45"],
@@ -422,7 +467,7 @@ TALLAS_ELEGANTE = {
 }
 
 sql_lines = []
-sql_lines.append("-- LIMPIEZA Y REGENERACION COMPLETA DE 20 PRODUCTOS ELEGANTES POR CADA CATEGORIA (180 EN TOTAL)")
+sql_lines.append("-- LIMPIEZA Y REGENERACION COMPLETA CON MAS COLORES (6 A 7 POR PRENDA)")
 sql_lines.append("TRUNCATE TABLE producto_detalles, productos RESTART IDENTITY CASCADE;")
 sql_lines.append("")
 
@@ -434,23 +479,28 @@ for cat_id in sorted(CAT_PRODUCTS_ELEGANTE.keys()):
     images = IMAGES_ELEGANTE[cat_id]
     tallas = TALLAS_ELEGANTE[cat_id]
     
+    # Asignar paleta de colores ampliada según categoría
+    if cat_id == 4:
+        palette = COLORES_CALZADO
+    elif cat_id == 9:
+        palette = COLORES_JOYERIA
+    elif cat_id == 5:
+        palette = COLORES_ACCESORIOS
+    elif cat_id == 7:
+        palette = COLORES_SOMBREROS
+    else:
+        palette = COLORES_ROPA
+    
     for i, (nombre, genero, precio) in enumerate(prods):
         img = images[i % len(images)]
         sql_lines.append(f"INSERT INTO productos (id, categoria_id, nombre, genero, imagen_url, precio_base, disponibilidad) VALUES ({prod_id}, {cat_id}, '{nombre}', '{genero}', '{img}', {precio:.2f}, true);")
         
-        # Colores elegantes
-        if cat_id in [9]:
-            selected_colors = ["Plateado", "Dorado", "Negro Azabache"]
-        elif cat_id in [5]:
-            selected_colors = ["Negro Azabache", "Azul Marino", "Beige Camel"]
-        else:
-            selected_colors = ["Negro Azabache", "Azul Marino", "Blanco Marfil", "Gris Oxford"][:3]
-            
-        for c_idx, color in enumerate(selected_colors):
-            for t_idx, talla in enumerate(tallas[:3] if len(tallas) > 3 else tallas):
+        # Generar variantes con todos los colores de la paleta
+        for c_idx, color in enumerate(palette):
+            for t_idx, talla in enumerate(tallas[:2]): # 2 tallas x 6 colores = 12 variantes por producto
                 codigo = f"ELG{prod_id:03d}-C{c_idx+1}T{t_idx+1}"
-                nombre_comp = f"{nombre} {color} Talla {talla}"
-                desc = f"Prenda de alta costura LMLL en color {color}. Tejidos nobles, caída impecable y máxima elegancia."
+                nombre_comp = f"{nombre} {color} {talla}"
+                desc = f"Prenda sastrera LMLL en color {color}. Tejidos nobles de alta gama."
                 stock = 15 + ((prod_id * 3 + c_idx * 7 + t_idx * 11) % 35)
                 
                 sql_lines.append(f"INSERT INTO producto_detalles (id, producto_id, nombre_completo, codigo, imagen_url, marca, talla, color, descripcion, stock, precio_base, precio_adicional) VALUES ({detalle_id}, {prod_id}, '{nombre_comp}', '{codigo}', '{img}', 'LMLL Haute Couture', '{talla}', '{color}', '{desc}', {stock}, {precio:.2f}, 0.00);")
@@ -465,4 +515,4 @@ sql_lines.append(f"SELECT setval('producto_detalles_id_seq', {detalle_id - 1});"
 with open("seed_elegante_20_por_bloque.sql", "w", encoding="utf-8") as f:
     f.write("\n".join(sql_lines))
 
-print(f"Catálogo Elegante generado con {prod_id - 1} productos y {detalle_id - 1} variantes.")
+print(f"Catálogo Elegante generado con {prod_id - 1} productos y {detalle_id - 1} variantes (más colores añadidos).")
