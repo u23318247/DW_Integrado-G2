@@ -12,7 +12,7 @@ import { Producto, ProductoDetalle } from '../../models/producto.model';
 export class ProductModal {
   @Input() producto: Producto | null = null;
   @Input() tallaSeleccionada: string = 'Estándar';
-  @Input() colorSeleccionado: string = 'Negro';
+  @Input() colorSeleccionado: string = 'Negro Azabache';
   @Output() cerrar = new EventEmitter<void>();
   @Output() agregar = new EventEmitter<{ producto: Producto; talla: string; color: string }>();
 
@@ -28,34 +28,43 @@ export class ProductModal {
     if (this.producto?.colores && this.producto.colores.length > 0) {
       return this.producto.colores;
     }
-    return ['Negro', 'Blanco', 'Azul Marino'];
+    return ['Negro Azabache', 'Azul Marino', 'Blanco Marfil'];
   }
 
   obtenerHexColor(color: string): string {
     const mapa: Record<string, string> = {
-      'negro': '#161616',
-      'blanco': '#f5f5f7',
-      'azul marino': '#0d2b45',
-      'azul': '#1b4965',
-      'gris melange': '#7d8597',
-      'gris': '#6c757d',
-      'beige arena': '#d8c4b6',
-      'beige': '#d8c4b6',
-      'rojo borgoña': '#780000',
-      'rojo': '#b00020',
-      'verde oliva': '#475841',
-      'verde': '#2d6a4f',
-      'rosa pastel': '#f3c4fb',
-      'rosa': '#ffb4a2',
-      'amarillo mostaza': '#d4a373',
-      'amarillo': '#f4a261',
-      'lavanda': '#a29bfe',
-      'plateado': '#c0c0c0',
+      'negro azabache': '#111113',
+      'negro': '#111113',
+      'azul marino': '#0a192f',
+      'azul noche': '#0b132b',
+      'marino': '#0a192f',
+      'blanco marfil': '#fdfbf7',
+      'blanco': '#fdfbf7',
+      'marfil': '#fdfbf7',
+      'champagne': '#f7e7ce',
+      'gris oxford': '#4a4e5a',
+      'gris': '#5c677d',
+      'antracita': '#2b2d42',
+      'vino tinto': '#58111a',
+      'burdeos': '#4a0e17',
+      'borgoña': '#58111a',
+      'beige camel': '#c19a6b',
+      'camel': '#c19a6b',
+      'beige': '#d4b996',
+      'arena': '#e3d5ca',
+      'verde botella': '#1b4332',
+      'verde esmeralda': '#2d6a4f',
+      'verde inglés': '#1f3626',
       'dorado': '#d4af37',
-      'celeste': '#89c2d9'
+      'oro': '#d4af37',
+      'plateado': '#c0c0c0',
+      'plata': '#c0c0c0',
+      'café': '#6f4e37',
+      'coñac': '#8b5a2b',
+      'nude': '#e8d8c8'
     };
     const key = (color || '').toLowerCase().trim();
-    return mapa[key] || '#333333';
+    return mapa[key] || '#1a1a1a';
   }
 
   obtenerVariante(): ProductoDetalle | undefined {

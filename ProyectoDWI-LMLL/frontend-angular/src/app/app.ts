@@ -32,16 +32,16 @@ interface CategoriaMeta {
 }
 
 export const CATEGORIA_META: Record<string, CategoriaMeta> = {
-  'calzado': { orden: 1, nombreMostrar: 'Zapatillas & Calzado', icono: '👟', subtitulo: 'Sneakers urbanos, running y calzado streetwear' },
-  'polos': { orden: 2, nombreMostrar: 'Polos & Camisetas', icono: '👕', subtitulo: 'Cortes oversize, básicos y estampados urbanos' },
-  'abrigos': { orden: 3, nombreMostrar: 'Casacas & Abrigos', icono: '🧥', subtitulo: 'Casacas denim oversize, impermeables y cortavientos' },
-  'pantalones': { orden: 4, nombreMostrar: 'Pantalones & Jeans', icono: '👖', subtitulo: 'Pantalones cargo, skinny y rectos clásicos' },
-  'gorras y chullos': { orden: 5, nombreMostrar: 'Gorros & Chullos', icono: '🧢', subtitulo: 'Gorras trucker LMTL y beanies urbanos' },
-  'superiores': { orden: 6, nombreMostrar: 'Superiores & Chompas', icono: '🧶', subtitulo: 'Chompas con diseño, sudaderas con capucha y camisas' },
-  'accesorios': { orden: 7, nombreMostrar: 'Accesorios & Mochilas', icono: '🎒', subtitulo: 'Cangureras streetwear y mochilas minimal' },
-  'medias': { orden: 8, nombreMostrar: 'Medias Urbanas', icono: '🧦', subtitulo: 'Medias altas flame y estilo skate' },
-  'joyería y pines': { orden: 9, nombreMostrar: 'Joyería & Pines', icono: '✨', subtitulo: 'Cadenas de acero cubanas y pines exclusivos' },
-  'joyeria y pines': { orden: 9, nombreMostrar: 'Joyería & Pines', icono: '✨', subtitulo: 'Cadenas de acero cubanas y pines exclusivos' }
+  'calzado': { orden: 1, nombreMostrar: 'Zapatos Formales & Mocasines', icono: '👞', subtitulo: 'Calzado Oxford de charol, mocasines italianos y stilettos' },
+  'superiores': { orden: 2, nombreMostrar: 'Trajes, Blazers & Camisas', icono: '👔', subtitulo: 'Trajes sastreros slim fit, blazers cruzados y camisas pima' },
+  'polos': { orden: 3, nombreMostrar: 'Polos Pima & Blusas de Seda', icono: '✨', subtitulo: 'Polos camiseros de lujo, blusas de satén y cortes finos' },
+  'abrigos': { orden: 4, nombreMostrar: 'Abrigos de Paño & Gabardinas', icono: '🧥', subtitulo: 'Abrigos de lana cashmere, trench coats y sobretodos sastreros' },
+  'pantalones': { orden: 5, nombreMostrar: 'Pantalones de Vestir & Sastreros', icono: '👖', subtitulo: 'Pantalones de pinzas, corte sastrero italiano y palazzos' },
+  'gorras y chullos': { orden: 6, nombreMostrar: 'Sombreros Clásicos & Boinas', icono: '🎩', subtitulo: 'Sombreros Fedora de fieltro, panamá hats y boinas de lana' },
+  'accesorios': { orden: 7, nombreMostrar: 'Portafolios & Accesorios de Cuero', icono: '💼', subtitulo: 'Maletines ejecutivos, corbatas de seda italiana y cinturones' },
+  'medias': { orden: 8, nombreMostrar: 'Calcetines Ejecutivos & Medias Finas', icono: '🧦', subtitulo: 'Calcetines de hilo de Escocia y medias de vestir de alta costura' },
+  'joyería y pines': { orden: 9, nombreMostrar: 'Relojería & Joyería Fina', icono: '⌚', subtitulo: 'Relojes automáticos de vestir, gemelos de plata y perlas' },
+  'joyeria y pines': { orden: 9, nombreMostrar: 'Relojería & Joyería Fina', icono: '⌚', subtitulo: 'Relojes automáticos de vestir, gemelos de plata y perlas' }
 };
 
 @Component({
@@ -85,7 +85,7 @@ export class App implements OnInit {
   // Estado para modal de vista rápida
   productoParaModal: Producto | null = null;
   tallaParaModal: string = 'M';
-  colorParaModal: string = 'Negro';
+  colorParaModal: string = 'Negro Azabache';
 
   ngOnInit(): void {
     this.cargarTodo();
@@ -118,7 +118,7 @@ export class App implements OnInit {
               this.tallasSeleccionadas[p.id] = p.tallas[0];
             }
             if (!this.coloresSeleccionados[p.id]) {
-              this.coloresSeleccionados[p.id] = (p.colores && p.colores.length > 0) ? p.colores[0] : 'Negro';
+              this.coloresSeleccionados[p.id] = (p.colores && p.colores.length > 0) ? p.colores[0] : 'Negro Azabache';
             }
           }
         }
@@ -182,8 +182,8 @@ export class App implements OnInit {
       const meta = CATEGORIA_META[key] || {
         orden: 99,
         nombreMostrar: val.catNombre,
-        icono: '🏷️',
-        subtitulo: 'Colección exclusiva de temporada'
+        icono: '👔',
+        subtitulo: 'Colección de Alta Costura & Sastrería'
       };
 
       resultado.push({
@@ -196,7 +196,7 @@ export class App implements OnInit {
       });
     }
 
-    // Ordenar con la prioridad deseada: Zapatillas (1), Polos (2), Casacas (3), Pantalones (4), Gorros (5)...
+    // Ordenar con la prioridad elegante
     resultado.sort((a, b) => {
       const ordenA = (CATEGORIA_META[a.slug] || { orden: 99 }).orden;
       const ordenB = (CATEGORIA_META[b.slug] || { orden: 99 }).orden;
@@ -208,7 +208,7 @@ export class App implements OnInit {
 
   obtenerIconoCategoria(nombre: string): string {
     const key = (nombre || '').toLowerCase().trim();
-    return (CATEGORIA_META[key] || { icono: '🏷️' }).icono;
+    return (CATEGORIA_META[key] || { icono: '👔' }).icono;
   }
 
   obtenerNombreMostrarCategoria(nombre: string): string {
@@ -270,42 +270,51 @@ export class App implements OnInit {
   }
 
   obtenerColorSeleccionado(prod: Producto): string {
-    if (!prod.id) return 'Negro';
-    return this.coloresSeleccionados[prod.id] || (prod.colores && prod.colores.length > 0 ? prod.colores[0] : 'Negro');
+    if (!prod.id) return 'Negro Azabache';
+    return this.coloresSeleccionados[prod.id] || (prod.colores && prod.colores.length > 0 ? prod.colores[0] : 'Negro Azabache');
   }
 
   obtenerColoresProducto(prod: Producto): string[] {
     if (prod.colores && prod.colores.length > 0) {
       return prod.colores;
     }
-    return ['Negro', 'Blanco', 'Azul Marino'];
+    return ['Negro Azabache', 'Azul Marino', 'Blanco Marfil'];
   }
 
   obtenerHexColor(color: string): string {
     const mapa: Record<string, string> = {
-      'negro': '#161616',
-      'blanco': '#f5f5f7',
-      'azul marino': '#0d2b45',
-      'azul': '#1b4965',
-      'gris melange': '#7d8597',
-      'gris': '#6c757d',
-      'beige arena': '#d8c4b6',
-      'beige': '#d8c4b6',
-      'rojo borgoña': '#780000',
-      'rojo': '#b00020',
-      'verde oliva': '#475841',
-      'verde': '#2d6a4f',
-      'rosa pastel': '#f3c4fb',
-      'rosa': '#ffb4a2',
-      'amarillo mostaza': '#d4a373',
-      'amarillo': '#f4a261',
-      'lavanda': '#a29bfe',
-      'plateado': '#c0c0c0',
+      'negro azabache': '#111113',
+      'negro': '#111113',
+      'azul marino': '#0a192f',
+      'azul noche': '#0b132b',
+      'marino': '#0a192f',
+      'blanco marfil': '#fdfbf7',
+      'blanco': '#fdfbf7',
+      'marfil': '#fdfbf7',
+      'champagne': '#f7e7ce',
+      'gris oxford': '#4a4e5a',
+      'gris': '#5c677d',
+      'antracita': '#2b2d42',
+      'vino tinto': '#58111a',
+      'burdeos': '#4a0e17',
+      'borgoña': '#58111a',
+      'beige camel': '#c19a6b',
+      'camel': '#c19a6b',
+      'beige': '#d4b996',
+      'arena': '#e3d5ca',
+      'verde botella': '#1b4332',
+      'verde esmeralda': '#2d6a4f',
+      'verde inglés': '#1f3626',
       'dorado': '#d4af37',
-      'celeste': '#89c2d9'
+      'oro': '#d4af37',
+      'plateado': '#c0c0c0',
+      'plata': '#c0c0c0',
+      'café': '#6f4e37',
+      'coñac': '#8b5a2b',
+      'nude': '#e8d8c8'
     };
     const key = (color || '').toLowerCase().trim();
-    return mapa[key] || '#333333';
+    return mapa[key] || '#1a1a1a';
   }
 
   obtenerVarianteActual(prod: Producto): ProductoDetalle | undefined {

@@ -22,7 +22,7 @@ public class ProductoDetalle {
     @JoinColumn(name = "producto_id", nullable = false)
     private Producto producto;
 
-    @Column(name = "nombre_completo", nullable = false, length = 70)
+    @Column(name = "nombre_completo", nullable = false, length = 120)
     private String nombreCompleto;
 
     @Column(unique = true, nullable = false, length = 20)
@@ -31,16 +31,16 @@ public class ProductoDetalle {
     @Column(name = "imagenUrl", nullable = false, length = 255)
     private String imagenUrl;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 40)
     private String marca;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 20)
     private String talla;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 30)
     private String color;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 255)
     private String descripcion;
 
     @Column(columnDefinition = "int default 0")

@@ -24,10 +24,10 @@ public class Producto {
     @JoinColumn(name = "categoria_id") // Esta es la llave foránea
     private Categoria categoria;
 
-    @Column(nullable = false, length = 40)
+    @Column(nullable = false, length = 120)
     private String nombre;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 20)
     private String genero;
 
     @Column(name = "imagen_url", nullable = false, length = 255)
