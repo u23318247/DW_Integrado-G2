@@ -119,16 +119,12 @@
             </button>
 
             <!-- Modo ingreso: SOLO el ícono de la personita -->
-            <a sec:authorize="isAnonymous()" th:href="@{/auth/login}" class="btn-user-icon" title="Iniciar Sesión / Administrador" aria-label="Ingresar">
+            <a sec:authorize="isAnonymous()" th:href="@{/auth/login}" class="btn-user-icon" title="Iniciar Sesión" aria-label="Ingresar">
               <i class="bi bi-person"></i>
             </a>
 
             <!-- Si ya inició sesión -->
             <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
-              <a sec:authorize="hasAnyRole('ADMIN', 'VENDEDOR', 'ALMACENERO', 'REPARTIDOR')" th:href="@{/admin/dashboard}" class="btn-user-icon" title="Panel Administrativo" aria-label="Panel">
-                <i class="bi bi-person-gear"></i>
-              </a>
-
               <a sec:authorize="hasRole('CLIENTE')" th:href="@{/mis-pedidos}" class="btn-user-icon" title="Mis Pedidos" aria-label="Mis Pedidos">
                 <i class="bi bi-box2-heart"></i>
               </a>
@@ -161,12 +157,6 @@
             >
               Catálogo interactivo potenciado con <strong style="color: var(--brand);">Angular SPA</strong> en tiempo real.
             </p>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <!-- Botón Agregar Producto para Administradores y Vendedores -->
-            <a sec:authorize="hasAnyRole('ADMIN', 'VENDEDOR')" th:href="@{/admin/productos/nuevo}" class="btn-lmll btn-primary-lmll" title="Agregar una nueva prenda al catálogo">
-              <i class="bi bi-plus-circle me-1"></i> Nueva Prenda
-            </a>
           </div>
         </div>
 
