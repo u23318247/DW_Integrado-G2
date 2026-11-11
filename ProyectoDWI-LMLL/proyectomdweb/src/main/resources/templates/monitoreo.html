@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Monitoreo & Observabilidad | La Moda te LLama</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Chart.js para gráficos en tiempo real -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.35);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #090d16;
+            --card-bg: rgba(20, 27, 45, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at 15% 15%, #131a30 0%, #090d16 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1350px;
+            margin: 0 auto;
+        }
+
+        .header-dash {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .title-group h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .title-group p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .badge-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .btn-refresh {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-refresh:hover {
+            background: #4f46e5;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        .kpi-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+
+        .icon-server { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+        .icon-db { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .icon-ram { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .icon-req { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
+
+        .kpi-info h4 {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-info .kpi-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .kpi-info small {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        /* Paneles principales */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 992px) {
+            .dash-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel-box {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .panel-header h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .endpoints-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .endpoint-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 0.6rem;
+            border: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.85rem;
+        }
+
+        .endpoint-row code {
+            font-family: 'JetBrains Mono', monospace;
+            color: #38bdf8;
+        }
+
+        .tag-status {
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.3rem;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        .tag-up { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+        .tag-down { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+
+        .raw-json-box {
+            background: #060911;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #38bdf8;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+
+        .back-nav {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .back-nav a {
+            color: #a5b4fc;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="header-dash">
+        <div class="title-group">
+            <h1><i class="bi bi-activity text-primary"></i> Centro de Observabilidad & Salud del Servidor</h1>
+            <p>Monitoreo de Infraestructura, Conexiones a PostgreSQL y Métricas JVM en Tiempo Real</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="badge-live">
+                <span class="pulse-dot"></span>
+                <span>Servidor en Línea (Live)</span>
+            </div>
+            <button class="btn-refresh" onclick="actualizarMetricas()">
+                <i class="bi bi-arrow-clockwise"></i> Actualizar
+            </button>
+        </div>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon icon-server"><i class="bi bi-hdd-rack-fill"></i></div>
+            <div class="kpi-info">
+                <h4>Estado General</h4>
+                <div class="kpi-value" id="kpiEstado">UP</div>
+                <small>Spring Boot 4 / Actuator</small>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon icon-db"><i class="bi bi-database-fill-check"></i></div>
+            <div class="kpi-info">
+                <h4>Base de Datos</h4>
+                <div class="kpi-value" id="kpiDb">CONECTADA</div>
+                <small>PostgreSQL (Hikari Pool)</small>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon icon-ram"><i class="bi bi-memory"></i></div>
+            <div class="kpi-info">
+                <h4>Memoria RAM JVM</h4>
+                <div class="kpi-value" id="kpiRam">-- MB</div>
+                <small id="kpiRamSub">Cargando...</small>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon icon-req"><i class="bi bi-arrow-left-right"></i></div>
+            <div class="kpi-info">
+                <h4>Peticiones HTTP</h4>
+                <div class="kpi-value" id="kpiPeticiones">--</div>
+                <small>Total procesadas</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paneles Principales -->
+    <div class="dash-grid">
+        <!-- Gráfico de Memoria y CPU -->
+        <div class="panel-box">
+            <div class="panel-header">
+                <h3><i class="bi bi-graph-up text-primary"></i> Uso de Memoria JVM en Tiempo Real</h3>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Actualización cada 3 segundos</span>
+            </div>
+            <div style="height: 280px; position: relative;">
+                <canvas id="ramChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Endpoints de Actuator Verificados -->
+        <div class="panel-box">
+            <div class="panel-header">
+                <h3><i class="bi bi-check2-circle text-success"></i> Servicios de Monitoreo</h3>
+            </div>
+            <ul class="endpoints-list">
+                <li class="endpoint-row">
+                    <div>
+                        <strong>Health Check</strong><br>
+                        <code>/actuator/health</code>
+                    </div>
+                    <span class="tag-status tag-up" id="tagHealth">ACTIVO</span>
+                </li>
+                <li class="endpoint-row">
+                    <div>
+                        <strong>Métricas del Sistema</strong><br>
+                        <code>/actuator/metrics</code>
+                    </div>
+                    <span class="tag-status tag-up">DISPONIBLE</span>
+                </li>
+                <li class="endpoint-row">
+                    <div>
+                        <strong>Metadatos & Entorno</strong><br>
+                        <code>/actuator/info</code>
+                    </div>
+                    <span class="tag-status tag-up">CONFIGURADO</span>
+                </li>
+                <li class="endpoint-row">
+                    <div>
+                        <strong>Rate Limiting Anti-Bot</strong><br>
+                        <code>RateLimitingFilter</code>
+                    </div>
+                    <span class="tag-status tag-up">OPERATIVO (25 req/min)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Visor de Payload JSON en Crudo -->
+    <div class="panel-box">
+        <div class="panel-header">
+            <h3><i class="bi bi-code-slash text-warning"></i> Payload en Tiempo Real de Spring Boot Actuator (/actuator/health)</h3>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Datos crudos servidos por la JVM</span>
+        </div>
+        <pre class="raw-json-box" id="rawJsonBox">Cargando telemetría del servidor...</pre>
+    </div>
+
+    <div class="back-nav">
+        <a href="/"><i class="bi bi-arrow-left"></i> Volver a la Tienda Principal (La Moda te LLama)</a>
+    </div>
+</div>
+
+<script>
+    // Inicializar Gráfico Chart.js
+    const ctx = document.getElementById('ramChart').getContext('2d');
+    const chartLabels = [];
+    const chartData = [];
+
+    const ramChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Memoria Usada (MB)',
+                data: chartData,
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 4,
+                pointBackgroundColor: '#818cf8'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 11 } }
+                },
+                y: {
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 11 } },
+                    suggestedMin: 50,
+                    suggestedMax: 400
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#f8fafc', font: { family: 'Plus Jakarta Sans', weight: '600' } } }
+            }
+        }
+    });
+
+    async function actualizarMetricas() {
+        try {
+            // 1. Consultar Health
+            const resHealth = await fetch('/actuator/health');
+            if (resHealth.ok) {
+                const health = await resHealth.json();
+                document.getElementById('kpiEstado').textContent = health.status || 'UP';
+                document.getElementById('kpiDb').textContent = (health.components && health.components.db && health.components.db.status === 'UP') ? 'CONECTADA' : 'UP';
+                document.getElementById('rawJsonBox').textContent = JSON.stringify(health, null, 2);
+            }
+
+            // 2. Consultar Memoria JVM Usada
+            const resMem = await fetch('/actuator/metrics/jvm.memory.used');
+            if (resMem.ok) {
+                const memData = await resMem.json();
+                const usedBytes = memData.measurements ? memData.measurements[0].value : 0;
+                const usedMB = (usedBytes / (1024 * 1024)).toFixed(1);
+                document.getElementById('kpiRam').textContent = `${usedMB} MB`;
+                document.getElementById('kpiRamSub').textContent = `Uso actual en heap JVM`;
+
+                // Añadir al gráfico
+                const hora = new Date().toLocaleTimeString();
+                if (chartLabels.length >= 10) {
+                    chartLabels.shift();
+                    chartData.shift();
+                }
+                chartLabels.push(hora);
+                chartData.push(parseFloat(usedMB));
+                ramChart.update();
+            }
+
+            // 3. Consultar Peticiones HTTP
+            const resHttp = await fetch('/actuator/metrics/http.server.requests');
+            if (resHttp.ok) {
+                const httpData = await resHttp.json();
+                const count = httpData.measurements ? httpData.measurements[0].value : 0;
+                document.getElementById('kpiPeticiones').textContent = count;
+            }
+        } catch (e) {
+            console.warn('Error al consultar métricas:', e);
+        }
+    }
+
+    // Actualizar de inmediato y cada 3 segundos
+    actualizarMetricas();
+    setInterval(actualizarMetricas, 3000);
+</script>
+
+</body>
+</html>

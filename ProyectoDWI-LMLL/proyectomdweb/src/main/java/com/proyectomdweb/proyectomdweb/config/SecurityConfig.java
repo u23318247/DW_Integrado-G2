@@ -60,6 +60,7 @@ public class SecurityConfig {
                     "/img/**",
                     "/reclamaciones/**",
                     "/api/reclamaciones/**",
+                    "/monitoreo/**",
                     "/actuator/**",
                     "/favicon.ico",
                     "/error"
