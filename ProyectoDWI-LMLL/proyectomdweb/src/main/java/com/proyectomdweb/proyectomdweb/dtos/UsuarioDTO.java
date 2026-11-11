@@ -8,6 +8,7 @@ public class UsuarioDTO {
     private Long          id;
     private String        nombre;
     private String        email;
+    private String        dni;
     private String        telefono;
     private String        direccion;
     private LocalDateTime fechaRegistro;

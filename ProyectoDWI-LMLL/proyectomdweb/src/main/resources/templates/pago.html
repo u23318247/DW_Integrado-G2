@@ -23,6 +23,9 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
       rel="stylesheet"/>
 
+    <!-- OpenStreetMap Leaflet Map API -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
     <!-- Estilos propios -->
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
   </head>
@@ -266,6 +269,13 @@
                   placeholder="Av. Principal 123, Distrito" 
                   required
                 >
+                <!-- API OpenStreetMap / Leaflet: Mapa Interactivo de Despacho -->
+                <div class="mt-2">
+                  <div id="mapa-entrega" style="height: 190px; width: 100%; border-radius: 6px; border: 1px solid rgba(212,175,55,0.35); z-index: 1;"></div>
+                  <small class="text-gold d-block mt-1" style="font-size: 0.72rem;">
+                    <i class="bi bi-geo-alt-fill text-gold me-1"></i> <strong>OpenStreetMap API:</strong> Haz clic o arrastra el pin para geolocalizar tu entrega en Lima.
+                  </small>
+                </div>
               </div>
             </div>
           </div>
@@ -338,8 +348,227 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Script de tema claro/oscuro -->
     <script th:src="@{/js/theme.js}"></script>
-    <!-- Script modular de logica de pago y consulta DNI RENIEC -->
-    <script th:src="@{/js/pago.js(v=5)}"></script>
+    <!-- Script propio con control de versión -->
+    <script th:src="@{/js/pago.js(v=3)}"></script>
+
+    <!-- Script garantizado inline para Consulta DNI y Autocompletado Inteligente -->
+    <script>
+      function sincronizarNombreCompleto() {
+          const n = (document.getElementById("clienteNombres")?.value || "").trim();
+          const a = (document.getElementById("clienteApellidos")?.value || "").trim();
+          const hidden = document.getElementById("clienteNombre");
+          if (hidden) hidden.value = (n + " " + a).trim();
+      }
+
+      function autocompletarDominio(dom) {
+          const emailInput = document.getElementById("clienteEmail");
+          if (!emailInput) return;
+          let val = emailInput.value.trim();
+          if (!val) {
+              emailInput.value = dom;
+              emailInput.focus();
+              return;
+          }
+          if (val.includes("@")) {
+              val = val.substring(0, val.indexOf("@"));
+          }
+          emailInput.value = val + dom;
+          emailInput.focus();
+      }
+
+      async function ejecutarConsultaDni() {
+          const inputDni = document.getElementById("clienteDni");
+          if (!inputDni) return;
+          const dni = inputDni.value.replace(/\D/g, "");
+          if (dni.length !== 8) {
+              const feedback = document.getElementById("dni-feedback");
+              const feedbackText = document.getElementById("dni-feedback-text");
+              if (feedback && feedbackText) {
+                  feedbackText.textContent = "El DNI debe tener exactamente 8 dígitos.";
+                  feedback.className = "mt-2 text-warning small";
+                  feedback.classList.remove("d-none");
+              }
+              return;
+          }
+          const spinner = document.getElementById("spinner-dni");
+          const icon = document.getElementById("icon-buscar-dni");
+          const feedback = document.getElementById("dni-feedback");
+          const feedbackText = document.getElementById("dni-feedback-text");
+          const badge = document.getElementById("dni-badge");
+
+          if (spinner) spinner.classList.remove("d-none");
+          if (icon) icon.classList.add("d-none");
+
+          try {
+              const resp = await fetch("/api/consulta/dni/" + dni);
+              const data = await resp.json();
+              if (data && data.encontrado) {
+                  const elNombres = document.getElementById("clienteNombres");
+                  const elApellidos = document.getElementById("clienteApellidos");
+                  const elNombre = document.getElementById("clienteNombre");
+
+                  // Autocompletar solo nombres y apellidos según solicitud
+                  if (elNombres) elNombres.value = data.nombres || "";
+                  if (elApellidos) elApellidos.value = data.apellidos || "";
+                  if (elNombre) elNombre.value = (data.nombre || ((data.nombres || "") + " " + (data.apellidos || "")).trim());
+
+                  [elNombres, elApellidos].forEach(el => {
+                      if (el) {
+                          el.style.transition = "all 0.3s ease";
+                          el.style.borderColor = "#28a745";
+                          el.style.backgroundColor = "rgba(40, 167, 69, 0.08)";
+                          setTimeout(() => {
+                              el.style.borderColor = "";
+                              el.style.backgroundColor = "";
+                          }, 2500);
+                      }
+                  });
+
+                  if (badge) {
+                      badge.style.display = "inline-flex";
+                      badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> ' + (data.origen || 'Verificado');
+                  }
+                  if (feedback && feedbackText) {
+                      feedbackText.textContent = "✓ Datos de " + (data.nombre || (data.nombres + ' ' + data.apellidos)) + " obtenidos de " + (data.origen || 'RENIEC') + ".";
+                      feedback.className = "mt-2 text-success small";
+                      feedback.classList.remove("d-none");
+                  }
+
+                  // Pasar foco a teléfono para ingreso manual
+                  const elTel = document.getElementById("clienteTelefono");
+                  if (elTel && !elTel.value) elTel.focus();
+
+              } else {
+                  if (feedback && feedbackText) {
+                      feedbackText.textContent = "ℹ " + (data.mensaje || "DNI no encontrado en RENIEC. Por favor ingresa tus datos manualmente.");
+                      feedback.className = "mt-2 text-warning small";
+                      feedback.classList.remove("d-none");
+                  }
+                  if (badge) badge.style.display = "none";
+                  const elNombres = document.getElementById("clienteNombres");
+                  if (elNombres) elNombres.focus();
+              }
+          } catch (e) {
+              console.error("Error al consultar DNI:", e);
+              if (feedback && feedbackText) {
+                  feedbackText.textContent = "ℹ No se pudo conectar con el servicio de consulta en este momento. Puedes ingresar tus datos manualmente.";
+                  feedback.className = "mt-2 text-warning small";
+                  feedback.classList.remove("d-none");
+              }
+          } finally {
+              if (spinner) spinner.classList.add("d-none");
+              if (icon) icon.classList.remove("d-none");
+          }
+      }
+
+      let timeoutDniAuto = null;
+      function verificarDniInput(val) {
+          const dni = (val || "").replace(/\D/g, "").slice(0, 8);
+          const inputDni = document.getElementById("clienteDni");
+          if (inputDni && inputDni.value !== dni) inputDni.value = dni;
+          clearTimeout(timeoutDniAuto);
+          if (dni.length === 8) {
+              timeoutDniAuto = setTimeout(ejecutarConsultaDni, 450);
+          }
+      }
+
+      // Configurar eventos de autocompletado de Correo y Dirección al cargar la página
+      document.addEventListener("DOMContentLoaded", function() {
+          // 1. Correo: autocompletar @gmail.com solito si falta arroba al salir del campo
+          const emailInput = document.getElementById("clienteEmail");
+          if (emailInput) {
+              emailInput.addEventListener("blur", function() {
+                  let val = this.value.trim();
+                  if (val && !val.includes("@") && !val.includes(" ")) {
+                      this.value = val + "@gmail.com";
+                  }
+              });
+
+              emailInput.addEventListener("input", function() {
+                  let val = this.value;
+                  // Si escribe '@' al final sin otro arroba, completar 'gmail.com'
+                  if (val.endsWith("@") && !val.slice(0, -1).includes("@")) {
+                      this.value = val + "gmail.com";
+                  }
+              });
+          }
+
+          // 2. Dirección: asegurar el prefijo 'Av. ' automáticamente
+          const dirInput = document.getElementById("clienteDireccion");
+          if (dirInput) {
+              if (!dirInput.value || dirInput.value.trim() === "") {
+                  dirInput.value = "Av. ";
+              }
+              dirInput.addEventListener("focus", function() {
+                  if (!this.value || this.value.trim() === "") {
+                      this.value = "Av. ";
+                  }
+              });
+          }
+
+          // 3. Separar nombre existente si ya venía precargado en un solo string
+          const hiddenNombre = document.getElementById("clienteNombre");
+          const elNombres = document.getElementById("clienteNombres");
+          const elApellidos = document.getElementById("clienteApellidos");
+          if (hiddenNombre && hiddenNombre.value && elNombres && !elNombres.value) {
+              const partes = hiddenNombre.value.trim().split(" ");
+              if (partes.length === 1) {
+                  elNombres.value = partes[0];
+              } else if (partes.length >= 2) {
+                  elNombres.value = partes[0];
+                  elApellidos.value = partes.slice(1).join(" ");
+              }
+          }
+      });
+    </script>
+
+    <!-- OpenStreetMap Leaflet JS API -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() {
+          const mapaEl = document.getElementById("mapa-entrega");
+          if (mapaEl && typeof L !== "undefined") {
+            const latLima = -12.046374;
+            const lngLima = -77.042793;
+            const map = L.map('mapa-entrega').setView([latLima, lngLima], 13);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19,
+              attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            const marker = L.marker([latLima, lngLima], { draggable: true }).addTo(map);
+            marker.bindPopup("<b>Punto de Entrega LMLL</b><br>Arrastra el pin para fijar tu dirección.").openPopup();
+
+            function geocodificarInverso(lat, lng) {
+              const inputDir = document.getElementById("clienteDireccion");
+              fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(r => r.json())
+                .then(data => {
+                  if (data && data.display_name && inputDir) {
+                    const partes = data.display_name.split(',');
+                    inputDir.value = "Av. " + partes.slice(0, 3).join(',').trim();
+                  }
+                })
+                .catch(() => {
+                  if (inputDir) inputDir.value = `Av. Coordenadas [${lat.toFixed(4)}, ${lng.toFixed(4)}]`;
+                });
+            }
+
+            marker.on('dragend', function(e) {
+              const pos = marker.getLatLng();
+              geocodificarInverso(pos.lat, pos.lng);
+            });
+
+            map.on('click', function(e) {
+              marker.setLatLng(e.latlng);
+              geocodificarInverso(e.latlng.lat, e.latlng.lng);
+            });
+          }
+        }, 600);
+      });
+    </script>
 
   </body>
 </html>

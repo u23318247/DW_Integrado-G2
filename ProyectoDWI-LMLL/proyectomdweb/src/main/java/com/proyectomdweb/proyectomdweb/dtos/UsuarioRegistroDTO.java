@@ -20,6 +20,7 @@ public class UsuarioRegistroDTO {
     private String password;
 
     // Opcionales (no llevan @NotBlank)
+    private String dni;
     private String telefono;
     private String direccion;
 }
