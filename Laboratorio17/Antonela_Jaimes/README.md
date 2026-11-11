@@ -1,43 +1,148 @@
-# GUÍA DE LABORATORIO N.° 17: SUSTENTACIÓN Y EVALUACIÓN FINAL
-## PROYECTO: SISTEMA DE COMERCIO ELECTRÓNICO LMLL (LA MODA TE LLAMA)
-### ESTUDIANTE: ANTONELA JAIMES | CALIFICACIÓN ESPERADA: 20 / 20
+# Laboratorio 17: Despliegue de Aplicaciones Web con Docker y Nginx Reverse Proxy
+
+**Curso:** Desarrollo Web Integrado (DWI) - UTP  
+**Estudiante:** Antonela Jaimes  
+**Correo Institucional:** antonela.jaimes@utp.edu.pe  
+**Fecha:** Noviembre 2026  
 
 ---
 
-## 1. Guion Técnico de Exposición (Criterio 4: 4 Puntos)
+## 1. Descripción del Laboratorio
 
-Para obtener los 4 puntos de presentación con claridad, coherencia y argumentación técnica, la exposición sigue el siguiente recorrido:
-
-1. **Introducción y Arquitectura (2 min):**
-   * Explicar la arquitectura cliente-servidor desacoplada: **Angular 21 standalone** en frontend y **Spring Boot 3 + PostgreSQL** en backend.
-   * Mencionar la seguridad con autenticación JWT stateless en cookies `HttpOnly`.
-2. **Demostración del Catálogo y Reactividad (3 min):**
-   * Mostrar el catálogo de 180 prendas divididas en 9 categorías.
-   * Demostrar el selector interactivo de colores y cómo se actualiza la tarjeta, el modal y la bolsa de compras.
-   * Demostrar la **API de Tipo de Cambio en Vivo**: alternar entre **Soles (S/.)** y **Dólares ($ USD)** mostrando la conversión instantánea calculada con `ExchangeRateService`.
-3. **Demostración de las APIs de Registro y Checkout (3 min):**
-   * Ir a `/auth/registro`: Escribir un DNI de 8 dígitos y mostrar cómo la **API de RENIEC** autocompleta el Nombre Completo.
-   * Mostrar el botón de **Google Sign-In API**.
-   * Ir al Checkout (`/pago`): Mostrar el **Mapa de OpenStreetMap con Leaflet** interactivo y cómo al mover el marcador se actualiza la dirección de entrega.
-   * Mostrar el procesamiento del comprobante y el despacho de correo por **EmailService**.
-4. **Asistente Virtual IA (1 min):**
-   * Abrir el widget flotante `✨ Asistente IA` y hacer una consulta en vivo sobre vestidos de noche y formas de pago.
-5. **Conclusiones y Ronda de Preguntas (1 min).**
+En este laboratorio se diseñó e implementó la arquitectura completa de despliegue para una solución web desacoplada compuesta por:
+1. **Frontend:** Aplicación Angular compilada en producción y servida mediante el servidor web **Nginx**.
+2. **Backend:** API REST desarrollada con **Spring Boot 3** empaquetada en un contenedor Docker con Java 21 Alpine.
+3. **Reverse Proxy (Nginx):** Configurado para enrutar transparentemente las peticiones `/api/*` hacia el microservicio backend en una red interna privada, evitando la necesidad de habilitar CORS y aislando el backend de accesos no autorizados.
+4. **Orquestación con Docker Compose:** Creación de redes bridge (`app-network`), gestión de dependencias de arranque (`depends_on`), y mapeo de puertos estandarizado (Frontend en `:8081` y Backend en `:8080`).
 
 ---
 
-## 2. Checklist de Verificación de los 8 Puntos Técnicos (12 Puntos)
-* [x] **1. API RESTful con Spring Boot:** Endpoints `/api/productos`, `/api/categorias`, `/api/consulta/dni/{dni}`, `/api/auth`.
-* [x] **2. Base de Datos:** Entidades relacionales con JPA/Hibernate en PostgreSQL.
-* [x] **3. Frontend con Angular:** Arquitectura Standalone, Signals reactivos y `@if`/`@for`.
-* [x] **4. Integración Back-end y Front-end:** Autenticación por cookies HttpOnly y CORS configurado.
-* [x] **5. Despliegue de la Aplicación:** Script `iniciar.ps1` y orquestación con Docker Compose.
-* [x] **6. Funcionalidades Implementadas:** Catálogo, filtros, bolsa de compras, checkout, pasarela PayU y 7 APIs.
-* [x] **7. Pruebas y Validaciones:** Validaciones en backend (`@Valid`) y en Angular (Validadores reactivos y plantilla).
-* [x] **8. Despliegue Exitoso:** Sistema ejecutándose sin errores en `http://localhost:8080`.
+## 2. Arquitectura de la Solución
+
+```mermaid
+graph LR
+    User([Navegador / Cliente]) -->|HTTP :8081| Nginx[Servidor Nginx & Reverse Proxy]
+    
+    subgraph Red Interna Docker: app-network
+        Nginx -->|Archivos Estáticos /| Dist[Angular Production Dist /usr/share/nginx/html]
+        Nginx -->|Proxy Pass /api/| Spring[Spring Boot API :8080]
+    end
+```
 
 ---
 
-## 3. Conclusiones Finales
-* La integración de las 7 APIs aporta valor tangible al negocio, automatizando tareas complejas (autenticación, cobro, geolocalización, conversión de divisas y validación de identidad).
-* El proyecto cumple de manera rigurosa con todos los criterios de la rúbrica oficial de la UTP, asegurando una calificación sobresaliente.
+## 3. Estructura del Proyecto
+
+```text
+Laboratorio17/Antonela_Jaimes/
+├── README.md
+└── lab-despliegue-web/
+    ├── docker-compose.yml
+    ├── backend-deploy/
+    │   ├── Dockerfile
+    │   ├── pom.xml
+    │   └── src/
+    │       └── main/
+    │           ├── java/com/utp/backend_deploy/
+    │           │   ├── BackendDeployApplication.java
+    │           │   └── controller/
+    │           │       └── EstadoController.java
+    │           └── resources/
+    │               └── application.properties
+    └── frontend-deploy/
+        ├── Dockerfile
+        ├── nginx.conf
+        ├── package.json
+        ├── proxy.conf.json
+        ├── angular.json
+        ├── tsconfig.json
+        └── src/
+            ├── index.html
+            ├── main.ts
+            └── app/
+                ├── services/
+                │   └── estado.service.ts
+                └── pages/
+                    └── inicio/
+                        ├── inicio.component.ts
+                        ├── inicio.component.html
+                        └── inicio.component.css
+```
+
+---
+
+## 4. Archivos Clave y Configuraciones
+
+### 4.1. Configuración de Nginx (`frontend-deploy/nginx.conf`)
+```nginx
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://backend:8080/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+### 4.2. Docker Compose (`docker-compose.yml`)
+```yaml
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend-deploy
+      dockerfile: Dockerfile
+    container_name: backend-deploy-container
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend-deploy
+      dockerfile: Dockerfile
+    container_name: frontend-deploy-container
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+```
+
+---
+
+## 5. Instrucciones de Ejecución
+
+1. **Construir y levantar contenedores:**
+   ```bash
+   cd lab-despliegue-web
+   docker compose up -d --build
+   ```
+
+2. **Verificar estado de los contenedores:**
+   ```bash
+   docker ps
+   ```
+
+3. **Acceso al sistema:**
+   - **Frontend:** [http://localhost:8081](http://localhost:8081)
+   - **Endpoint REST:** [http://localhost:8080/api/estado](http://localhost:8080/api/estado)

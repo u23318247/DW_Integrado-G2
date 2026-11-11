@@ -1,57 +1,53 @@
-# GUÍA DE LABORATORIO N.° 16: DESPLIEGUE CONTINUO Y DOCKERIZACIÓN
-## CURSO: DESARROLLO WEB INTEGRADO — SEMANA 16
-### ESTUDIANTE: ANTONELA JAIMES | UNIVERSIDAD TECNOLÓGICA DEL PERÚ
+# UNIVERSIDAD TECNOLÓGICA DEL PERÚ (UTP)
+## GUÍA DE LABORATORIO N.° 16: COMUNICACIÓN ENTRE FRONTEND Y BACKEND
+### Angular 22 + Spring Boot REST API (Gestión de Productos con HttpClient y CORS)
+
+* **Estudiante:** Antonela Jaimes
+* **Curso:** Desarrollo Web Integrado — Semana 16
+* **Tecnologías:** Angular 21/22, Spring Boot 3, Java 17/25, Maven, REST JSON
 
 ---
 
-## 1. Objetivos del Laboratorio 16
-* Automatizar el ciclo de empaquetado del frontend (Angular) y backend (Spring Boot).
-* Configurar la orquestación de servicios mediante `compose.yaml` para la base de datos PostgreSQL y la aplicación web.
-* Implementar scripts de inicio en PowerShell (`iniciar.ps1`) para compilación y ejecución en un solo comando.
-* Aplicar buenas prácticas de integración continua (CI/CD) para garantizar despliegues reproducibles.
+## 1. Resumen y Logro de Aprendizaje
+En este laboratorio se construyó una arquitectura desacoplada full-stack completa:
+1. **Backend REST (`backend-productos`):** Controlador REST Spring Boot con operaciones CRUD completas (`/api/productos`), validación con `@Valid`, DTOs tipados, excepciones personalizadas (`RecursoNoEncontradoException`), manejador global (`GlobalExceptionHandler`) y política CORS configurada en `CorsConfig.java`.
+2. **Frontend Reactivo (`frontend-productos`):** Aplicación Angular standalone consumiendo la API de Spring Boot con `HttpClient`, `ProductoService`, `HttpErrorInterceptor` y formularios reactivos.
 
 ---
 
-## 2. Arquitectura de Despliegue Unificado
+## 2. Estructura del Laboratorio
 
-El despliegue integra el cliente SPA compilado dentro de los recursos estáticos del servidor Spring Boot:
-
-```mermaid
-flowchart LR
-    A["Frontend Angular (dist)"] -->|"Copiar a static/angular"| B["Spring Boot Web Server"]
-    C["PostgreSQL Database"] <-->|"JDBC / JPA"| B
-    B -->|"Servir en puerto 8080"| D["Navegador Cliente"]
-```
-
-### Script de Automatización (`iniciar.ps1`)
-El script automatiza:
-1. Verificación y asignación de `JAVA_HOME` (Java 17).
-2. Compilación optimizada de Angular con `npm run build`.
-3. Copia automática del bundle hacia `src/main/resources/static/angular`.
-4. Ejecución del backend con `mvnw spring-boot:run` en `http://localhost:8080`.
-
----
-
-## 3. Configuración de Contenedores (`compose.yaml`)
-```yaml
-services:
-  db:
-    image: 'postgres:15-alpine'
-    environment:
-      - 'POSTGRES_DB=proyectomdweb'
-      - 'POSTGRES_PASSWORD=postgres'
-      - 'POSTGRES_USER=postgres'
-    ports:
-      - '5432:5432'
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-volumes:
-  pgdata:
+```text
+Laboratorio16/Antonela_Jaimes/
+├── README.md
+├── backend-productos/
+│   ├── pom.xml
+│   └── src/main/
+│       ├── java/com/utp/backend_productos/
+│       │   ├── config/CorsConfig.java
+│       │   ├── controller/ProductoController.java
+│       │   ├── dto/ProductoRequest.java & ErrorResponse.java
+│       │   ├── exception/GlobalExceptionHandler.java & RecursoNoEncontradoException.java
+│       │   ├── model/Producto.java
+│       │   └── service/ProductoService.java
+│       └── resources/application.properties
+└── frontend-productos/
+    └── src/app/
+        ├── core/http-error-interceptor.ts
+        ├── models/producto.ts
+        ├── services/producto.service.ts
+        └── productos/
+            ├── productos.component.ts
+            ├── productos.component.html
+            └── productos.component.css
 ```
 
 ---
 
-## 4. Conclusiones
-* La automatización mediante scripts de despliegue reduce drásticamente el error humano durante la puesta en marcha.
-* Servir el bundle estático de Angular desde el servidor embebido de Spring Boot elimina problemas de CORS en producción y simplifica el dominio de acceso a un solo host y puerto.
+## 3. Resolución de Problemas Frecuentes
+* **CORS:** Resuelto permitiendo el origen `http://localhost:4200` y métodos `GET, POST, PUT, DELETE, OPTIONS` en `CorsConfig.java`.
+* **Inconsistencia de Fechas:** Se normalizó el formato en `application.properties` con `spring.jackson.date-format=yyyy-MM-dd` compatible con el input `type="date"` de Angular.
+* **Manejo de Errores 400 y 404:** Interceptados mediante `GlobalExceptionHandler` retornando payloads estructurados `ErrorResponse`.
+
+---
+**Autor:** Antonela Jaimes | Desarrollo Web Integrado (UTP)

@@ -1,0 +1,116 @@
+<div class="deploy-container">
+  <header class="header">
+    <div class="badge-pill">
+      <i class="bi bi-boxes"></i> Laboratorio 17 · UTP
+    </div>
+    <h1>Despliegue Web con Docker y Nginx</h1>
+    <p class="subtitle">Arquitectura de Microservicios con Reverse Proxy | Alumna: <strong>Antonela Jaimes</strong></p>
+  </header>
+
+  <div class="cards-grid">
+    <!-- Arquitectura Card -->
+    <div class="card glass-card">
+      <div class="card-header">
+        <i class="bi bi-diagram-3-fill icon-arch"></i>
+        <h3>Arquitectura del Despliegue</h3>
+      </div>
+      <div class="card-body">
+        <div class="arch-flow">
+          <div class="arch-step">
+            <span class="step-num">1</span>
+            <strong>Cliente / Navegador</strong>
+            <small>Puerto 8081 (Externo)</small>
+          </div>
+          <i class="bi bi-arrow-right arch-arrow"></i>
+          <div class="arch-step highlight-step">
+            <span class="step-num">2</span>
+            <strong>Nginx (Frontend)</strong>
+            <small>Servidor Web + Reverse Proxy</small>
+          </div>
+          <i class="bi bi-arrow-right arch-arrow"></i>
+          <div class="arch-step">
+            <span class="step-num">3</span>
+            <strong>Spring Boot (Backend)</strong>
+            <small>Puerto 8080 (Red interna Docker)</small>
+          </div>
+        </div>
+
+        <ul class="features-list">
+          <li><i class="bi bi-check-circle-fill text-success"></i> Red Bridge interna segura (<code>app-network</code>).</li>
+          <li><i class="bi bi-check-circle-fill text-success"></i> Sin problemas de CORS mediante redirección Nginx <code>/api/</code>.</li>
+          <li><i class="bi bi-check-circle-fill text-success"></i> Contenedor multi-stage build con Node.js 20 y Alpine Nginx.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Estado del Backend Card -->
+    <div class="card glass-card">
+      <div class="card-header">
+        <i class="bi bi-hdd-network-fill icon-status"></i>
+        <h3>Monitoreo de Comunicación REST</h3>
+      </div>
+      <div class="card-body">
+        <div class="endpoint-info">
+          <span class="badge-method">GET</span>
+          <code>/api/estado</code>
+          <button class="btn-refresh" (click)="verificarConexion()" [disabled]="cargando">
+            <i class="bi bi-arrow-clockwise" [class.spin]="cargando"></i> Probar Conexión
+          </button>
+        </div>
+
+        <!-- Estado de Carga -->
+        <div *ngIf="cargando" class="status-box loading-box">
+          <div class="spinner"></div>
+          <span>Consultando API a través del Proxy Nginx...</span>
+        </div>
+
+        <!-- Estado Exitoso -->
+        <div *ngIf="!cargando && estado" class="status-box success-box">
+          <div class="status-header">
+            <span class="dot-online"></span>
+            <strong>Estado: {{ estado.estado }}</strong>
+            <span class="version-tag">v{{ estado.version }}</span>
+          </div>
+          <p class="status-msg">{{ estado.mensaje }}</p>
+          <div class="status-meta">
+            <div><i class="bi bi-person-fill"></i> Autor: {{ estado.autor || 'Antonela Jaimes' }}</div>
+            <div><i class="bi bi-clock-history"></i> Timestamp Servidor: {{ estado.timestamp }}</div>
+            <div><i class="bi bi-arrow-repeat"></i> Última consulta: {{ fechaConsulta }}</div>
+          </div>
+        </div>
+
+        <!-- Estado de Error -->
+        <div *ngIf="!cargando && error" class="status-box error-box">
+          <div class="status-header">
+            <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+            <strong>Error de Conexión</strong>
+          </div>
+          <p class="error-msg">{{ error }}</p>
+          <small>Asegúrate de ejecutar <code>docker compose up --build</code> o iniciar el backend en el puerto 8080.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Docker Compose & Comandos -->
+  <div class="card glass-card full-width">
+    <div class="card-header">
+      <i class="bi bi-terminal-fill icon-terminal"></i>
+      <h3>Comandos de Despliegue en Producción (Docker Compose)</h3>
+    </div>
+    <div class="card-body terminal-body">
+      <pre><code># Construir imágenes y levantar ambos contenedores en segundo plano:
+docker compose up -d --build
+
+# Verificar que los contenedores estén corriendo:
+docker ps
+
+# Visualizar logs en tiempo real:
+docker compose logs -f
+
+# Acceso en el navegador:
+# Frontend Angular + Proxy: http://localhost:8081
+# Endpoint Backend directo:  http://localhost:8080/api/estado</code></pre>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,97 @@
+<main class="contenedor">
+  <h1>Gestión de productos</h1>
+  <p class="descripcion">
+    Aplicación Angular comunicándose con un backend Spring Boot mediante HTTP y JSON.
+  </p>
+
+  @if (mensajeError()) {
+    <div class="alerta-error">
+      {{ mensajeError() }}
+    </div>
+  }
+
+  <section class="panel">
+    <h2>{{ productoEditandoId() === null ? 'Registrar producto' : 'Editar producto' }}</h2>
+    <form [formGroup]="formulario" (ngSubmit)="guardar()" class="formulario">
+      <label>
+        Nombre
+        <input type="text" formControlName="nombre" placeholder="Ejemplo: Laptop Lenovo">
+      </label>
+      @if (formulario.controls.nombre.touched && formulario.controls.nombre.invalid) {
+        <small class="error">El nombre es obligatorio y debe tener al menos 3 caracteres.</small>
+      }
+
+      <label>
+        Precio
+        <input type="number" formControlName="precio" min="0">
+      </label>
+      @if (formulario.controls.precio.touched && formulario.controls.precio.invalid) {
+        <small class="error">El precio no puede ser negativo.</small>
+      }
+
+      <label>
+        Stock
+        <input type="number" formControlName="stock" min="0">
+      </label>
+      @if (formulario.controls.stock.touched && formulario.controls.stock.invalid) {
+        <small class="error">El stock no puede ser negativo.</small>
+      }
+
+      <label>
+        Fecha de registro
+        <input type="date" formControlName="fechaRegistro">
+      </label>
+      @if (formulario.controls.fechaRegistro.touched && formulario.controls.fechaRegistro.invalid) {
+        <small class="error">La fecha es obligatoria.</small>
+      }
+
+      <div class="acciones-formulario">
+        <button type="submit">
+          {{ productoEditandoId() === null ? 'Guardar' : 'Actualizar' }}
+        </button>
+        <button type="button" class="secundario" (click)="limpiarFormulario()">
+          Limpiar
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Productos registrados</h2>
+    @if (cargando()) {
+      <p>Cargando productos...</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (producto of productos(); track producto.id) {
+            <tr>
+              <td>{{ producto.id }}</td>
+              <td>{{ producto.nombre }}</td>
+              <td>S/ {{ producto.precio }}</td>
+              <td>{{ producto.stock }}</td>
+              <td>{{ producto.fechaRegistro }}</td>
+              <td>
+                <button type="button" (click)="editar(producto)">Editar</button>
+                <button type="button" class="peligro" (click)="eliminar(producto.id)">Eliminar</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6">No hay productos registrados.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+</main>

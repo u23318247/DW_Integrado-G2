@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  proyectomdweb:
+    build:
+      context: ./proyectomdweb
+      dockerfile: Dockerfile
+    container_name: proyectomdweb-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - dwi-network
+    restart: always
+
+  frontend-angular:
+    build:
+      context: ./frontend-angular
+      dockerfile: Dockerfile
+    container_name: proyectomdweb-frontend
+    ports:
+      - "8082:80"
+    depends_on:
+      - proyectomdweb
+    networks:
+      - dwi-network
+    restart: always
+
+networks:
+  dwi-network:
+    driver: bridge
