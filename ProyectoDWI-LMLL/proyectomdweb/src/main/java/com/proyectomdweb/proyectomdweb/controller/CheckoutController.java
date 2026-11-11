@@ -25,7 +25,8 @@ public class CheckoutController {
     private final VentaRepository          ventaRepository;
     private final UsuarioService           usuarioService; 
     private final EmailService             emailService;
-    private final UsuarioRepository        usuarioRepository; 
+    private final UsuarioRepository        usuarioRepository;
+    private final com.proyectomdweb.proyectomdweb.service.IdempotencyService idempotencyService; 
 
     // Datos estáticos del Sandbox de prueba de PayU Latam
     private final String MERCHANT_ID = "508029";
@@ -53,6 +54,7 @@ public class CheckoutController {
             @RequestParam(value = "clienteEmail", required = false)     String clienteEmail,
             @RequestParam(value = "clienteDireccion", required = false) String clienteDireccion,
             @RequestParam(value = "clienteTelefono", required = false)  String clienteTelefono,
+            @RequestParam(value = "idempotencyKey", required = false)   String idempotencyKey,
             Principal principal,
             Model model) {
 
@@ -102,8 +104,19 @@ public class CheckoutController {
         }
         usuarioRepository.save(usuarioLogueado);
         
-        Venta   ventaPendiente  = ventaService.crearVentaInicialPendiente(total, tipoComprobante, usuarioLogueado);
-        String  referenceCode   = "LMLL-VENTA-" + ventaPendiente.getId(); //*<--*4
+        // Control de Idempotencia: Verificar si esta transacción ya fue solicitada para evitar duplicados
+        String referenceCode;
+        if (idempotencyKey != null && !idempotencyKey.isBlank() && idempotencyService.exists(idempotencyKey)) {
+            Object cachedRef = idempotencyService.getCachedResponse(idempotencyKey);
+            referenceCode = (cachedRef instanceof String s) ? s : ("LMLL-VENTA-" + System.currentTimeMillis());
+        } else {
+            Venta ventaPendiente = ventaService.crearVentaInicialPendiente(total, tipoComprobante, usuarioLogueado);
+            referenceCode = "LMLL-VENTA-" + ventaPendiente.getId();
+            if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+                idempotencyService.registerKey(idempotencyKey, referenceCode);
+            }
+        }
+
         String  currency        = "PEN";                                 //*<--*4
         String  cadenaParaFirma = API_KEY + "~" + MERCHANT_ID + "~" + referenceCode + "~" + total + "~" + currency; //*<--*5
         String  signature       = generarHashMD5(cadenaParaFirma);                                                 //*<--*5

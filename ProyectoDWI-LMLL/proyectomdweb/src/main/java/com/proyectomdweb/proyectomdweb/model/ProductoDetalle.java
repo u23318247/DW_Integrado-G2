@@ -51,4 +51,9 @@ public class ProductoDetalle {
 
     @Column(name = "precio_adicional", columnDefinition = "decimal(10,2) default 0.00")
     private BigDecimal precioAdicional;
+
+    //* Control de Concurrencia: Bloqueo Optimista para prevenir venta de stock fantasma *//
+    @Version
+    @Column(name = "version")
+    private Long version;
 }

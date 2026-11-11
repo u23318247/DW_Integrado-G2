@@ -122,6 +122,8 @@
     </div>
 
     <form id="checkout-form" th:action="@{/pago/procesar-local}" method="POST" class="needs-validation" novalidate>
+      <!-- Clave de Idempotencia para prevenir doble cobro por clic múltiple -->
+      <input type="hidden" id="idempotencyKey" name="idempotencyKey" value="">
       <div class="row g-4 align-items-start">
         
         <div class="col-lg-7">
@@ -472,8 +474,30 @@
           }
       }
 
-      // Configurar eventos de autocompletado de Correo y Dirección al cargar la página
+      // Configurar eventos de autocompletado de Correo, Dirección e Idempotencia
       document.addEventListener("DOMContentLoaded", function() {
+          // Generar UUID único de Idempotencia para la transacción
+          const idempInput = document.getElementById("idempotencyKey");
+          if (idempInput && !idempInput.value) {
+              idempInput.value = (typeof crypto !== "undefined" && crypto.randomUUID) 
+                  ? crypto.randomUUID() 
+                  : "TX-" + Date.now() + "-" + Math.random().toString(36).substring(2, 9);
+          }
+
+          // Bloqueo de doble clic en botón de pago
+          const formCheckout = document.getElementById("checkout-form");
+          if (formCheckout) {
+              formCheckout.addEventListener("submit", function(e) {
+                  if (formCheckout.checkValidity()) {
+                      const btnPagar = formCheckout.querySelector("button[type='submit']");
+                      if (btnPagar) {
+                          btnPagar.disabled = true;
+                          btnPagar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Procesando pago seguro...';
+                      }
+                  }
+              });
+          }
+
           // 1. Correo: autocompletar @gmail.com solito si falta arroba al salir del campo
           const emailInput = document.getElementById("clienteEmail");
           if (emailInput) {
