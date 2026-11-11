@@ -15,8 +15,7 @@ Actualizaciones/
 ├── README.md                          <- Índice general del equipo
 └── Antonela_Jaimes/                   <- Registro de actualizaciones de Antonela Jaimes
     ├── README.md                      <- Bitácora detallada de avances técnicos
-    ├── CHANGELOG.md                   <- Historial formal de versiones (v1.0.0 a v2.5.0)
-    └── INFORME_RÚBRICA_PROYECTO.md    <- Cumplimiento de la rúbrica de 20 puntos
+    └── CHANGELOG.md                   <- Historial formal de versiones (v1.0.0 a v2.5.0)
 ```
 
 ---

@@ -30,4 +30,3 @@ En este repositorio se han centralizado las mejoras, optimizaciones y nuevas int
 
 ## 📂 Archivos y Evidencias Asociadas
 * [`CHANGELOG.md`](./CHANGELOG.md): Registro cronológico de versiones y cambios por fecha.
-* [`INFORME_RÚBRICA_PROYECTO.md`](./INFORME_RÚBRICA_PROYECTO.md): Matriz de correspondencia con la rúbrica oficial de 20 puntos de la UTP.
