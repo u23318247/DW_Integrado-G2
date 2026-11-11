@@ -26,6 +26,12 @@
     <!-- OpenStreetMap Leaflet Map API -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
+    <!-- PWA Manifest & App Icons -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
     <!-- Estilos propios -->
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
   </head>
@@ -322,8 +328,22 @@
 
               <input type="hidden" id="input-total-hidden" name="total">
 
-              <button type="submit" class="btn-lmll btn-primary-lmll checkout-btn-main w-100 py-3">
-                <i class="bi bi-credit-card-2-front-fill me-2"></i> Ir a la pasarela segura
+              <button type="submit" class="btn-lmll btn-primary-lmll checkout-btn-main w-100 py-3 mb-2">
+                <i class="bi bi-credit-card-2-front-fill me-2"></i> Pagar con Tarjeta (PayU Latam)
+              </button>
+
+              <!-- Botón Yape / Plin con QR Dinámico -->
+              <button type="button" class="btn w-100 py-3 mb-3 fw-bold text-white d-flex align-items-center justify-content-center gap-2" 
+                      style="background: linear-gradient(135deg, #742284 0%, #00b4d8 100%); border-radius: 8px; box-shadow: 0 4px 15px rgba(116,34,132,0.4);"
+                      onclick="abrirModalYape()">
+                <i class="bi bi-qr-code-scan fs-5"></i> Pagar con Yape o Plin (QR Dinámico)
+              </button>
+
+              <!-- Botón Fit Finder con IA -->
+              <button type="button" class="btn btn-outline-info w-100 py-2 d-flex align-items-center justify-content-center gap-2" 
+                      style="border-radius: 8px; font-size: 0.88rem;"
+                      onclick="abrirModalFitFinder()">
+                <i class="bi bi-stars text-warning"></i> ¿Dudas con tu talla? Asesor con IA
               </button>
             </div>
 
@@ -334,6 +354,87 @@
     </form>
   </div>
 </main>
+
+<!-- MODAL YAPE / PLIN QR DINÁMICO -->
+<div class="modal fade" id="modalYape" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: #111827; color: white; border: 1px solid rgba(255,255,255,0.15); border-radius: 1rem;">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+          <i class="bi bi-qr-code-scan text-info"></i> Pago Rápido Yape / Plin
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center p-4">
+        <p class="text-muted small mb-2">Escanea este código desde la app de tu celular:</p>
+        <div class="p-3 bg-white d-inline-block rounded-3 mb-3" style="box-shadow: 0 0 20px rgba(0,180,216,0.3);">
+          <img id="yapeQrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=YAPE-PAGO-LMLL-MONTO" alt="QR de Pago" width="200" height="200">
+        </div>
+        <div class="h4 text-info fw-bold mb-1">Monto exacto: S/ <span id="yapeMontoText">0.00</span></div>
+        <small class="text-muted d-block mb-3">A nombre de: <strong>LA MODA TE LLAMA S.A.C.</strong></small>
+        <div class="alert alert-dark border-secondary small text-start">
+          <i class="bi bi-stopwatch text-warning me-1"></i> Tiempo restante para confirmar pago: <strong><span id="yapeTimer">05:00</span></strong>
+        </div>
+        <button type="button" class="btn btn-success w-100 py-2 fw-bold" onclick="confirmarPagoYape()">
+          <i class="bi bi-check-circle-fill me-1"></i> Ya realicé la transferencia
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FIT FINDER ASESOR DE TALLAS CON IA -->
+<div class="modal fade" id="modalFitFinder" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: #0f172a; color: white; border: 1px solid rgba(255,255,255,0.15); border-radius: 1rem;">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+          <i class="bi bi-magic text-warning"></i> Asesor de Tallas Inteligente (IA)
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="small text-muted">Estatura (cm)</label>
+            <input type="number" id="fitAltura" class="form-control bg-dark text-white border-secondary" placeholder="Ej. 175" value="175">
+          </div>
+          <div class="col-6">
+            <label class="small text-muted">Peso (kg)</label>
+            <input type="number" id="fitPeso" class="form-control bg-dark text-white border-secondary" placeholder="Ej. 70" value="70">
+          </div>
+          <div class="col-6">
+            <label class="small text-muted">Género</label>
+            <select id="fitGenero" class="form-select bg-dark text-white border-secondary">
+              <option value="HOMBRE">Hombre / Unisex</option>
+              <option value="MUJER">Mujer</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="small text-muted">Estilo de caída</label>
+            <select id="fitCorte" class="form-select bg-dark text-white border-secondary">
+              <option value="REGULAR">Regular Fit</option>
+              <option value="OVERSIZE">Oversize (Holgado)</option>
+              <option value="SLIM">Slim Fit (Ceñido)</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-primary w-100 mt-4 py-2 fw-bold" onclick="calcularTallaIa()">
+          <i class="bi bi-stars me-1"></i> Calcular Talla Ideal
+        </button>
+
+        <div id="fitResultado" class="mt-3 p-3 rounded-3 d-none" style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.4);">
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="text-muted small">Talla Recomendada:</span>
+            <span class="badge bg-primary fs-5" id="fitTallaBadge">M</span>
+          </div>
+          <p class="small text-light mt-2 mb-0" id="fitMensaje"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
     <!-- =============
          PIE DE PAGINA
@@ -592,6 +693,97 @@
           }
         }, 600);
       });
+
+      // ==========================================
+      // FUNCIONES YAPE / PLIN CON QR DINÁMICO
+      // ==========================================
+      let yapeInterval = null;
+      function abrirModalYape() {
+        const total = document.getElementById("pago-total")?.textContent || "0.00";
+        document.getElementById("yapeMontoText").textContent = total;
+        
+        // Generar QR dinámico único con el monto y la orden
+        const idemp = document.getElementById("idempotencyKey")?.value || "LMLL-" + Date.now();
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=YAPE-PLIN-LMLL-PAGO-PEN-${total}-ORDEN-${idemp}`;
+        document.getElementById("yapeQrImg").src = qrUrl;
+
+        // Iniciar temporizador de 5 minutos
+        let tiempoRestante = 300;
+        clearInterval(yapeInterval);
+        yapeInterval = setInterval(() => {
+          tiempoRestante--;
+          const min = String(Math.floor(tiempoRestante / 60)).padStart(2, '0');
+          const sec = String(tiempoRestante % 60).padStart(2, '0');
+          const elTimer = document.getElementById("yapeTimer");
+          if (elTimer) elTimer.textContent = `${min}:${sec}`;
+          if (tiempoRestante <= 0) {
+            clearInterval(yapeInterval);
+            alert("El código QR de pago ha expirado. Genera uno nuevo.");
+          }
+        }, 1000);
+
+        const modal = new bootstrap.Modal(document.getElementById('modalYape'));
+        modal.show();
+      }
+
+      function confirmarPagoYape() {
+        clearInterval(yapeInterval);
+        const modalEl = document.getElementById('modalYape');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+        
+        // Disparar envío oficial de la orden
+        const formCheckout = document.getElementById("checkout-form");
+        if (formCheckout) {
+          formCheckout.submit();
+        }
+      }
+
+      // ==========================================
+      // FUNCIONES ASESOR DE TALLAS CON IA (FIT FINDER)
+      // ==========================================
+      function abrirModalFitFinder() {
+        const modal = new bootstrap.Modal(document.getElementById('modalFitFinder'));
+        modal.show();
+      }
+
+      async function calcularTallaIa() {
+        const altura = parseFloat(document.getElementById("fitAltura").value);
+        const peso = parseFloat(document.getElementById("fitPeso").value);
+        const genero = document.getElementById("fitGenero").value;
+        const corte = document.getElementById("fitCorte").value;
+
+        if (!altura || !peso) {
+          alert("Por favor ingresa estatura y peso válidos.");
+          return;
+        }
+
+        try {
+          const resp = await fetch('/api/tallas/recomendar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ altura, peso, genero, corteDeseado: corte })
+          });
+
+          if (resp.ok) {
+            const data = await resp.json();
+            document.getElementById("fitTallaBadge").textContent = data.tallaRecomendada;
+            document.getElementById("fitMensaje").innerHTML = `<strong>${data.mensaje}</strong><br><small class="text-muted">IMC: ${data.imcCalculado} · Precisión: ${data.confianzaPorcentaje}% · ${data.ajusteNota}</small>`;
+            document.getElementById("fitResultado").classList.remove("d-none");
+          }
+        } catch (e) {
+          console.error("Error en Fit Finder:", e);
+        }
+      }
+
+      // Registro de Service Worker para PWA (Progressive Web App)
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then(() => {
+            console.log('PWA Service Worker registrado con éxito.');
+          }).catch(err => console.log('PWA SW error:', err));
+        });
+      }
     </script>
 
   </body>

@@ -62,6 +62,11 @@ public class SecurityConfig {
                     "/api/reclamaciones/**",
                     "/monitoreo/**",
                     "/actuator/**",
+                    "/seguimiento/**",
+                    "/api/tracking/**",
+                    "/api/tallas/**",
+                    "/manifest.json",
+                    "/sw.js",
                     "/favicon.ico",
                     "/error"
                 ).permitAll()

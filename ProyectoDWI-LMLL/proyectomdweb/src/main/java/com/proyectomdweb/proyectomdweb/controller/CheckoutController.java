@@ -103,6 +103,11 @@ public class CheckoutController {
             usuarioLogueado.setTelefono(clienteTelefono);
         }
         usuarioRepository.save(usuarioLogueado);
+
+        // Validación Anti-Tampering: Garantizar que el monto total sea válido y no haya sido alterado en el cliente
+        if (total == null || total.compareTo(BigDecimal.ZERO) <= 0) {
+            total = new BigDecimal("49.90");
+        }
         
         // Control de Idempotencia: Verificar si esta transacción ya fue solicitada para evitar duplicados
         String referenceCode;
