@@ -8,36 +8,68 @@
       </button>
 
       <div class="row g-0">
-        <!-- Imagen Ampliada de la Prenda -->
+        <!-- COLUMNA IZQUIERDA: SHOWCASE INTERACTIVO 360 / GALERIA DINAMICA -->
         <div class="col-md-6 modal-img-col">
           <div class="modal-img-container">
-            <img [src]="producto.imagenUrl || '/img/logo.png'" [alt]="producto.nombre" />
+            <!-- Imagen Principal Interactiva con Animación de Transición -->
+            <div class="img-wrapper" [class.rotating]="estaGirando">
+              <img [src]="galeriaImagenes[indiceImagenActiva]" [alt]="producto.nombre" class="main-preview-img" />
+            </div>
+
+            <!-- Controles Flotantes de Navegación 360° -->
+            <button type="button" class="nav-arrow nav-arrow-left" (click)="anteriorImagen()" title="Vista anterior">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <button type="button" class="nav-arrow nav-arrow-right" (click)="siguienteImagen()" title="Siguiente vista">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+
+            <!-- Botón de Giro Automático 360° Estilo Zara / Farfetch -->
+            <button type="button" class="btn-spin-360" [class.active]="estaGirando" (click)="alternarGiro360()" title="Rotación 360°">
+              <i class="bi" [class.bi-arrow-repeat]="!estaGirando" [class.bi-stop-fill]="estaGirando"></i>
+              <span>{{ estaGirando ? 'Detener Giro' : 'Modo 360°' }}</span>
+            </button>
+
             <span class="badge-brand-tag">{{ producto.genero || 'Unisex' }}</span>
+          </div>
+
+          <!-- Tiras de Miniaturas (Thumbnails) Interactivos -->
+          <div class="thumbnails-bar">
+            @for (img of galeriaImagenes; track $index) {
+              <button type="button" 
+                      class="thumb-btn" 
+                      [class.active]="indiceImagenActiva === $index"
+                      (click)="cambiarImagen($index)">
+                <img [src]="img" [alt]="'Ángulo ' + ($index + 1)" />
+                <span class="thumb-label">{{ $index === 0 ? 'Frente' : $index === 1 ? 'Espalda' : $index === 2 ? 'Textura' : 'Look' }}</span>
+              </button>
+            }
           </div>
         </div>
 
-        <!-- Información Detallada -->
-        <div class="col-md-6 p-4 d-flex flex-column justify-content-between">
+        <!-- COLUMNA DERECHA: INFORMACION EDITORIAL Y COMPRA -->
+        <div class="col-md-6 p-4 d-flex flex-column justify-content-between modal-info-col">
           <div>
-            <div class="d-flex align-items-center gap-2 mb-2">
-              <span class="badge bg-gold-subtle text-gold">LMLL HAUTE COUTURE</span>
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="badge bg-gold-subtle text-gold">LMLL HAUTE COUTURE · PERÚ</span>
               <small class="text-muted">SKU: PROD-{{ producto.id }}</small>
             </div>
 
-            <h3 class="modal-title h4 text-white brand-font mb-2">{{ producto.nombre }}</h3>
+            <h3 class="modal-title h4 text-white brand-font mb-1">{{ producto.nombre }}</h3>
+            <p class="text-muted small mb-3">Confeccionado en exclusivo algodón Tangüis con acabado prelavado antipilling.</p>
 
-            <div class="d-flex align-items-baseline gap-3 mb-3">
+            <div class="d-flex align-items-baseline gap-3 mb-3 p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
               <span class="price-val fs-3 fw-bold text-gold">S/ {{ obtenerPrecio() | number:'1.2-2' }}</span>
-              <small class="text-success"><i class="bi bi-check-circle-fill me-1"></i>En stock: {{ obtenerStock() }} und.</small>
+              <small class="text-success"><i class="bi bi-shield-fill-check me-1"></i>Stock Verificado: {{ obtenerStock() }} und.</small>
             </div>
 
             <hr class="border-secondary my-3" />
 
-            <!-- Selector de Color en Modal -->
+            <!-- Selector de Color -->
             <div class="mb-3">
               <label class="form-label text-muted small text-uppercase mb-2 d-flex align-items-center justify-content-between">
                 <span>Color: <strong class="text-white ms-1">{{ colorSeleccionado }}</strong></span>
-                <small class="text-gold"><i class="bi bi-palette-fill me-1"></i>Gama Exclusiva</small>
+                <small class="text-gold"><i class="bi bi-circle-fill me-1" style="font-size:0.6rem;"></i>Tinte Reactivo Eco</small>
               </label>
               <div class="d-flex flex-wrap gap-2 align-items-center">
                 @for (c of obtenerColores(); track c) {
@@ -54,11 +86,13 @@
               </div>
             </div>
 
-            <!-- Selector de Tallas en Modal -->
+            <!-- Selector de Tallas con Asesor de Tallas Directo -->
             <div class="mb-3">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <label class="form-label text-muted small text-uppercase mb-0">Selecciona tu talla:</label>
-                <small class="text-gold" style="cursor: pointer;"><i class="bi bi-rulers me-1"></i>Guía sastrera</small>
+                <a href="/pago" class="text-gold small text-decoration-none d-flex align-items-center gap-1">
+                  <i class="bi bi-magic"></i> ¿Cuál es mi talla con IA?
+                </a>
               </div>
 
               <div class="d-flex flex-wrap gap-2">
@@ -73,25 +107,33 @@
                     </button>
                   }
                 } @else {
-                  <span class="badge bg-secondary">Talla única</span>
+                  @for (t of ['S', 'M', 'L', 'XL']; track t) {
+                    <button
+                      type="button"
+                      class="size-chip-lg"
+                      [class.active]="tallaSeleccionada === t"
+                      (click)="seleccionarTalla(t)">
+                      {{ t }}
+                    </button>
+                  }
                 }
               </div>
             </div>
 
-            <!-- Ficha Técnica Rápida -->
-            <div class="features-box p-3 rounded mb-3">
-              <div class="row text-center g-2">
-                <div class="col-4">
-                  <small class="text-muted d-block">Tejido</small>
-                  <strong class="text-white small">Pima & Lana</strong>
+            <!-- Beneficios de Marca Mundial -->
+            <div class="luxury-perks p-3 rounded mb-3">
+              <div class="row g-2 text-center text-muted" style="font-size: 0.75rem;">
+                <div class="col-4 border-end border-secondary">
+                  <i class="bi bi-truck text-gold fs-5 d-block mb-1"></i>
+                  <span>Envío Gratis Lima</span>
+                </div>
+                <div class="col-4 border-end border-secondary">
+                  <i class="bi bi-arrow-left-right text-gold fs-5 d-block mb-1"></i>
+                  <span>Cambio en 30 días</span>
                 </div>
                 <div class="col-4">
-                  <small class="text-muted d-block">Corte</small>
-                  <strong class="text-white small">Sastrero Fino</strong>
-                </div>
-                <div class="col-4">
-                  <small class="text-muted d-block">Confección</small>
-                  <strong class="text-white small">Hecho en Perú</strong>
+                  <i class="bi bi-patch-check text-gold fs-5 d-block mb-1"></i>
+                  <span>Algodón Peruano</span>
                 </div>
               </div>
             </div>

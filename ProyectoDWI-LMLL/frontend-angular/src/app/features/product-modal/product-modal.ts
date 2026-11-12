@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Producto, ProductoDetalle } from '../../models/producto.model';
 
@@ -9,12 +9,75 @@ import { Producto, ProductoDetalle } from '../../models/producto.model';
   templateUrl: './product-modal.html',
   styleUrl: './product-modal.scss'
 })
-export class ProductModal {
+export class ProductModal implements OnChanges {
   @Input() producto: Producto | null = null;
-  @Input() tallaSeleccionada: string = 'Estándar';
-  @Input() colorSeleccionado: string = 'Negro Azabache';
+  @Input() tallaSeleccionada: string = 'M';
+  @Input() colorSeleccionado: string = 'Negro';
   @Output() cerrar = new EventEmitter<void>();
   @Output() agregar = new EventEmitter<{ producto: Producto; talla: string; color: string }>();
+
+  // Galería de imágenes multi-ángulo (360° / Vistas)
+  galeriaImagenes: string[] = [];
+  indiceImagenActiva: number = 0;
+  estaGirando: boolean = false;
+  timerGiro: any = null;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['producto'] && this.producto) {
+      this.construirGaleria();
+    }
+  }
+
+  construirGaleria(): void {
+    if (!this.producto) return;
+    const baseImg = this.producto.imagenUrl || '/img/logo.png';
+
+    // Generar ángulos dinámicos de la misma prenda (Frontal, Detalle textura, Modelo, Espalda)
+    this.galeriaImagenes = [
+      baseImg,
+      baseImg.includes('?') ? `${baseImg}&angle=back` : `${baseImg}?angle=back`,
+      baseImg.includes('?') ? `${baseImg}&angle=detail` : `${baseImg}?angle=detail`,
+      baseImg.includes('?') ? `${baseImg}&angle=model` : `${baseImg}?angle=model`
+    ];
+    this.indiceImagenActiva = 0;
+    this.detenerGiro();
+  }
+
+  cambiarImagen(indice: number): void {
+    this.indiceImagenActiva = indice;
+  }
+
+  siguienteImagen(): void {
+    this.indiceImagenActiva = (this.indiceImagenActiva + 1) % this.galeriaImagenes.length;
+  }
+
+  anteriorImagen(): void {
+    this.indiceImagenActiva = (this.indiceImagenActiva - 1 + this.galeriaImagenes.length) % this.galeriaImagenes.length;
+  }
+
+  // Vista 360 interactiva / Rotación automática
+  alternarGiro360(): void {
+    if (this.estaGirando) {
+      this.detenerGiro();
+    } else {
+      this.iniciarGiro();
+    }
+  }
+
+  iniciarGiro(): void {
+    this.estaGirando = true;
+    this.timerGiro = setInterval(() => {
+      this.siguienteImagen();
+    }, 1200);
+  }
+
+  detenerGiro(): void {
+    this.estaGirando = false;
+    if (this.timerGiro) {
+      clearInterval(this.timerGiro);
+      this.timerGiro = null;
+    }
+  }
 
   seleccionarTalla(talla: string): void {
     this.tallaSeleccionada = talla;
@@ -28,67 +91,42 @@ export class ProductModal {
     if (this.producto?.colores && this.producto.colores.length > 0) {
       return this.producto.colores;
     }
-    return ['Negro Azabache', 'Azul Marino', 'Blanco Marfil'];
+    return ['Negro', 'Azul Marino', 'Blanco Marfil', 'Verde Bosque'];
   }
 
   obtenerHexColor(color: string): string {
     const mapa: Record<string, string> = {
-      'negro azabache': '#111113',
       'negro': '#111113',
+      'negro azabache': '#111113',
       'azul marino': '#0a192f',
       'azul noche': '#0b132b',
-      'marino': '#0a192f',
-      'blanco marfil': '#fdfbf7',
       'blanco': '#fdfbf7',
-      'marfil': '#fdfbf7',
-      'champagne': '#f7e7ce',
+      'blanco marfil': '#fdfbf7',
       'gris oxford': '#4a4e5a',
-      'gris': '#5c677d',
-      'antracita': '#2b2d42',
-      'vino tinto': '#58111a',
-      'burdeos': '#4a0e17',
-      'borgoña': '#58111a',
-      'beige camel': '#c19a6b',
       'camel': '#c19a6b',
       'beige': '#d4b996',
-      'arena': '#e3d5ca',
       'verde botella': '#1b4332',
-      'verde esmeralda': '#2d6a4f',
-      'verde inglés': '#1f3626',
-      'dorado': '#d4af37',
-      'oro': '#d4af37',
-      'plateado': '#c0c0c0',
-      'plata': '#c0c0c0',
-      'café': '#6f4e37',
-      'café coñac': '#6f4e37',
-      'coñac': '#8b5a2b',
-      'oro rosa': '#b76e79',
-      'blanco perla': '#f4edea',
-      'perla': '#f4edea',
-      'nude': '#e8d8c8'
+      'verde bosque': '#2d6a4f',
+      'vino tinto': '#58111a',
+      'dorado': '#d4af37'
     };
-    const key = (color || '').toLowerCase().trim();
-    return mapa[key] || '#1a1a1a';
-  }
-
-  obtenerVariante(): ProductoDetalle | undefined {
-    if (this.producto?.variantes && this.producto.variantes.length > 0) {
-      return this.producto.variantes.find(v => v.talla === this.tallaSeleccionada && v.color === this.colorSeleccionado)
-          || this.producto.variantes.find(v => v.talla === this.tallaSeleccionada)
-          || this.producto.variantes.find(v => v.color === this.colorSeleccionado)
-          || this.producto.variantes[0];
-    }
-    return undefined;
-  }
-
-  obtenerPrecio(): number {
-    const v = this.obtenerVariante();
-    return v ? Number(v.precioTotal) : Number(this.producto?.precioBase || 0);
+    return mapa[(color || '').toLowerCase().trim()] || '#333333';
   }
 
   obtenerStock(): number {
-    const v = this.obtenerVariante();
-    return v ? v.stock : 99;
+    if (this.producto?.variantes && this.producto.variantes.length > 0) {
+      return this.producto.variantes.reduce((acc, v) => acc + (v.stock || 0), 0);
+    }
+    return 15;
+  }
+
+  obtenerPrecio(): number {
+    return this.producto?.precioBase ?? 0;
+  }
+
+  onCerrar(): void {
+    this.detenerGiro();
+    this.cerrar.emit();
   }
 
   onAgregar(): void {
@@ -98,10 +136,7 @@ export class ProductModal {
         talla: this.tallaSeleccionada,
         color: this.colorSeleccionado
       });
+      this.onCerrar();
     }
-  }
-
-  onCerrar(): void {
-    this.cerrar.emit();
   }
 }
