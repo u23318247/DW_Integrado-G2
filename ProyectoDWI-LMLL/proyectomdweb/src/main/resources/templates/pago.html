@@ -462,12 +462,12 @@
       async function ejecutarConsultaDni() {
           const inputDni = document.getElementById("clienteDni");
           if (!inputDni) return;
-          const dni = inputDni.value.replace(/\D/g, "");
-          if (dni.length !== 8) {
+          const doc = inputDni.value.replace(/\D/g, "");
+          if (doc.length !== 8 && doc.length !== 11) {
               const feedback = document.getElementById("dni-feedback");
               const feedbackText = document.getElementById("dni-feedback-text");
               if (feedback && feedbackText) {
-                  feedbackText.textContent = "El DNI debe tener exactamente 8 dígitos.";
+                  feedbackText.textContent = "Ingrese un DNI (8 dígitos) o RUC (11 dígitos).";
                   feedback.className = "mt-2 text-warning small";
                   feedback.classList.remove("d-none");
               }
@@ -483,19 +483,26 @@
           if (icon) icon.classList.add("d-none");
 
           try {
-              const resp = await fetch("/api/consulta/dni/" + dni);
+              const url = doc.length === 11 ? "/api/consulta/ruc/" + doc : "/api/consulta/dni/" + doc;
+              const resp = await fetch(url);
               const data = await resp.json();
               if (data && data.encontrado) {
                   const elNombres = document.getElementById("clienteNombres");
                   const elApellidos = document.getElementById("clienteApellidos");
                   const elNombre = document.getElementById("clienteNombre");
+                  const elDireccion = document.getElementById("clienteDireccion");
 
-                  // Autocompletar solo nombres y apellidos según solicitud
-                  if (elNombres) elNombres.value = data.nombres || "";
-                  if (elApellidos) elApellidos.value = data.apellidos || "";
-                  if (elNombre) elNombre.value = (data.nombre || ((data.nombres || "") + " " + (data.apellidos || "")).trim());
+                  if (doc.length === 11) {
+                      if (elNombre) elNombre.value = data.razonSocial || "";
+                      if (elNombres) elNombres.value = data.razonSocial || "";
+                      if (elDireccion && data.direccion) elDireccion.value = data.direccion;
+                  } else {
+                      if (elNombres) elNombres.value = data.nombres || "";
+                      if (elApellidos) elApellidos.value = data.apellidos || "";
+                      if (elNombre) elNombre.value = (data.nombre || ((data.nombres || "") + " " + (data.apellidos || "")).trim());
+                  }
 
-                  [elNombres, elApellidos].forEach(el => {
+                  [elNombres, elApellidos, elNombre].forEach(el => {
                       if (el) {
                           el.style.transition = "all 0.3s ease";
                           el.style.borderColor = "#28a745";
@@ -512,12 +519,12 @@
                       badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> ' + (data.origen || 'Verificado');
                   }
                   if (feedback && feedbackText) {
-                      feedbackText.textContent = "✓ Datos de " + (data.nombre || (data.nombres + ' ' + data.apellidos)) + " obtenidos de " + (data.origen || 'RENIEC') + ".";
+                      const titular = data.razonSocial || data.nombre || (data.nombres + ' ' + data.apellidos);
+                      feedbackText.textContent = "✓ Datos de " + titular + " obtenidos de " + (data.origen || 'Oficial') + ".";
                       feedback.className = "mt-2 text-success small";
                       feedback.classList.remove("d-none");
                   }
 
-                  // Pasar foco a teléfono para ingreso manual
                   const elTel = document.getElementById("clienteTelefono");
                   if (elTel && !elTel.value) elTel.focus();
 

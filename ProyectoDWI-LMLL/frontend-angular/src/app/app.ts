@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductoService } from './services/producto.service';
 import { CartService } from './services/cart.service';
 import { AuthService } from './services/auth.service';
+import { WishlistService } from './services/wishlist.service';
 import { Producto, ProductoDetalle } from './models/producto.model';
 import { Categoria } from './models/categoria.model';
 
@@ -62,6 +63,8 @@ export const CATEGORIA_META: Record<string, CategoriaMeta> = {
 export class App implements OnInit {
   private productoService = inject(ProductoService);
   public cartService = inject(CartService);
+  public wishlistService = inject(WishlistService);
+  public mostrarSoloFavoritos: boolean = false;
   public authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -134,6 +137,10 @@ export class App implements OnInit {
 
   get productosFiltrados(): Producto[] {
     let resultado = [...this.productos];
+
+    if (this.mostrarSoloFavoritos) {
+      resultado = resultado.filter(p => this.wishlistService.esFavorito(p.id));
+    }
 
     // Filtro por género
     if (this.generoSeleccionado !== 'Todos') {
@@ -369,5 +376,17 @@ export class App implements OnInit {
     if (elem) {
       elem.scrollIntoView({ behavior: 'smooth' });
     }
+  }
+
+  toggleFiltroFavoritos(): void {
+    this.mostrarSoloFavoritos = !this.mostrarSoloFavoritos;
+    this.cdr.markForCheck();
+  }
+
+  toggleFavoritoItem(p: Producto, event: Event): void {
+    event.stopPropagation();
+    const agregado = this.wishlistService.toggleFavorito(p);
+    this.cartService.mensajeToast.set(agregado ? `¡${p.nombre} guardado en Favoritos! ❤️` : 'Eliminado de Favoritos');
+    this.cdr.markForCheck();
   }
 }

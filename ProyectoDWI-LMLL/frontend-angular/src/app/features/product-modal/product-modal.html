@@ -24,7 +24,7 @@
               <i class="bi bi-chevron-right"></i>
             </button>
 
-            <!-- Botón de Giro Automático 360° Estilo Zara / Farfetch -->
+            <!-- Botón de Giro Automático 360° -->
             <button type="button" class="btn-spin-360" [class.active]="estaGirando" (click)="alternarGiro360()" title="Rotación 360°">
               <i class="bi" [class.bi-arrow-repeat]="!estaGirando" [class.bi-stop-fill]="estaGirando"></i>
               <span>{{ estaGirando ? 'Detener Giro' : 'Modo 360°' }}</span>
@@ -51,7 +51,7 @@
         <div class="col-md-6 p-4 d-flex flex-column justify-content-between modal-info-col">
           <div>
             <div class="d-flex align-items-center justify-content-between mb-2">
-              <span class="badge bg-gold-subtle text-gold">LMLL HAUTE COUTURE · PERÚ</span>
+              <span class="badge bg-gold-subtle text-gold">LMLL HAUTE COUTURE • PERÚ</span>
               <small class="text-muted">SKU: PROD-{{ producto.id }}</small>
             </div>
 
@@ -59,11 +59,13 @@
             <p class="text-muted small mb-3">Confeccionado en exclusivo algodón Tangüis con acabado prelavado antipilling.</p>
 
             <div class="d-flex align-items-baseline gap-3 mb-3 p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
-              <span class="price-val fs-3 fw-bold text-gold">S/ {{ obtenerPrecio() | number:'1.2-2' }}</span>
-              <small class="text-success"><i class="bi bi-shield-fill-check me-1"></i>Stock Verificado: {{ obtenerStock() }} und.</small>
+              <span class="price-val fs-3 fw-bold text-gold">S/ {{ obtenerPrecioTotalConBundle() | number:'1.2-2' }}</span>
+              @if (lookBundle?.agregado) {
+                <span class="badge bg-success small"><i class="bi bi-tag-fill me-1"></i>Combo Look Activado (-15%)</span>
+              } @else {
+                <small class="text-success"><i class="bi bi-shield-fill-check me-1"></i>Stock Verificado: {{ obtenerStock() }} und.</small>
+              }
             </div>
-
-            <hr class="border-secondary my-3" />
 
             <!-- Selector de Color -->
             <div class="mb-3">
@@ -86,7 +88,7 @@
               </div>
             </div>
 
-            <!-- Selector de Tallas con Asesor de Tallas Directo -->
+            <!-- Selector de Tallas con Asesor IA -->
             <div class="mb-3">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <label class="form-label text-muted small text-uppercase mb-0">Selecciona tu talla:</label>
@@ -120,6 +122,37 @@
               </div>
             </div>
 
+            <!-- MÓDULO INTELIGENTE "COMPLETA TU LOOK" (CROSS-SELLING) -->
+            @if (lookBundle) {
+              <div class="bundle-box p-3 rounded mb-3" [class.bundle-active]="lookBundle.agregado">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="small fw-bold text-white text-uppercase letter-spacing-1">
+                    <i class="bi bi-sparkles text-gold me-1"></i> Completa tu Look
+                  </span>
+                  <span class="badge bg-danger" style="font-size: 0.65rem;">Ahorra S/ {{ (lookBundle.precioNormal - lookBundle.precioBundle) | number:'1.0-0' }}</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <img [src]="lookBundle.imagen" [alt]="lookBundle.nombre" class="bundle-thumb rounded" />
+                  <div class="flex-grow-1 min-w-0">
+                    <h5 class="small text-white mb-0 text-truncate">{{ lookBundle.nombre }}</h5>
+                    <div class="d-flex align-items-baseline gap-2 mt-1">
+                      <span class="text-gold fw-bold small">+ S/ {{ lookBundle.precioBundle | number:'1.2-2' }}</span>
+                      <small class="text-decoration-line-through text-muted" style="font-size: 0.72rem;">S/ {{ lookBundle.precioNormal | number:'1.2-2' }}</small>
+                    </div>
+                  </div>
+                  <button 
+                    type="button" 
+                    class="btn btn-sm" 
+                    [class.btn-outline-gold]="!lookBundle.agregado" 
+                    [class.btn-gold-filled]="lookBundle.agregado"
+                    (click)="toggleBundle()">
+                    <i class="bi" [class.bi-plus]="!lookBundle.agregado" [class.bi-check-lg]="lookBundle.agregado"></i>
+                    <span>{{ lookBundle.agregado ? 'Agregado' : 'Combinar' }}</span>
+                  </button>
+                </div>
+              </div>
+            }
+
             <!-- Beneficios de Marca Mundial -->
             <div class="luxury-perks p-3 rounded mb-3">
               <div class="row g-2 text-center text-muted" style="font-size: 0.75rem;">
@@ -147,7 +180,7 @@
               [disabled]="obtenerStock() === 0"
               (click)="onAgregar()">
               <i class="bi bi-bag-plus-fill fs-5"></i>
-              <span>{{ obtenerStock() > 0 ? 'Añadir a la Bolsa de Compras' : 'Prenda Agotada' }}</span>
+              <span>{{ obtenerStock() > 0 ? (lookBundle?.agregado ? 'Añadir Look Completo a la Bolsa' : 'Añadir a la Bolsa de Compras') : 'Prenda Agotada' }}</span>
             </button>
           </div>
         </div>

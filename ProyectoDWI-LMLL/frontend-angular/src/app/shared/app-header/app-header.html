@@ -1,27 +1,112 @@
 <header class="lmll-header">
-  <div class="container d-flex justify-content-between align-items-center py-2">
-    <!-- Brand Logo Único (Sin eslogan ni subtítulos que saturen arriba) -->
-    <a href="/" class="lmll-brand text-decoration-none d-flex align-items-center gap-2">
+  <div class="container d-flex justify-content-between align-items-center py-2 gap-3">
+    <!-- Brand Logo -->
+    <a href="/" class="lmll-brand text-decoration-none d-flex align-items-center gap-2 flex-shrink-0">
       <span class="lmll-brand__badge">LMLL</span>
-      <h1 class="h5 mb-0 brand-font text-white letter-spacing-1">LA MODA TE LLAMA</h1>
+      <h1 class="h5 mb-0 brand-font text-white letter-spacing-1 d-none d-sm-inline">LA MODA TE LLAMA</h1>
     </a>
 
-    <!-- Menú de Categorías y Navegación Principal -->
-    <nav class="d-none d-lg-flex align-items-center gap-3 main-nav">
+    <!-- BUSCADOR PREDICTIVO INSTANTÁNEO CON VISUAL SEARCH -->
+    <div class="header-search-wrapper position-relative flex-grow-1 mx-2" style="max-width: 480px;">
+      <div class="input-group search-pill-box">
+        <span class="input-group-text bg-transparent border-0 text-gold ps-3">
+          <i class="bi" [class.bi-search]="!buscando" [class.bi-arrow-clockwise]="buscando" [class.spin]="buscando"></i>
+        </span>
+        <input 
+          type="text" 
+          class="form-control bg-transparent border-0 text-white search-input" 
+          placeholder="Buscar terno, camisa, mocasín..." 
+          [value]="busquedaTexto"
+          (input)="onInputBusqueda($event)"
+          (focus)="mostrarDropdown = resultados.length > 0"
+          (blur)="cerrarDropdown()" />
+
+        <!-- Botón de Búsqueda Visual por Imagen -->
+        <label class="btn-visual-search m-0 d-flex align-items-center justify-content-center px-3" title="Buscar por Foto / Outfit con IA">
+          <i class="bi bi-camera-fill text-gold"></i>
+          <input type="file" accept="image/*" class="d-none" (change)="onSubirFoto($event)" />
+        </label>
+      </div>
+
+      <!-- DROPDOWN FLOTANTE DE RESULTADOS INSTANTÁNEOS -->
+      @if (mostrarDropdown && (resultados.length > 0 || procesandoFoto || mensajeVisualIa)) {
+        <div class="search-floating-dropdown shadow-lg animate-fade-in">
+          @if (procesandoFoto) {
+            <div class="p-3 text-center text-gold">
+              <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+              <span>{{ mensajeVisualIa }}</span>
+            </div>
+          } @else if (mensajeVisualIa) {
+            <div class="px-3 py-2 border-bottom border-dark text-gold small">
+              {{ mensajeVisualIa }}
+            </div>
+          }
+
+          <div class="dropdown-list">
+            @for (p of resultados; track p.id) {
+              <div class="dropdown-item-product d-flex align-items-center gap-3 p-2" (mousedown)="seleccionarResultado(p)">
+                <img [src]="p.imagenUrl || '/img/logo.png'" [alt]="p.nombre" class="result-thumb rounded" />
+                <div class="flex-grow-1 min-w-0">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-white fw-semibold text-truncate small d-block">{{ p.nombre }}</span>
+                    <span class="text-gold fw-bold small ms-2">S/ {{ p.precioBase | number:'1.2-2' }}</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 mt-1">
+                    <span class="badge bg-dark border border-secondary text-muted" style="font-size: 0.65rem;">{{ p.genero || 'Unisex' }}</span>
+                    <small class="text-success" style="font-size: 0.7rem;"><i class="bi bi-check2"></i> En Stock</small>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Menú de Categorías (Visible en desktop) -->
+    <nav class="d-none d-xl-flex align-items-center gap-3 main-nav">
       <button type="button" class="nav-link-btn" (click)="onSelectGenero('Todos')">Colección</button>
       <button type="button" class="nav-link-btn" (click)="onSelectGenero('Hombre')">Hombre</button>
       <button type="button" class="nav-link-btn" (click)="onSelectGenero('Mujer')">Mujer</button>
       <button type="button" class="nav-link-btn" (click)="onSelectGenero('Unisex')">Unisex</button>
       <a href="/seguimiento" class="nav-link-btn"><i class="bi bi-geo-alt me-1 text-primary"></i>Rastrear</a>
       <a href="/reclamaciones" class="nav-link-btn"><i class="bi bi-book me-1 text-muted"></i>Reclamaciones</a>
-      <a href="/monitoreo" class="nav-link-btn text-muted"><i class="bi bi-activity me-1 text-success"></i>Servidor</a>
     </nav>
 
-    <!-- Única Acción Derecha: Botón de Bolsa de Compras -->
-    <div class="d-flex align-items-center">
+    <!-- ACCIONES DE USUARIO: GOOGLE SIGN-IN + WISHLIST + BOLSA -->
+    <div class="d-flex align-items-center gap-2 flex-shrink-0">
+      
+      <!-- Botón Wishlist / Favoritos con Contador -->
+      <button 
+        type="button" 
+        class="btn-icon-header position-relative" 
+        (click)="onToggleFavoritos()" 
+        title="Ver mis Favoritos">
+        <i class="bi bi-heart-fill text-danger"></i>
+        @if (wishlistService.totalFavoritos() > 0) {
+          <span class="badge bg-danger rounded-pill header-badge-num">{{ wishlistService.totalFavoritos() }}</span>
+        }
+      </button>
+
+      <!-- Botón Google Sign-In Rápido -->
+      @if (usuarioGoogle) {
+        <div class="dropdown d-inline-block">
+          <button type="button" class="btn-user-google d-flex align-items-center gap-2" (click)="cerrarSesionGoogle()" title="Cerrar sesión de Google">
+            <img [src]="usuarioGoogle.avatar" class="rounded-circle google-avatar" alt="Avatar" />
+            <span class="d-none d-md-inline small text-white">{{ usuarioGoogle.nombre.split(' ')[0] }}</span>
+          </button>
+        </div>
+      } @else {
+        <button type="button" class="btn btn-sm btn-outline-light d-none d-sm-inline-flex align-items-center gap-1 btn-google-login" (click)="abrirGoogleModal()" title="Iniciar con Google">
+          <svg width="14" height="14" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5.1 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.8s.2-2.1.4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.1 7.5 23 12 23z"/></svg>
+          <span class="small">Google</span>
+        </button>
+      }
+
+      <!-- Botón de Bolsa de Compras con Contador -->
       <button type="button" class="btn btn-sm btn-brand d-inline-flex align-items-center gap-2 position-relative px-3 py-2" (click)="onToggleBolsa()" title="Abrir Bolsa de Compras">
         <i class="bi bi-bag-fill"></i>
-        <span>Bolsa</span>
+        <span class="d-none d-md-inline">Bolsa</span>
         @if (cartService.totalItems() > 0) {
           <span class="badge bg-danger rounded-pill cart-badge-num">{{ cartService.totalItems() }}</span>
         }
@@ -29,3 +114,28 @@
     </div>
   </div>
 </header>
+
+<!-- MODAL GOOGLE IDENTITY SERVICES OAUTH2 -->
+@if (mostrarModalGoogle) {
+  <div class="google-modal-backdrop" (click)="cerrarGoogleModal()"></div>
+  <div class="google-modal-dialog">
+    <div class="google-modal-content p-4 text-center">
+      <div class="mb-3">
+        <svg width="40" height="40" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5.1 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.8s.2-2.1.4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.1 7.5 23 12 23z"/></svg>
+      </div>
+      <h4 class="text-white h5 fw-bold mb-1">Acceso con Google</h4>
+      <p class="text-muted small mb-4">Ingresa en un solo clic con tu cuenta de Google institucional o personal para sincronizar tus pedidos y favoritos.</p>
+      
+      <div class="d-flex flex-column gap-2 mb-3">
+        <button type="button" class="btn btn-light d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold" (click)="simularLoginGoogle()">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50&auto=format&fit=crop&q=80" class="rounded-circle" width="24" height="24" alt="" />
+          <span>Continuar como Antonela Jaimes</span>
+        </button>
+      </div>
+
+      <button type="button" class="btn btn-sm btn-link text-muted text-decoration-none" (click)="cerrarGoogleModal()">
+        Cancelar
+      </button>
+    </div>
+  </div>
+}

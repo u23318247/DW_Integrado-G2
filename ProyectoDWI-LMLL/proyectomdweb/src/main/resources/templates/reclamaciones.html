@@ -424,23 +424,29 @@
 
 <script>
     async function autocompletarDni() {
-        const dni = document.getElementById('numeroDocumento').value.trim();
-        if (dni.length !== 8) {
-            alert('Por favor ingrese un DNI válido de 8 dígitos para la consulta.');
+        const num = document.getElementById('numeroDocumento').value.trim().replace(/\D/g, '');
+        if (num.length !== 8 && num.length !== 11) {
+            alert('Por favor ingrese un DNI válido de 8 dígitos o RUC de 11 dígitos.');
             return;
         }
 
         try {
-            const resp = await fetch(`/api/reniec/${dni}`);
+            const url = num.length === 11 ? `/api/consulta/ruc/${num}` : `/api/consulta/dni/${num}`;
+            const resp = await fetch(url);
             if (resp.ok) {
                 const data = await resp.json();
-                if (data.nombres || data.nombreCompleto) {
-                    const full = data.nombreCompleto || `${data.nombres} ${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
+                if (data.encontrado) {
+                    const full = data.razonSocial || data.nombre || `${data.nombres || ''} ${data.apellidos || ''}`.trim();
                     document.getElementById('nombresApellidos').value = full;
+                    if (data.direccion && document.getElementById('domicilio')) {
+                        document.getElementById('domicilio').value = data.direccion;
+                    }
+                } else {
+                    alert(data.mensaje || 'Documento no encontrado.');
                 }
             }
         } catch (e) {
-            console.warn('Consulta RENIEC:', e);
+            console.warn('Consulta documento:', e);
         }
     }
 

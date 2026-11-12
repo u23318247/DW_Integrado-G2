@@ -1,5 +1,5 @@
 <!-- 2. Header de Navegación Principal -->
-<app-header (generoSeleccionado)="filtrarGenero($event)"></app-header>
+<app-header (generoSeleccionado)="filtrarGenero($event)" (productoSeleccionado)="abrirVistaRapida($event)" (toggleFavoritosFiltro)="toggleFiltroFavoritos()"></app-header>
 
 <!-- 3. Hero Banner de Moda Urbana -->
 <app-hero-banner (verCatalogo)="scrollHaciaCatalogo()"></app-hero-banner>
@@ -238,6 +238,9 @@
 
                       <!-- Badges Superiores -->
                       <div class="card-badges">
+                      <button type="button" class="btn-card-wishlist" [class.active]="wishlistService.esFavorito(producto.id)" (click)="toggleFavoritoItem(producto, $event)" title="Favorito">
+                        <i class="bi" [class.bi-heart-fill]="wishlistService.esFavorito(producto.id)" [class.bi-heart]="!wishlistService.esFavorito(producto.id)"></i>
+                      </button>
                         <span class="badge-tag gender">{{ producto.genero || 'Unisex' }}</span>
                         @if (obtenerStockActual(producto) > 0) {
                           <span class="badge-tag in-stock">En Stock</span>

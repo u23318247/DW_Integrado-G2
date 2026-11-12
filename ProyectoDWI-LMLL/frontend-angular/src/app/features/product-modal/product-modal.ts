@@ -1,6 +1,18 @@
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Producto, ProductoDetalle } from '../../models/producto.model';
+import { CartService } from '../../services/cart.service';
+
+export interface LookComplemento {
+  nombre: string;
+  categoria: string;
+  precioNormal: number;
+  precioBundle: number;
+  imagen: string;
+  talla: string;
+  color: string;
+  agregado: boolean;
+}
 
 @Component({
   selector: 'app-product-modal',
@@ -10,6 +22,8 @@ import { Producto, ProductoDetalle } from '../../models/producto.model';
   styleUrl: './product-modal.scss'
 })
 export class ProductModal implements OnChanges {
+  private cartService = inject(CartService);
+
   @Input() producto: Producto | null = null;
   @Input() tallaSeleccionada: string = 'M';
   @Input() colorSeleccionado: string = 'Negro';
@@ -22,9 +36,13 @@ export class ProductModal implements OnChanges {
   estaGirando: boolean = false;
   timerGiro: any = null;
 
+  // Cross-selling: Completa tu Look (Smart Outfit Bundle)
+  lookBundle: LookComplemento | null = null;
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['producto'] && this.producto) {
       this.construirGaleria();
+      this.generarLookComplementario();
     }
   }
 
@@ -32,7 +50,7 @@ export class ProductModal implements OnChanges {
     if (!this.producto) return;
     const baseImg = this.producto.imagenUrl || '/img/logo.png';
 
-    // Generar ángulos dinámicos de la misma prenda (Frontal, Detalle textura, Modelo, Espalda)
+    // Generar ángulos dinámicos de la misma prenda
     this.galeriaImagenes = [
       baseImg,
       baseImg.includes('?') ? `${baseImg}&angle=back` : `${baseImg}?angle=back`,
@@ -41,6 +59,52 @@ export class ProductModal implements OnChanges {
     ];
     this.indiceImagenActiva = 0;
     this.detenerGiro();
+  }
+
+  generarLookComplementario(): void {
+    if (!this.producto) return;
+    const nom = (this.producto.nombre || '').toLowerCase();
+
+    if (nom.includes('terno') || nom.includes('blazer') || nom.includes('traje')) {
+      this.lookBundle = {
+        nombre: 'Pantalón Sastrero Slim Fit Italiano',
+        categoria: 'Pantalones',
+        precioNormal: 149.00,
+        precioBundle: 99.00,
+        imagen: 'https://images.unsplash.com/photo-1479064555552-3ef4979f8908?w=300&auto=format&fit=crop&q=80',
+        talla: '32',
+        color: 'Negro Azabache',
+        agregado: false
+      };
+    } else if (nom.includes('zapato') || nom.includes('mocas') || nom.includes('calzado')) {
+      this.lookBundle = {
+        nombre: 'Calcetines Ejecutivos Hilo de Escocia',
+        categoria: 'Accesorios',
+        precioNormal: 49.00,
+        precioBundle: 29.00,
+        imagen: 'https://images.unsplash.com/photo-1582966772680-860e372bb558?w=300&auto=format&fit=crop&q=80',
+        talla: 'Estándar',
+        color: 'Azul Marino',
+        agregado: false
+      };
+    } else {
+      this.lookBundle = {
+        nombre: 'Corbata de Seda Pura & Pañuelo de Gala',
+        categoria: 'Joyería y Pines',
+        precioNormal: 79.00,
+        precioBundle: 49.00,
+        imagen: 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=300&auto=format&fit=crop&q=80',
+        talla: 'Estándar',
+        color: 'Dorado Borgoña',
+        agregado: false
+      };
+    }
+  }
+
+  toggleBundle(): void {
+    if (this.lookBundle) {
+      this.lookBundle.agregado = !this.lookBundle.agregado;
+    }
   }
 
   cambiarImagen(indice: number): void {
@@ -113,15 +177,23 @@ export class ProductModal implements OnChanges {
     return mapa[(color || '').toLowerCase().trim()] || '#333333';
   }
 
+  obtenerPrecio(): number {
+    return this.producto?.precioBase || 0;
+  }
+
+  obtenerPrecioTotalConBundle(): number {
+    const base = this.obtenerPrecio();
+    if (this.lookBundle && this.lookBundle.agregado) {
+      return base + this.lookBundle.precioBundle;
+    }
+    return base;
+  }
+
   obtenerStock(): number {
     if (this.producto?.variantes && this.producto.variantes.length > 0) {
       return this.producto.variantes.reduce((acc, v) => acc + (v.stock || 0), 0);
     }
     return 15;
-  }
-
-  obtenerPrecio(): number {
-    return this.producto?.precioBase ?? 0;
   }
 
   onCerrar(): void {
@@ -130,13 +202,27 @@ export class ProductModal implements OnChanges {
   }
 
   onAgregar(): void {
-    if (this.producto) {
-      this.agregar.emit({
-        producto: this.producto,
-        talla: this.tallaSeleccionada,
-        color: this.colorSeleccionado
-      });
-      this.onCerrar();
+    if (!this.producto) return;
+    this.agregar.emit({
+      producto: this.producto,
+      talla: this.tallaSeleccionada,
+      color: this.colorSeleccionado
+    });
+
+    // Si seleccionó el combo "Completa tu Look", agregar el complemento con descuento
+    if (this.lookBundle && this.lookBundle.agregado) {
+      const prodCombo: Producto = {
+        id: 999900 + (this.producto.id || 1),
+        nombre: this.lookBundle.nombre,
+        precioBase: this.lookBundle.precioBundle,
+        imagenUrl: this.lookBundle.imagen,
+        genero: this.producto.genero || 'Unisex',
+        disponibilidad: true,
+        categoriaId: 1
+      };
+      this.cartService.agregarProducto(prodCombo, this.lookBundle.talla, this.lookBundle.color);
     }
+
+    this.onCerrar();
   }
 }

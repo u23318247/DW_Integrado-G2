@@ -146,6 +146,13 @@
 
         <!-- BOTONES NO IMPRIMIBLES -->
         <div class="d-flex gap-2 justify-content-center mt-4 no-print flex-wrap">
+            
+            <a th:href="'https://api.whatsapp.com/send?phone=51' + (${cliente != null && cliente.telefono != null ? cliente.telefono : '999999999'}) + '&text=Hola%20La%20Moda%20te%20LLama%2C%20acabo%20de%20realizar%20mi%20pedido%20con%20comprobante%20' + ${venta.serieCorrelativo} + '%20por%20S/%20' + ${venta.total} + '.%20Por%20favor%20confirmar%20mi%20despacho.'" 
+               target="_blank" 
+               class="btn btn-success" 
+               style="border-radius: 0; background-color: #25D366; border-color: #25D366; font-weight: 600;">
+                <i class="bi bi-whatsapp me-1"></i> Notificar a WhatsApp
+            </a>
             <button onclick="descargarPDF()" class="btn btn-danger" style="border-radius: 0;">
                 <i class="bi bi-file-earmark-pdf me-1"></i> Descargar PDF
             </button>

@@ -415,3 +415,34 @@
     transform: translateY(0);
   }
 }
+
+/* BOTON CORAZON WISHLIST EN TARJETA */
+.btn-card-wishlist {
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  margin-right: 6px;
+
+  &:hover {
+    background: rgba(220, 53, 69, 0.85);
+    border-color: #dc3545;
+    color: #fff;
+    transform: scale(1.1);
+  }
+
+  &.active {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+  }
+}
