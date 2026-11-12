@@ -1,28 +1,28 @@
 <header class="lmll-header">
-  <div class="container d-flex justify-content-between align-items-center py-3">
-    <!-- Brand Logo -->
+  <div class="container d-flex justify-content-between align-items-center py-2">
+    <!-- Brand Logo Único -->
     <a href="/" class="lmll-brand text-decoration-none d-flex align-items-center gap-2">
       <span class="lmll-brand__badge">LMLL</span>
       <div>
-        <h1 class="h4 mb-0 brand-font text-white letter-spacing-1">LA MODA TE LLAMA</h1>
-        <small class="text-gold-light d-block" style="font-size: 0.68rem; letter-spacing: 2px;">PERUVIAN STREETWEAR & FASHION</small>
+        <h1 class="h5 mb-0 brand-font text-white letter-spacing-1">LA MODA TE LLAMA</h1>
+        <small class="text-gold-light d-block" style="font-size: 0.65rem; letter-spacing: 2px;">PERUVIAN STREETWEAR</small>
       </div>
     </a>
 
-    <!-- Menu de Categorias / Navegacion Principal -->
-    <nav class="d-none d-lg-flex align-items-center gap-4 main-nav">
-      <button type="button" class="nav-link-btn" (click)="onSelectGenero('Todos')">Coleccion</button>
+    <!-- Menú de Filtros / Navegación Limpia y Ordenada -->
+    <nav class="d-none d-lg-flex align-items-center gap-3 main-nav">
+      <button type="button" class="nav-link-btn" (click)="onSelectGenero('Todos')">Colección</button>
       <button type="button" class="nav-link-btn" (click)="onSelectGenero('Hombre')">Hombre</button>
       <button type="button" class="nav-link-btn" (click)="onSelectGenero('Mujer')">Mujer</button>
       <button type="button" class="nav-link-btn" (click)="onSelectGenero('Unisex')">Unisex</button>
-      <a href="/productos" class="nav-link-btn text-gold">Catalogo Completo</a>
-      <a href="/seguimiento" class="nav-link-btn"><i class="bi bi-geo-alt me-1 text-primary"></i>Seguimiento</a>
+      <a href="/seguimiento" class="nav-link-btn"><i class="bi bi-geo-alt me-1 text-primary"></i>Rastrear</a>
+      <a href="/reclamaciones" class="nav-link-btn"><i class="bi bi-book me-1 text-muted"></i>Reclamaciones</a>
       <a href="/monitoreo" class="nav-link-btn text-muted"><i class="bi bi-activity me-1 text-success"></i>Servidor</a>
     </nav>
 
     <!-- Acciones de Usuario y Bolsa -->
     <div class="d-flex align-items-center gap-2">
-      <!-- Si ya inicio sesion -->
+      <!-- Si ya inició sesión -->
       @if (authService.currentUser(); as user) {
         @if (authService.hasPanelAccess()) {
           <a href="/admin/dashboard" class="btn-user-icon" title="Panel Administrativo" aria-label="Panel">
@@ -33,20 +33,19 @@
             <i class="bi bi-box2-heart"></i>
           </a>
         }
-        <a href="/auth/logout" class="btn-user-icon" title="Cerrar Sesion" aria-label="Salir">
+        <a href="/auth/logout" class="btn-user-icon" title="Cerrar Sesión" aria-label="Salir">
           <i class="bi bi-box-arrow-right"></i>
         </a>
       } @else {
-        <!-- Modo ingreso: SOLO el icono de la personita -->
-        <a href="/auth/login" class="btn-user-icon" title="Iniciar Sesion / Administrador" aria-label="Ingresar">
+        <a href="/auth/login" class="btn-user-icon" title="Iniciar Sesión" aria-label="Ingresar">
           <i class="bi bi-person"></i>
         </a>
       }
 
-      <!-- Boton de Bolsa con Trigger del Drawer -->
-      <button type="button" class="btn btn-sm btn-brand d-inline-flex align-items-center gap-2 position-relative" (click)="onToggleBolsa()" title="Abrir Bolsa de Compras">
-        <i class="bi bi-bag"></i>
-        <span class="d-none d-md-inline">Bolsa</span>
+      <!-- Botón de Bolsa con Trigger del Drawer -->
+      <button type="button" class="btn btn-sm btn-brand d-inline-flex align-items-center gap-2 position-relative px-3 py-2" (click)="onToggleBolsa()" title="Abrir Bolsa de Compras">
+        <i class="bi bi-bag-fill"></i>
+        <span>Bolsa</span>
         @if (cartService.totalItems() > 0) {
           <span class="badge bg-danger rounded-pill cart-badge-num">{{ cartService.totalItems() }}</span>
         }
