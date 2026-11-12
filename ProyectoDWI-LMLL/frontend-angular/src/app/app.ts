@@ -7,7 +7,6 @@ import { AuthService } from './services/auth.service';
 import { Producto, ProductoDetalle } from './models/producto.model';
 import { Categoria } from './models/categoria.model';
 
-import { TopAnnouncement } from './shared/top-announcement/top-announcement';
 import { AppHeader } from './shared/app-header/app-header';
 import { HeroBanner } from './features/hero-banner/hero-banner';
 import { SummaryPanel } from './features/summary-panel/summary-panel';
@@ -50,7 +49,6 @@ export const CATEGORIA_META: Record<string, CategoriaMeta> = {
   imports: [
     CommonModule,
     FormsModule,
-    TopAnnouncement,
     AppHeader,
     HeroBanner,
     SummaryPanel,
