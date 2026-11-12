@@ -1,15 +1,12 @@
 <header class="lmll-header">
   <div class="container d-flex justify-content-between align-items-center py-2">
-    <!-- Brand Logo Único -->
+    <!-- Brand Logo Único (Sin eslogan ni subtítulos que saturen arriba) -->
     <a href="/" class="lmll-brand text-decoration-none d-flex align-items-center gap-2">
       <span class="lmll-brand__badge">LMLL</span>
-      <div>
-        <h1 class="h5 mb-0 brand-font text-white letter-spacing-1">LA MODA TE LLAMA</h1>
-        <small class="text-gold-light d-block" style="font-size: 0.65rem; letter-spacing: 2px;">PERUVIAN STREETWEAR</small>
-      </div>
+      <h1 class="h5 mb-0 brand-font text-white letter-spacing-1">LA MODA TE LLAMA</h1>
     </a>
 
-    <!-- Menú de Filtros / Navegación Limpia y Ordenada -->
+    <!-- Menú de Categorías y Navegación Principal -->
     <nav class="d-none d-lg-flex align-items-center gap-3 main-nav">
       <button type="button" class="nav-link-btn" (click)="onSelectGenero('Todos')">Colección</button>
       <button type="button" class="nav-link-btn" (click)="onSelectGenero('Hombre')">Hombre</button>
@@ -20,29 +17,8 @@
       <a href="/monitoreo" class="nav-link-btn text-muted"><i class="bi bi-activity me-1 text-success"></i>Servidor</a>
     </nav>
 
-    <!-- Acciones de Usuario y Bolsa -->
-    <div class="d-flex align-items-center gap-2">
-      <!-- Si ya inició sesión -->
-      @if (authService.currentUser(); as user) {
-        @if (authService.hasPanelAccess()) {
-          <a href="/admin/dashboard" class="btn-user-icon" title="Panel Administrativo" aria-label="Panel">
-            <i class="bi bi-person-gear"></i>
-          </a>
-        } @else {
-          <a href="/mis-pedidos" class="btn-user-icon" [title]="'Mis Pedidos (' + user.nombre + ')'" aria-label="Mis Pedidos">
-            <i class="bi bi-box2-heart"></i>
-          </a>
-        }
-        <a href="/auth/logout" class="btn-user-icon" title="Cerrar Sesión" aria-label="Salir">
-          <i class="bi bi-box-arrow-right"></i>
-        </a>
-      } @else {
-        <a href="/auth/login" class="btn-user-icon" title="Iniciar Sesión" aria-label="Ingresar">
-          <i class="bi bi-person"></i>
-        </a>
-      }
-
-      <!-- Botón de Bolsa con Trigger del Drawer -->
+    <!-- Única Acción Derecha: Botón de Bolsa de Compras -->
+    <div class="d-flex align-items-center">
       <button type="button" class="btn btn-sm btn-brand d-inline-flex align-items-center gap-2 position-relative px-3 py-2" (click)="onToggleBolsa()" title="Abrir Bolsa de Compras">
         <i class="bi bi-bag-fill"></i>
         <span>Bolsa</span>

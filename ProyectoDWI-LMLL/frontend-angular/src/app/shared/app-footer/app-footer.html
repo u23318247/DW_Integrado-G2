@@ -1,11 +1,15 @@
 <footer class="lmll-main-footer pt-5 pb-4 mt-5">
   <div class="container">
     <div class="row g-4 pb-4 border-bottom border-secondary-subtle">
-      <!-- Columna 1: Brand & Misión -->
+      <!-- Columna 1: Brand & Eslogan Trasladado -->
       <div class="col-lg-4 col-md-6">
-        <div class="d-flex align-items-center gap-2 mb-3">
+        <div class="d-flex align-items-center gap-2 mb-2">
           <span class="footer-badge">LMLL</span>
           <h4 class="brand-font text-white h4 mb-0">LA MODA TE LLAMA</h4>
+        </div>
+        <!-- Eslogan bajado a la parte inferior -->
+        <div class="text-gold-light small fw-bold text-uppercase letter-spacing-2 mb-3">
+          PERUVIAN STREETWEAR & FASHION
         </div>
         <p class="text-muted small pe-lg-4">
           Marca de moda peruana que fusiona el streetwear contemporáneo con la excelencia del algodón nacional Tangüis y Pima. Diseños auténticos para vestir con carácter.
@@ -18,7 +22,7 @@
         </div>
       </div>
 
-      <!-- Columna 2: Navegación -->
+      <!-- Columna 2: Navegación de Colecciones -->
       <div class="col-lg-2 col-6">
         <h5 class="footer-title">Colecciones</h5>
         <ul class="list-unstyled footer-links">
@@ -31,32 +35,50 @@
         </ul>
       </div>
 
-      <!-- Columna 3: Atención al Cliente -->
+      <!-- Columna 3: Cuenta y Acceso de Usuario (Bajado) -->
       <div class="col-lg-2 col-6">
-        <h5 class="footer-title">Ayuda & Soporte</h5>
+        <h5 class="footer-title">Mi Cuenta</h5>
         <ul class="list-unstyled footer-links">
-          <li><a href="#">Guía de Tallas</a></li>
-          <li><a href="#">Políticas de Envío</a></li>
-          <li><a href="#">Cambios & Devoluciones</a></li>
-          <li><a href="#">Preguntas Frecuentes</a></li>
-          <li><a href="#">Términos del Servicio</a></li>
-          <li><a href="/reclamaciones" class="text-gold fw-bold"><i class="bi bi-book-half me-1"></i>Libro de Reclamaciones</a></li>
+          @if (authService.currentUser(); as user) {
+            @if (authService.hasPanelAccess()) {
+              <li><a href="/admin/dashboard" class="text-gold fw-bold"><i class="bi bi-person-gear me-1"></i>Panel Admin</a></li>
+            } @else {
+              <li><a href="/mis-pedidos" class="text-gold fw-bold"><i class="bi bi-box2-heart me-1"></i>Mis Pedidos</a></li>
+            }
+            <li><a href="/auth/logout"><i class="bi bi-box-arrow-right me-1"></i>Cerrar Sesión</a></li>
+          } @else {
+            <li><a href="/auth/login"><i class="bi bi-person me-1"></i>Iniciar Sesión</a></li>
+            <li><a href="/auth/registro"><i class="bi bi-person-plus me-1"></i>Crear Cuenta</a></li>
+          }
+          <li><a href="/seguimiento"><i class="bi bi-geo-alt me-1"></i>Rastrear Pedido</a></li>
+          <li><a href="/reclamaciones"><i class="bi bi-book-half me-1"></i>Libro Reclamaciones</a></li>
         </ul>
       </div>
 
-      <!-- Columna 4: Newsletter -->
+      <!-- Columna 4: Preferencias, Modo Día/Noche & Newsletter -->
       <div class="col-lg-4 col-md-6">
-        <h5 class="footer-title">Club LMLL Privado</h5>
-        <p class="text-muted small">
-          Suscríbete para recibir lanzamientos exclusivos, drops limitados y un <strong>10% de descuento</strong> en tu primera compra.
-        </p>
-        <div class="newsletter-box d-flex gap-2 mb-3">
-          <input type="email" class="form-control form-control-sm" placeholder="Ingresa tu correo electrónico..." />
+        <h5 class="footer-title">Preferencias & Modo</h5>
+        
+        <!-- Interruptor Día/Noche (Claro/Oscuro) Bajado -->
+        <div class="theme-switch-box p-3 rounded mb-3 d-flex align-items-center justify-content-between" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+          <div>
+            <strong class="text-white small d-block">Modo de Visualización</strong>
+            <small class="text-muted">{{ esModoOscuro ? 'Modo Oscuro Activo' : 'Modo Claro Activo' }}</small>
+          </div>
+          <button type="button" 
+                  class="btn btn-sm btn-outline-warning d-flex align-items-center gap-2 px-3 py-1 rounded-pill"
+                  (click)="alternarTema()" 
+                  title="Cambiar a modo día o noche">
+            <i class="bi" [class.bi-sun-fill]="!esModoOscuro" [class.bi-moon-stars-fill]="esModoOscuro"></i>
+            <span>{{ esModoOscuro ? 'Pasar a Día' : 'Pasar a Noche' }}</span>
+          </button>
+        </div>
+
+        <p class="text-muted small mb-2">Club LMLL: Recibe drops exclusivos con 10% OFF en tu primer pedido.</p>
+        <div class="newsletter-box d-flex gap-2">
+          <input type="email" class="form-control form-control-sm" placeholder="Tu correo electrónico..." />
           <button type="button" class="btn btn-brand btn-sm px-3">Unirme</button>
         </div>
-        <small class="text-muted d-block" style="font-size: 0.72rem;">
-          Al suscribirte aceptas nuestras políticas de privacidad y protección de datos.
-        </small>
       </div>
     </div>
 
