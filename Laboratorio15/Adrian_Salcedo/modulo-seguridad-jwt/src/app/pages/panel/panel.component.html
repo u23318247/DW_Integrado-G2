@@ -1,0 +1,21 @@
+<div class="panel-contenedor">
+  <div class="tarjeta-panel">
+    <div class="header-panel">
+      <h2>Panel Administrativo Protegido</h2>
+      <button type="button" class="btn-salir" (click)="cerrarSesion()">Cerrar Sesión</button>
+    </div>
+    
+    <div class="alerta-exito">
+      ✓ Acceso concedido mediante <strong>AuthGuard</strong> y token JWT validado.
+    </div>
+
+    <div class="detalles-usuario">
+      <h3>Datos de la Sesión Activa</h3>
+      <p><strong>Usuario:</strong> {{ authService.usuarioActual()?.nombre }}</p>
+      <p><strong>Email:</strong> {{ authService.usuarioActual()?.email }}</p>
+      <p><strong>Rol Asignado:</strong> <span class="badge-rol">{{ authService.usuarioActual()?.rol }}</span></p>
+      <p><strong>Token JWT Bearer:</strong></p>
+      <pre>{{ authService.token() }}</pre>
+    </div>
+  </div>
+</div>

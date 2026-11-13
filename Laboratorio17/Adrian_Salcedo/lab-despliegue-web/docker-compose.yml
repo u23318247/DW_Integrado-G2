@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend-deploy
+      dockerfile: Dockerfile
+    container_name: backend-deploy-container
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend-deploy
+      dockerfile: Dockerfile
+    container_name: frontend-deploy-container
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge
