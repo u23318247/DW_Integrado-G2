@@ -8,3 +8,4 @@ Este directorio contiene las actividades prácticas de la **Semana 15** sobre au
 
 ## Integrantes
 * [`Antonela_Jaimes`](./Antonela_Jaimes/README.md)
+* [`Ali_Contreras`](./Ali_Contreras/README.md)

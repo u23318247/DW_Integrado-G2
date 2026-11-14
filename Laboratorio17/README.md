@@ -8,3 +8,4 @@ Este directorio contiene la documentación final, el guion de sustentación téc
 
 ## Integrantes
 * [`Antonela_Jaimes`](./Antonela_Jaimes/README.md)
+* [`Ali_Contreras`](./Ali_Contreras/README.md)
