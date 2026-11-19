@@ -1,0 +1,26 @@
+<div class="login-contenedor">
+  <div class="tarjeta-login">
+    <h2>Inicio de Sesión Seguro</h2>
+    <p class="subtitulo">Módulo de Autenticación JWT y Roles de Usuario</p>
+
+    @if (mensajeError()) {
+      <div class="alerta-error">{{ mensajeError() }}</div>
+    }
+
+    <form [formGroup]="formulario" (ngSubmit)="ingresar()">
+      <div class="campo">
+        <label>Correo Electrónico</label>
+        <input type="email" formControlName="email" placeholder="admin@tienda.com">
+      </div>
+
+      <div class="campo">
+        <label>Contraseña</label>
+        <input type="password" formControlName="password" placeholder="••••••••">
+      </div>
+
+      <button type="submit" [disabled]="cargando()">
+        {{ cargando() ? 'Autenticando...' : 'Iniciar Sesión' }}
+      </button>
+    </form>
+  </div>
+</div>

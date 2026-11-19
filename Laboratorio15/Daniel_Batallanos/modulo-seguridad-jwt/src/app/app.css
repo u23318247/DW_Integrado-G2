@@ -1,0 +1,4 @@
+:host { display: block; font-family: Arial, sans-serif; }
+.barra-navegacion { display: flex; justify-content: space-between; align-items: center; background: #111; color: white; padding: 1rem 2rem; }
+.barra-navegacion a { color: #d4af37; text-decoration: none; margin-left: 1rem; font-weight: bold; }
+.barra-navegacion a:hover { color: #fff; }

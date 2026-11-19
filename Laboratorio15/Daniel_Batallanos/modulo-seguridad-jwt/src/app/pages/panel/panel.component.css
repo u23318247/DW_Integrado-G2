@@ -1,0 +1,7 @@
+.panel-contenedor { padding: 30px; max-width: 900px; margin: auto; }
+.tarjeta-panel { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
+.header-panel { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+.btn-salir { background: #b91c1c; color: white; border: 0; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+.alerta-exito { background: #dcfce7; color: #15803d; padding: 12px; border-radius: 6px; margin: 20px 0; font-size: 0.9rem; }
+.badge-rol { background: #1f4e79; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; }
+pre { background: #f8fafc; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.82rem; border: 1px solid #e2e8f0; }
