@@ -160,19 +160,40 @@ export class ProductModal implements OnChanges {
 
   obtenerHexColor(color: string): string {
     const mapa: Record<string, string> = {
-      'negro': '#111113',
       'negro azabache': '#111113',
+      'negro': '#111113',
       'azul marino': '#0a192f',
       'azul noche': '#0b132b',
-      'blanco': '#fdfbf7',
+      'marino': '#0a192f',
       'blanco marfil': '#fdfbf7',
+      'blanco': '#fdfbf7',
+      'marfil': '#fdfbf7',
+      'blanco perla': '#f4edea',
+      'perla': '#f4edea',
+      'champagne': '#f7e7ce',
       'gris oxford': '#4a4e5a',
+      'gris': '#5c677d',
+      'antracita': '#2b2d42',
+      'vino tinto': '#58111a',
+      'burdeos': '#4a0e17',
+      'borgoña': '#58111a',
+      'beige camel': '#c19a6b',
       'camel': '#c19a6b',
       'beige': '#d4b996',
+      'arena': '#e3d5ca',
+      'nude': '#e8d8c8',
       'verde botella': '#1b4332',
+      'verde esmeralda': '#2d6a4f',
       'verde bosque': '#2d6a4f',
-      'vino tinto': '#58111a',
-      'dorado': '#d4af37'
+      'verde inglés': '#1f3626',
+      'dorado': '#d4af37',
+      'oro': '#d4af37',
+      'plateado': '#c0c0c0',
+      'plata': '#c0c0c0',
+      'oro rosa': '#b76e79',
+      'café': '#6f4e37',
+      'café coñac': '#6f4e37',
+      'coñac': '#8b5a2b'
     };
     return mapa[(color || '').toLowerCase().trim()] || '#333333';
   }

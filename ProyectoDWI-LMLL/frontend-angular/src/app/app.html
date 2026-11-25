@@ -161,6 +161,30 @@
           </div>
         </div>
 
+        <!-- Filtro por Color -->
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="filter-label mb-0">Filtrar por color</label>
+            @if (colorFiltro) {
+              <small class="text-gold fw-semibold">{{ colorFiltro }}</small>
+            }
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            @for (c of coloresFiltroPaleta; track c) {
+              <button
+                type="button"
+                class="color-filter-btn"
+                [class.active]="colorFiltro === c"
+                [class.light-swatch]="esColorClaro(c)"
+                [style.background-color]="obtenerHexColor(c)"
+                [title]="c"
+                (click)="filtrarPorColor(c)">
+                <span class="visually-hidden">{{ c }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
         <!-- Filtro Disponibilidad -->
         <div class="mb-4">
           <label class="filter-label">Disponibilidad</label>
@@ -194,11 +218,21 @@
     <!-- LISTADO DE PRODUCTOS DIVIDIDO POR BLOQUES DE CATEGORÍAS -->
     <section class="col-lg-9">
       <!-- Barra de Estado de Búsqueda -->
-      <div class="d-flex justify-content-between align-items-center mb-4 text-muted small">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 text-muted small">
         <span>Mostrando <strong>{{ productosFiltrados.length }}</strong> de {{ productos.length }} prendas</span>
-        @if (categoriaSeleccionada || generoSeleccionado !== 'Todos' || textoBusqueda) {
-          <span class="badge bg-dark-subtle text-light border border-secondary">Filtros aplicados</span>
-        }
+        <div class="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            class="btn btn-sm currency-toggle-btn"
+            (click)="alternarMoneda()"
+            [title]="'Tipo de cambio referencial: 1 USD = S/ ' + tasaCambio">
+            <i class="bi bi-currency-exchange me-1"></i>
+            {{ monedaActiva === 'PEN' ? 'S/ PEN' : '$ USD' }}
+          </button>
+          @if (categoriaSeleccionada || generoSeleccionado !== 'Todos' || textoBusqueda || colorFiltro) {
+            <span class="badge bg-dark-subtle text-light border border-secondary">Filtros aplicados</span>
+          }
+        </div>
       </div>
 
       <!-- Spinner de carga -->
@@ -249,6 +283,15 @@
                         }
                       </div>
 
+                      <!-- Indicador visual del color activo sobre la prenda -->
+                      <span class="card-color-pill">
+                        <span
+                          class="card-color-pill__dot"
+                          [style.background-color]="obtenerHexColor(obtenerColorSeleccionado(producto))">
+                        </span>
+                        <span>{{ obtenerColorSeleccionado(producto) }}</span>
+                      </span>
+
                       <!-- Botón de Vista Rápida en Hover -->
                       <button type="button" class="btn-quick-view" (click)="abrirVistaRapida(producto)" title="Vista Rápida y Medidas">
                         <i class="bi bi-eye me-1"></i> Vista Rápida
@@ -276,6 +319,7 @@
                               type="button" 
                               class="color-dot-btn" 
                               [class.active]="obtenerColorSeleccionado(producto) === c"
+                              [class.light-swatch]="esColorClaro(c)"
                               [style.background-color]="obtenerHexColor(c)"
                               [title]="c"
                               (click)="seleccionarColor(producto.id, c)">
@@ -309,7 +353,7 @@
                       <div class="mt-auto pt-2 border-top border-dark d-flex justify-content-between align-items-center">
                         <div>
                           <span class="price-amount text-gold fw-bold fs-5">
-                            S/ {{ obtenerPrecioActual(producto) | number:'1.2-2' }}
+                            {{ monedaActiva === 'USD' ? '$' : 'S/' }} {{ obtenerPrecioEnMoneda(obtenerPrecioActual(producto)) | number:'1.2-2' }}
                           </span>
                           <small class="stock-info d-block text-muted" style="font-size: 0.7rem;">
                             @if (obtenerStockActual(producto) > 0) {

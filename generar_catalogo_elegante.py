@@ -474,12 +474,338 @@ sql_lines.append("")
 prod_id = 1
 detalle_id = 1
 
+IMAGENES_POR_TIPO = {
+    "camisa": [
+        "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1602810316693-3667c854239a?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1603252110481-7ba873bf42ab?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1603252109612-24fa03d145c8?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1758600588319-fa4097ee5208?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1791631064348-0337580f80d1?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1759350075133-d8dab3dcafc3?w=900&auto=format&fit=crop&q=80"
+    ],
+    "blazer_mujer": [
+        "https://images.unsplash.com/photo-1592878904946-b3cd8ae243d0?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1776273920158-510b171e936f?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1779400202021-3c23b8590b66?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1617647858823-2424b6dc472f?w=900&auto=format&fit=crop&q=80"
+    ],
+    "blazer_traje": [
+        "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1623880840102-7df0a9f3545b?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1593030103066-0093718efeb9?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1630173250799-2813d34ed14b?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1667284152861-36e03571486a?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1600091166971-7f9faad6c1e2?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1617113930975-f9c7243ae527?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1603394151492-5e9b974b090b?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1622497170185-5d668f816a56?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1592343516109-362f7bd871aa?w=900&auto=format&fit=crop&q=80"
+    ],
+    "polo": [
+        "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1671438118097-479e63198629?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1770058428104-9dab343b7ccc?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1779907448384-bcd21af9bbbf?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1771919331453-9a52362d8909?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1761956255550-e1d6d12e94be?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1625910513399-c9fcba54338c?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1775816364124-b305f2b06ce7?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1720514496161-914011a9ee02?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1625910513413-c23b8bb81cba?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1720514496268-44bb31c03815?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1714317438040-0e8584215699?w=900&auto=format&fit=crop&q=80"
+    ],
+    "blusa": [
+        "https://images.unsplash.com/photo-1562157873-818bc0726f68?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1554412933-514a83d2f3c8?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1588731234159-8b9963143fca?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1761117228880-df2425bd70da?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1761121317492-57feee4fc674?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1611235116156-0cbda6649efb?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1764337593519-c51a77b4fc3d?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1770294758906-c8762abb2c8b?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1792695805509-3118afb732c8?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=900&auto=format&fit=crop&q=80"
+    ],
+    "pantalon_hombre": [
+        "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1793731743262-155324d3c013?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1565084888279-aca607ecce0c?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1611937669166-be4e0503b115?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1611937679167-a6c1d78d2fb5?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1611937674427-01cd37d36732?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1787009113118-3f3339b6f1b4?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1784817552684-ab405058a2f0?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1611937685025-8d1df67a80b6?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1694447814836-c93ab70f7398?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1764593008673-af6056758b4a?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1560243563-062bfc001d68?w=900&auto=format&fit=crop&q=80"
+    ],
+    "pantalon_mujer": [
+        "https://images.unsplash.com/photo-1584370848010-d7fe6bc767ec?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1582552938357-32b906dfca00?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1517445312882-bc9910d016b7?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1764264829065-eff7a6a4e9b6?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1767390600021-039db4b7aadd?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1766143641984-7050e7f7badb?w=900&auto=format&fit=crop&q=80"
+    ],
+    "tacon": [
+        "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1775202192060-b16d3fe9d260?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1782400243195-7b95fe6130ab?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1581101767113-1677fc2beaa8?w=900&auto=format&fit=crop&q=80"
+    ],
+    "mocasin": [
+        "https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1784822041003-504771076494?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1662541089338-c7d53b88be70?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1784822041091-c827cb005dcd?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1676121270762-47c8d3a7b9d5?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1777987601447-266e128de448?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1576792741377-eb0f4f6d1a47?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1616406432452-07bc5938759d?w=900&auto=format&fit=crop&q=80"
+    ],
+    "zapato_formal": [
+        "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1549290127-7f758fdadff7?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1664505504065-31f8937d2261?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1616696038562-574c18066055?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1582897165039-4d693f44c66e?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1668069226492-508742b03147?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1614253429340-98120bd6d753?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1603191659812-ee978eeeef76?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1625357165350-bdbcb6d7d524?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1449505278894-297fdb3edbc1?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1531310197839-ccf54634509e?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1605733160314-4fc7dac4bb16?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1777987601431-8d27d2039cc4?w=900&auto=format&fit=crop&q=80"
+    ],
+    "maletin": [
+        "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1517612228538-cefdbc2c01e7?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1473445195779-499faea82cb7?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1763034179057-acad3a072568?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1641667241677-1d8671ddefe2?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1600857062241-98e5dba7f214?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1605733513597-a8f8341084e6?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1705909237050-7a7625b47fac?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1624687943971-e86af76d57de?w=900&auto=format&fit=crop&q=80"
+    ],
+    "corbata": [
+        "https://images.unsplash.com/photo-1589756823695-278bc923f962?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1782789086467-06ccb25a8509?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1779630389516-334d96704c83?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1591729652476-e7f587578d9c?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1762232977391-ff39c5b0ad42?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1598850252257-99801557eecb?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1770191954598-e75a0f3c52b2?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1783685048212-ed84d5b2ac93?w=900&auto=format&fit=crop&q=80"
+    ],
+    "cinturon": [
+        "https://images.unsplash.com/photo-1664286074176-5206ee5dc878?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1784832555222-230841ae7b34?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1711443982852-b3df5c563448?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1664286074240-d7059e004dff?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1752386341161-de2b02ea1f50?w=900&auto=format&fit=crop&q=80"
+    ],
+    "billetera": [
+        "https://images.unsplash.com/photo-1620109176813-e91290f6c795?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1601592996763-f05c9c80a7f1?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1624538000860-24716b9050f2?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1764407395696-495d7fb7fc71?w=900&auto=format&fit=crop&q=80"
+    ],
+    "gabardina": [
+        "https://images.unsplash.com/photo-1520975954732-35dd22299614?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1548883354-93339173ebef?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1619603364904-c0498317e145?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1676716105765-e19fe6a01851?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1663343683182-70885ae0a792?w=900&auto=format&fit=crop&q=80"
+    ],
+    "abrigo": [
+        "https://images.unsplash.com/photo-1544441893-675973e31985?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1759852909538-57985f691821?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1619603364937-8d7af41ef206?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1550872199-63f4382fe925?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1558718932-c6dfc209f6fb?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1539533113208-f6df8cc8b543?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1633821879282-0c4e91f96232?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1608635680046-aebf91c1a9c8?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1514813836041-518668f092b1?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1737508945707-ebdccee97cc5?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1595254771206-5bded301347a?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1739301722226-b60b59c3590a?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1680690599369-8878cf3eeb59?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1592327877233-90b9bfd92e48?w=900&auto=format&fit=crop&q=80"
+    ],
+    "sombrero": [
+        "https://images.unsplash.com/photo-1513373090673-c160c23a3d67?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1521369909029-2afed882baee?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1575428652377-a2d80e2277fc?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1494028698538-2cd52a400b17?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1514326005837-fb4791d25e03?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1532461909310-db77e5d5c7b4?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1642171442112-ba377806593b?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1494970611092-14b5370acbf9?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1703084834028-b6117f72e9a4?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1774082277520-dedc4977e26b?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1707908276745-40b9b5a3d489?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1595642527925-4d41cb781653?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1560684033-2a9ff3d2a03e?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1707908244435-c861768d256b?w=900&auto=format&fit=crop&q=80"
+    ],
+    "boina": [
+        "https://images.unsplash.com/photo-1534215754734-18e55d13e346?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1789835304945-829957757998?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1789835428071-bd9cda0a2f78?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1611008308202-220bab345038?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1645622879475-f60d3a331c99?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1642795752867-37df82428008?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1778865575946-4d26642a0323?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1547962041-6d2d7c4bdf6e?w=900&auto=format&fit=crop&q=80"
+    ],
+    "pantis": [
+        "https://images.unsplash.com/photo-1770576568723-c557b096394b?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1705532301641-f0d542cd6c99?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1578641915798-950f58b9499c?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1776533992049-7c3efeb65975?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1768578717065-299c3f9b2543?w=900&auto=format&fit=crop&q=80"
+    ],
+    "calcetin": [
+        "https://images.unsplash.com/photo-1582966772680-860e372bb558?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1615486364462-ef6363adbc18?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1641482845569-70e2b54b18d9?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1641399123134-58309fbdd44c?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1640026199235-c24aa417b552?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1640025867572-f6b3a8410c81?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1631180543602-727e1197619d?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1589895869111-cab6bf8354c8?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1585499583264-491df5142e83?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1773385411245-a3def774aeaa?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1778852532680-19be841dd3fd?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1778953762278-10c8a42ded85?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1613151848917-80e67f421fff?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1641399122809-e3c85958eb67?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1730448111621-c0524e75b0e8?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1603487742293-ccb3eafe20ea?w=900&auto=format&fit=crop&q=80"
+    ],
+    "reloj": [
+        "https://images.unsplash.com/photo-1620625515032-6ed0c1790c75?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1767009951316-c3d2b63179ef?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1772638904164-eed7c6b1e57e?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1766595898967-22c61e0be796?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1622434641406-a158123450f9?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1600003014755-ba31aa59c4b6?w=900&auto=format&fit=crop&q=80"
+    ],
+    "gemelos": [
+        "https://images.unsplash.com/photo-1748840176432-4b2474189d52?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1507141704767-f15ad6e1befd?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1685392024138-36e7aade79f7?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1761110518837-689557b142bf?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1708551362497-c6c6a9b85d8f?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1708551549968-6ed6644fbdc9?w=900&auto=format&fit=crop&q=80"
+    ],
+    "collar": [
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1785744556873-bfa4e74ff7e0?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1595345705177-ffe090eb0784?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1611652032931-10fc009c980a?w=900&auto=format&fit=crop&q=80"
+    ],
+    "aretes": [
+        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1758995115857-2de1eb6283d0?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1697335638916-ecddb1af171f?w=900&auto=format&fit=crop&q=80"
+    ],
+    "pulsera": [
+        "https://images.unsplash.com/photo-1611591475152-477d8c53e707?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1626784215013-13322cb0e471?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1592593044691-f45c8db82a48?w=900&auto=format&fit=crop&q=80"
+    ],
+    "anillo": [
+        "https://images.unsplash.com/photo-1605100804567-1ffe942b5cd6?w=900&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1780250784120-c83d1bbbebe8?w=900&auto=format&fit=crop&q=80"
+    ],
+}
+
+USADAS = set()
+
+def resolver_imagen(cat_id, nombre, genero, idx):
+    n = nombre.lower()
+    if cat_id == 1:
+        pool = IMAGENES_POR_TIPO["camisa"] if "camisa" in n else (IMAGENES_POR_TIPO["blazer_mujer"] if genero == "Mujer" else IMAGENES_POR_TIPO["blazer_traje"])
+    elif cat_id == 2:
+        pool = IMAGENES_POR_TIPO["blusa"] if "blusa" in n else IMAGENES_POR_TIPO["polo"]
+    elif cat_id == 3:
+        pool = IMAGENES_POR_TIPO["pantalon_mujer"] if (genero == "Mujer" or "palazzo" in n or "culotte" in n) else IMAGENES_POR_TIPO["pantalon_hombre"]
+    elif cat_id == 4:
+        if "stiletto" in n or "tacón" in n or "tacon" in n:
+            pool = IMAGENES_POR_TIPO["tacon"]
+        elif "mocasín" in n or "mocasin" in n:
+            pool = IMAGENES_POR_TIPO["mocasin"]
+        else:
+            pool = IMAGENES_POR_TIPO["zapato_formal"]
+    elif cat_id == 5:
+        if "corbata" in n or "corbatín" in n or "corbatin" in n or "pasador" in n or "pañuelo" in n or "panuelo" in n:
+            pool = IMAGENES_POR_TIPO["corbata"]
+        elif "cinturón" in n or "cinturon" in n or "tirantes" in n:
+            pool = IMAGENES_POR_TIPO["cinturon"]
+        elif "billetera" in n or "tarjetero" in n or "portadocumentos" in n:
+            pool = IMAGENES_POR_TIPO["billetera"]
+        else:
+            pool = IMAGENES_POR_TIPO["maletin"]
+    elif cat_id == 6:
+        pool = IMAGENES_POR_TIPO["gabardina"] if "gabardina" in n else IMAGENES_POR_TIPO["abrigo"]
+    elif cat_id == 7:
+        pool = IMAGENES_POR_TIPO["boina"] if "boina" in n else IMAGENES_POR_TIPO["sombrero"]
+    elif cat_id == 8:
+        pool = IMAGENES_POR_TIPO["pantis"] if "pantis" in n else IMAGENES_POR_TIPO["calcetin"]
+    elif cat_id == 9:
+        if "reloj" in n:
+            pool = IMAGENES_POR_TIPO["reloj"]
+        elif "cadena" in n or "collar" in n:
+            pool = IMAGENES_POR_TIPO["collar"]
+        elif "aretes" in n:
+            pool = IMAGENES_POR_TIPO["aretes"]
+        elif "pulsera" in n:
+            pool = IMAGENES_POR_TIPO["pulsera"]
+        elif "anillo" in n:
+            pool = IMAGENES_POR_TIPO["anillo"]
+        else:
+            pool = IMAGENES_POR_TIPO["gemelos"]
+    else:
+        pool = IMAGES_ELEGANTE[cat_id]
+    for url in pool:
+        if url not in USADAS:
+            USADAS.add(url)
+            return url
+    raise ValueError(f"Sin imagen única disponible para {nombre} (cat={cat_id})")
+
 for cat_id in sorted(CAT_PRODUCTS_ELEGANTE.keys()):
     prods = CAT_PRODUCTS_ELEGANTE[cat_id]
     images = IMAGES_ELEGANTE[cat_id]
     tallas = TALLAS_ELEGANTE[cat_id]
     
-    # Asignar paleta de colores ampliada según categoría
     if cat_id == 4:
         palette = COLORES_CALZADO
     elif cat_id == 9:
@@ -490,9 +816,9 @@ for cat_id in sorted(CAT_PRODUCTS_ELEGANTE.keys()):
         palette = COLORES_SOMBREROS
     else:
         palette = COLORES_ROPA
-    
+
     for i, (nombre, genero, precio) in enumerate(prods):
-        img = images[i % len(images)]
+        img = resolver_imagen(cat_id, nombre, genero, i)
         sql_lines.append(f"INSERT INTO productos (id, categoria_id, nombre, genero, imagen_url, precio_base, disponibilidad) VALUES ({prod_id}, {cat_id}, '{nombre}', '{genero}', '{img}', {precio:.2f}, true);")
         
         # Generar variantes con todos los colores de la paleta

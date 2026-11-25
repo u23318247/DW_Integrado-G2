@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { ProductoService } from './services/producto.service';
 import { CartService } from './services/cart.service';
 import { AuthService } from './services/auth.service';
@@ -62,6 +63,7 @@ export const CATEGORIA_META: Record<string, CategoriaMeta> = {
 })
 export class App implements OnInit {
   private productoService = inject(ProductoService);
+  private http = inject(HttpClient);
   public cartService = inject(CartService);
   public wishlistService = inject(WishlistService);
   public mostrarSoloFavoritos: boolean = false;
@@ -76,8 +78,26 @@ export class App implements OnInit {
   textoBusqueda: string = '';
   categoriaSeleccionada?: number;
   generoSeleccionado: string = 'Todos';
+  colorFiltro: string = '';
   ordenSeleccionado: string = 'relevancia';
   soloConStock: boolean = false;
+
+  monedaActiva: 'PEN' | 'USD' = 'PEN';
+  tasaCambio: number = 3.75;
+
+  coloresFiltroPaleta: string[] = [
+    'Negro Azabache',
+    'Azul Marino',
+    'Blanco Marfil',
+    'Gris Oxford',
+    'Vino Tinto',
+    'Beige Camel',
+    'Verde Esmeralda',
+    'Café Coñac',
+    'Dorado',
+    'Plateado',
+    'Oro Rosa'
+  ];
 
   // Mapa de talla y color seleccionados por producto
   tallasSeleccionadas: Record<number, string> = {};
@@ -90,6 +110,31 @@ export class App implements OnInit {
 
   ngOnInit(): void {
     this.cargarTodo();
+    this.cargarTipoCambio();
+  }
+
+  cargarTipoCambio(): void {
+    this.http.get<{ tasa: number }>('/api/tipo-cambio').subscribe({
+      next: (res) => {
+        if (res && res.tasa) {
+          this.tasaCambio = Number(res.tasa);
+          this.cdr.markForCheck();
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  alternarMoneda(): void {
+    this.monedaActiva = this.monedaActiva === 'PEN' ? 'USD' : 'PEN';
+    this.cdr.markForCheck();
+  }
+
+  obtenerPrecioEnMoneda(montoPen: number): number {
+    if (this.monedaActiva === 'USD') {
+      return Number((montoPen / (this.tasaCambio || 3.75)).toFixed(2));
+    }
+    return montoPen;
   }
 
   cargarTodo(): void {
@@ -145,6 +190,14 @@ export class App implements OnInit {
     // Filtro por género
     if (this.generoSeleccionado !== 'Todos') {
       resultado = resultado.filter(p => p.genero?.toLowerCase() === this.generoSeleccionado.toLowerCase());
+    }
+
+    // Filtro por color
+    if (this.colorFiltro) {
+      const cf = this.colorFiltro.toLowerCase().trim();
+      resultado = resultado.filter(p =>
+        this.obtenerColoresProducto(p).some(c => c.toLowerCase().trim() === cf)
+      );
     }
 
     // Filtro solo con stock
@@ -246,9 +299,27 @@ export class App implements OnInit {
     this.generoSeleccionado = genero;
   }
 
+  filtrarPorColor(color: string): void {
+    this.colorFiltro = this.colorFiltro === color ? '' : color;
+    if (this.colorFiltro) {
+      for (const p of this.productos) {
+        if (p.id && this.obtenerColoresProducto(p).includes(this.colorFiltro)) {
+          this.coloresSeleccionados[p.id] = this.colorFiltro;
+        }
+      }
+    }
+    this.cdr.markForCheck();
+  }
+
+  esColorClaro(color: string): boolean {
+    const key = (color || '').toLowerCase().trim();
+    return ['blanco', 'blanco marfil', 'blanco perla', 'marfil', 'perla', 'champagne', 'arena', 'nude', 'beige'].includes(key);
+  }
+
   limpiarFiltros(): void {
     this.categoriaSeleccionada = undefined;
     this.generoSeleccionado = 'Todos';
+    this.colorFiltro = '';
     this.textoBusqueda = '';
     this.ordenSeleccionado = 'relevancia';
     this.soloConStock = false;
