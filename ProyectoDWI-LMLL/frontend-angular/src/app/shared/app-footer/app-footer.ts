@@ -1,12 +1,13 @@
 import { Component, inject, PLATFORM_ID, afterNextRender, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './app-footer.html',
   styleUrl: './app-footer.scss'
 })
