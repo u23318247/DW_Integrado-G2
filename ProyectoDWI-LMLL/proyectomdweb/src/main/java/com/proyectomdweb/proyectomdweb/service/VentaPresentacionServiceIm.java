@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +19,7 @@ public class VentaPresentacionServiceIm implements VentaPresentacionService {
 
     private final PedidoRepository pedidoRepository;
     private final VentaRepository  ventaRepository;
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Override
     @Transactional
@@ -29,7 +30,7 @@ public class VentaPresentacionServiceIm implements VentaPresentacionService {
         pedidoNuevo.setEstado(EstadoPedido.PENDIENTE); 
         
         // Generar PIN de entrega seguro de 4 dígitos (ej. 7482)
-        int pinAleatorio = 1000 + new Random().nextInt(9000);
+        int pinAleatorio = 1000 + SECURE_RANDOM.nextInt(9000);
         pedidoNuevo.setCodigoEntrega(String.valueOf(pinAleatorio));
         pedidoNuevo.setDireccionEnvio(usuario.getDireccion() != null && !usuario.getDireccion().isBlank() ? usuario.getDireccion() : "Dirección indicada por el cliente");
         pedidoNuevo.setTelefonoContacto(usuario.getTelefono() != null && !usuario.getTelefono().isBlank() ? usuario.getTelefono() : "Sin teléfono");
@@ -40,14 +41,14 @@ public class VentaPresentacionServiceIm implements VentaPresentacionService {
         BigDecimal subtotal   = total.divide(divisorIgv, 2, RoundingMode.HALF_UP);
         BigDecimal igv        = total.subtract(subtotal);
 
-        Random random           = new Random();
-        int    correlativo      = random.nextInt(999999);
-        String prefijo          = tipoComprobanteStr.equalsIgnoreCase("FACTURA") ? "F001-" : "B001-";
+        TipoComprobante tipoComprobante = TipoComprobante.valueOf(tipoComprobanteStr.toUpperCase());
+        long   correlativo      = ventaRepository.countByTipoComprobante(tipoComprobante) + 1;
+        String prefijo          = tipoComprobante == TipoComprobante.FACTURA ? "F001-" : "B001-";
         String serieCorrelativo = String.format("%s%06d", prefijo, correlativo);
 
         Venta venta = new Venta();
         venta.setPedido(pedidoNuevo);
-        venta.setTipoComprobante(TipoComprobante.valueOf(tipoComprobanteStr.toUpperCase()));
+        venta.setTipoComprobante(tipoComprobante);
         venta.setSerieCorrelativo(serieCorrelativo);
         venta.setMetodoPago(MetodoPago.TARJETA_CREDITO); 
         venta.setFechaEmision(LocalDateTime.now());

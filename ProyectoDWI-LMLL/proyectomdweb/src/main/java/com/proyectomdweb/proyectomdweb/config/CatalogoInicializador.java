@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,8 @@ import java.util.Set;
  */
 @Slf4j
 @Component
+@Order(2)
+@DependsOn("usuarioInicializador")
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "catalogo.inicializar", havingValue = "true", matchIfMissing = true)
 public class CatalogoInicializador implements CommandLineRunner {

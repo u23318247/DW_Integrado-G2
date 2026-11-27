@@ -63,6 +63,24 @@ public class ProductoMapper {
         producto.setPrecioBase(dto.precioBase());
         producto.setDisponibilidad(dto.disponibilidad());
         producto.setCategoria(categoria);
+
+        if (dto.variantes() != null && !dto.variantes().isEmpty()) {
+            for (ProductoDetalleDTO vDto : dto.variantes()) {
+                ProductoDetalle detalle = ProductoDetalle.builder()
+                        .nombreCompleto(vDto.nombreCompleto() != null ? vDto.nombreCompleto() : dto.nombre())
+                        .codigo(vDto.sku())
+                        .imagenUrl(vDto.imagenUrl() != null ? vDto.imagenUrl() : dto.imagenUrl())
+                        .marca(vDto.marca() != null ? vDto.marca() : "LMLL")
+                        .talla(vDto.talla() != null ? vDto.talla() : "M")
+                        .color(vDto.color() != null ? vDto.color() : "Negro")
+                        .descripcion(vDto.descripcion() != null ? vDto.descripcion() : dto.nombre())
+                        .stock(vDto.stock() != null ? vDto.stock() : 0)
+                        .precioBase(vDto.precioBase() != null ? vDto.precioBase() : dto.precioBase())
+                        .precioAdicional(vDto.precioAdicional() != null ? vDto.precioAdicional() : java.math.BigDecimal.ZERO)
+                        .build();
+                producto.agregarVariante(detalle);
+            }
+        }
         return producto;
     }
 }

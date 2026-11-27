@@ -1,6 +1,7 @@
 package com.proyectomdweb.proyectomdweb.repository;
 
 import com.proyectomdweb.proyectomdweb.model.EstadoPedido;
+import com.proyectomdweb.proyectomdweb.model.TipoComprobante;
 import com.proyectomdweb.proyectomdweb.model.Venta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +20,6 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
     List<Venta> findByPedidoEstadoAndFechaEmisionBetween(EstadoPedido estado, LocalDateTime inicio, LocalDateTime fin);
 
     java.util.Optional<Venta> findByPedidoId(Long pedidoId);
+
+    long countByTipoComprobante(TipoComprobante tipoComprobante);
 }

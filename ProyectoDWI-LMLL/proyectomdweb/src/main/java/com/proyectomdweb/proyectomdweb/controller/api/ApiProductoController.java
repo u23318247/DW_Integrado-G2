@@ -2,10 +2,14 @@ package com.proyectomdweb.proyectomdweb.controller.api;
 
 import com.proyectomdweb.proyectomdweb.dtos.ProductoDTO;
 import com.proyectomdweb.proyectomdweb.dtos.ProductoRequest;
+import com.proyectomdweb.proyectomdweb.dtos.ProductoResumenProjection;
 import com.proyectomdweb.proyectomdweb.exception.RecursoNoEncontradoException;
 import com.proyectomdweb.proyectomdweb.service.ProductoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -33,6 +37,14 @@ public class ApiProductoController {
             return ResponseEntity.ok(productoService.buscarPorCategoriaId(categoriaId));
         }
         return ResponseEntity.ok(productoService.listarTodos());
+    }
+
+    @GetMapping("/paginado")
+    public ResponseEntity<Page<ProductoResumenProjection>> listarPaginado(
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) String texto,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return ResponseEntity.ok(productoService.listarPaginado(categoriaId, texto, pageable));
     }
 
     @GetMapping("/{id}")

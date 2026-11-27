@@ -1,7 +1,11 @@
 package com.proyectomdweb.proyectomdweb.exception;
 
+import jakarta.validation.ConstraintViolationException;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(annotations = RestController.class)
 public class RestExceptionHandler {
 
@@ -47,5 +52,35 @@ public class RestExceptionHandler {
         body.put("error", "Solicitud inválida");
         body.put("mensaje", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> manejarConstraintViolation(ConstraintViolationException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Validación de parámetros fallida");
+        body.put("mensaje", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<Map<String, Object>> manejarOptimisticLock(ObjectOptimisticLockingFailureException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.CONFLICT.value());
+        body.put("error", "Conflicto de concurrencia");
+        body.put("mensaje", "El stock o recurso fue modificado simultáneamente por otra operación. Reintente.");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> manejarErrorRestGenerico(Exception ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        body.put("error", "Error interno en API REST");
+        body.put("mensaje", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 }

@@ -2,6 +2,7 @@ package com.proyectomdweb.proyectomdweb.controller;
 
 import com.proyectomdweb.proyectomdweb.model.Reclamacion;
 import com.proyectomdweb.proyectomdweb.service.ReclamacionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,7 +30,7 @@ public class ReclamacionController {
 
     @PostMapping("/api/reclamaciones")
     @ResponseBody
-    public ResponseEntity<?> registrarReclamacion(@RequestBody Reclamacion reclamacion) {
+    public ResponseEntity<?> registrarReclamacion(@Valid @RequestBody Reclamacion reclamacion) {
         if (reclamacion.getNombresApellidos() == null || reclamacion.getEmail() == null || reclamacion.getDetalleReclamo() == null) {
             return ResponseEntity.badRequest().body(Map.of(
                 "exito", false,

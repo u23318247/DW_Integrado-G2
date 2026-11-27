@@ -1,12 +1,17 @@
 package com.proyectomdweb.proyectomdweb.service;
 
 import com.proyectomdweb.proyectomdweb.dtos.ProductoDTO;
+import com.proyectomdweb.proyectomdweb.dtos.ProductoDetalleDTO;
+import com.proyectomdweb.proyectomdweb.dtos.ProductoResumenProjection;
 import com.proyectomdweb.proyectomdweb.mapper.ProductoMapper;
 import com.proyectomdweb.proyectomdweb.model.Categoria;
 import com.proyectomdweb.proyectomdweb.model.Producto;
 import com.proyectomdweb.proyectomdweb.repository.CategoriaRepository;
 import com.proyectomdweb.proyectomdweb.repository.ProductoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +38,13 @@ public class ProductoServiceIm implements ProductoService {
                 .stream()
                 .map(productoMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoResumenProjection> listarPaginado(Long categoriaId, String texto, Pageable pageable) {
+        String filtroTexto = (texto != null && !texto.isBlank()) ? texto.trim() : "";
+        return productoRepository.findResumenPaginado(categoriaId, filtroTexto, pageable);
     }
     
     @Override
@@ -79,7 +91,25 @@ public class ProductoServiceIm implements ProductoService {
             existente.setImagenUrl(productoDto.imagenUrl());
             existente.setPrecioBase(productoDto.precioBase());
             existente.setDisponibilidad(productoDto.disponibilidad());
-            existente.setCategoria(categoria); 
+            existente.setCategoria(categoria);
+
+            if (productoDto.variantes() != null && !productoDto.variantes().isEmpty()) {
+                for (ProductoDetalleDTO vDto : productoDto.variantes()) {
+                    ProductoDetalle detalle = ProductoDetalle.builder()
+                            .nombreCompleto(vDto.nombreCompleto() != null ? vDto.nombreCompleto() : productoDto.nombre())
+                            .codigo(vDto.sku())
+                            .imagenUrl(vDto.imagenUrl() != null ? vDto.imagenUrl() : productoDto.imagenUrl())
+                            .marca(vDto.marca() != null ? vDto.marca() : "LMLL")
+                            .talla(vDto.talla() != null ? vDto.talla() : "M")
+                            .color(vDto.color() != null ? vDto.color() : "Negro")
+                            .descripcion(vDto.descripcion() != null ? vDto.descripcion() : productoDto.nombre())
+                            .stock(vDto.stock() != null ? vDto.stock() : 0)
+                            .precioBase(vDto.precioBase() != null ? vDto.precioBase() : productoDto.precioBase())
+                            .precioAdicional(vDto.precioAdicional() != null ? vDto.precioAdicional() : java.math.BigDecimal.ZERO)
+                            .build();
+                    existente.agregarVariante(detalle);
+                }
+            }
 
             productoGuardado = productoRepository.save(existente);
         }
@@ -129,11 +159,28 @@ public class ProductoServiceIm implements ProductoService {
     @Override
     @Transactional
     public void reabastecerStock(Long detalleId, Integer cantidad, String proveedor) {
-        ProductoDetalle detalle = productoDetalleRepository.findById(detalleId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Detalle de producto no encontrado con ID: " + detalleId));
-        int stockActual = (detalle.getStock() != null) ? detalle.getStock() : 0;
-        detalle.setStock(stockActual + cantidad);
-        productoDetalleRepository.save(detalle);
+        int intentos = 0;
+        while (true) {
+            try {
+                ProductoDetalle detalle = productoDetalleRepository.findById(detalleId)
+                        .orElseThrow(() -> new RecursoNoEncontradoException("Detalle de producto no encontrado con ID: " + detalleId));
+                int stockActual = (detalle.getStock() != null) ? detalle.getStock() : 0;
+                detalle.setStock(stockActual + cantidad);
+                productoDetalleRepository.save(detalle);
+                return;
+            } catch (ObjectOptimisticLockingFailureException ex) {
+                intentos++;
+                if (intentos >= 3) {
+                    throw ex;
+                }
+                try {
+                    Thread.sleep(100L * intentos);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw ex;
+                }
+            }
+        }
     }
 
     @Override

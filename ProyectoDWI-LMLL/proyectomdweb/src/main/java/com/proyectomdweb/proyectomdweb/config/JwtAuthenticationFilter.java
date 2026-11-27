@@ -75,11 +75,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getServletPath(); 
-        
-        // El filtro NO se ejecuta para recursos estáticos puros
-        return path.startsWith("/css/") || 
-            path.startsWith("/js/") || 
-            path.startsWith("/img/") ;
+        String path = request.getServletPath();
+        String method = request.getMethod();
+
+        if (path.startsWith("/css/") || path.startsWith("/js/") || path.startsWith("/img/") || path.startsWith("/angular/")) {
+            return true;
+        }
+        if (path.startsWith("/api/auth/")
+                || path.startsWith("/api/consulta/")
+                || path.startsWith("/api/tipo-cambio")
+                || path.startsWith("/api/envio/")
+                || path.startsWith("/api/recomendaciones/")
+                || path.startsWith("/api/tallas/")) {
+            return true;
+        }
+        return "GET".equalsIgnoreCase(method) && (
+                path.startsWith("/api/productos")
+                || path.startsWith("/api/categorias")
+                || path.startsWith("/api/resenas/producto/")
+                || path.startsWith("/api/cupones/validar"));
     }
 }

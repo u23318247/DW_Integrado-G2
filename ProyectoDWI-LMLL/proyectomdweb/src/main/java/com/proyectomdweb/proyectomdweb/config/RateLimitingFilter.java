@@ -13,39 +13,40 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Filtro de Seguridad para Rate Limiting (Protección Anti-Bot y Anti-Fuerza Bruta)
+ * Filtro de Seguridad para Rate Limiting (Token Bucket por IP)
  * Limita peticiones excesivas a endpoints críticos (/api/reniec, /api/auth, /api/pagos)
- * Alumna: Antonela Jaimes
  */
 @Component
 @Order(1)
 @Slf4j
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    private static final int MAX_REQUESTS_PER_MINUTE = 25;
+    private static final int MAX_TOKENS = 25;
+    private static final long REFILL_MILLIS = 60_000L;
 
-    private static class RequestCount {
-        private final AtomicInteger count = new AtomicInteger(0);
-        private volatile Instant windowStart = Instant.now();
+    private static class TokenBucket {
+        private double tokens = MAX_TOKENS;
+        private long lastRefillMs = Instant.now().toEpochMilli();
 
-        public boolean tryAcquire() {
-            Instant now = Instant.now();
-            if (now.isAfter(windowStart.plusSeconds(60))) {
-                synchronized (this) {
-                    if (now.isAfter(windowStart.plusSeconds(60))) {
-                        count.set(0);
-                        windowStart = now;
-                    }
-                }
+        synchronized boolean tryConsume() {
+            long now = Instant.now().toEpochMilli();
+            long elapsed = now - lastRefillMs;
+            if (elapsed > 0) {
+                double refill = (elapsed / (double) REFILL_MILLIS) * MAX_TOKENS;
+                tokens = Math.min(MAX_TOKENS, tokens + refill);
+                lastRefillMs = now;
             }
-            return count.incrementAndGet() <= MAX_REQUESTS_PER_MINUTE;
+            if (tokens >= 1.0) {
+                tokens -= 1.0;
+                return true;
+            }
+            return false;
         }
     }
 
-    private final Map<String, RequestCount> clientRequests = new ConcurrentHashMap<>();
+    private final Map<String, TokenBucket> buckets = new ConcurrentHashMap<>();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -53,14 +54,13 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // Aplicar solo a endpoints sensibles
         if (path.startsWith("/api/reniec") || path.startsWith("/api/auth") || path.startsWith("/api/pagos")) {
             String clientIp = getClientIP(request);
-            RequestCount counter = clientRequests.computeIfAbsent(clientIp, k -> new RequestCount());
+            TokenBucket bucket = buckets.computeIfAbsent(clientIp, k -> new TokenBucket());
 
-            if (!counter.tryAcquire()) {
+            if (!bucket.tryConsume()) {
                 log.warn("[RATE-LIMIT] IP {} excedió el límite de peticiones en {}", clientIp, path);
-                response.setStatus(429); // 429 Too Many Requests
+                response.setStatus(429);
                 response.setContentType("application/json;charset=UTF-8");
                 response.getWriter().write("""
                     {

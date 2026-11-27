@@ -1,7 +1,10 @@
 package com.proyectomdweb.proyectomdweb.service;
 
 import com.proyectomdweb.proyectomdweb.dtos.ProductoDTO;
+import com.proyectomdweb.proyectomdweb.dtos.ProductoResumenProjection;
 import com.proyectomdweb.proyectomdweb.model.Producto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +13,7 @@ public interface ProductoService {
     
     // Metodos de lectura que devuelven DTOs (Listos para la vista)
     List<ProductoDTO> listarTodos();
+    Page<ProductoResumenProjection> listarPaginado(Long categoriaId, String texto, Pageable pageable);
     Optional<ProductoDTO> buscarPorId(Long id);
     List<ProductoDTO> buscarPorCategoriaId(Long categoriaId);
     List<ProductoDTO> buscarPorNombre(String nombre);
