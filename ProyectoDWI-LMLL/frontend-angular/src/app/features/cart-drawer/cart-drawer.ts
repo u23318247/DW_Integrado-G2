@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 
 @Component({
@@ -11,6 +12,7 @@ import { CartService } from '../../services/cart.service';
 })
 export class CartDrawer {
   public cartService = inject(CartService);
+  private router = inject(Router);
 
   cerrar(): void {
     this.cartService.cerrarCarrito();
@@ -36,6 +38,6 @@ export class CartDrawer {
 
   irAPagar(): void {
     this.cartService.cerrarCarrito();
-    window.location.href = '/pago';
+    this.router.navigate(['/pago']);
   }
 }

@@ -1,4 +1,5 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, signal, inject, PLATFORM_ID, afterNextRender } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CartItem } from '../models/cart.model';
 import { Producto, ProductoDetalle } from '../models/producto.model';
 
@@ -7,9 +8,10 @@ import { Producto, ProductoDetalle } from '../models/producto.model';
 })
 export class CartService {
   private readonly STORAGE_KEY = 'carritoLlama';
+  private platformId = inject(PLATFORM_ID);
 
   // Estado reactivo con Signals de Angular
-  items = signal<CartItem[]>(this.cargarItemsDeStorage());
+  items = signal<CartItem[]>([]);
   isCartOpen = signal<boolean>(false);
   mensajeToast = signal<string | null>(null);
 
@@ -33,7 +35,17 @@ export class CartService {
   );
 
   constructor() {
-    this.sincronizarConThymeleaf();
+    // Cargar del localStorage solo en browser
+    if (isPlatformBrowser(this.platformId)) {
+      this.items.set(this.cargarItemsDeStorage());
+    }
+
+    // Sincronizar con Thymeleaf después de que el DOM esté listo (solo browser)
+    if (isPlatformBrowser(this.platformId)) {
+      afterNextRender(() => {
+        this.sincronizarConThymeleaf();
+      });
+    }
   }
 
   agregarProducto(producto: Producto, tallaSeleccionada?: string, colorSeleccionado?: string): void {
@@ -154,15 +166,19 @@ export class CartService {
 
   private actualizarEstado(nuevaLista: CartItem[]): void {
     this.items.set(nuevaLista);
-    try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(nuevaLista));
-    } catch (e) {
-      console.warn('No se pudo guardar en localStorage:', e);
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(nuevaLista));
+      } catch (e) {
+        console.warn('No se pudo guardar en localStorage:', e);
+      }
+      this.sincronizarConThymeleaf();
     }
-    this.sincronizarConThymeleaf();
   }
 
   private cargarItemsDeStorage(): CartItem[] {
+    if (!isPlatformBrowser(this.platformId)) return [];
+    
     try {
       const data = localStorage.getItem(this.STORAGE_KEY);
       if (data) {
@@ -178,7 +194,7 @@ export class CartService {
   }
 
   private sincronizarConThymeleaf(): void {
-    if (typeof window === 'undefined') return;
+    if (!isPlatformBrowser(this.platformId)) return;
 
     try {
       const lista = this.items();
@@ -199,7 +215,7 @@ export class CartService {
   }
 
   private sincronizarPanelThymeleaf(abrir: boolean): void {
-    if (typeof document === 'undefined') return;
+    if (!isPlatformBrowser(this.platformId)) return;
     const panel = document.getElementById('carrito-panel');
     if (panel) {
       panel.style.right = abrir ? '0' : '-320px';
