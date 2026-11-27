@@ -1,50 +1,71 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { Producto } from '../models/producto.model';
+import { Injectable, inject, signal, computed, Signal } from '@angular/core';
+import { ConfigService } from './config.service';
+import { Producto } from '../models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class WishlistService {
-  private STORAGE_KEY = 'lmll_wishlist_items';
-  
-  public items = signal<Producto[]>(this.cargarItems());
-  public totalFavoritos = computed(() => this.items().length);
+  private readonly config = inject(ConfigService);
 
-  private cargarItems(): Producto[] {
+  private readonly _ids = signal<number[]>(this.leerIds());
+  private _catalogoProductos: Signal<Producto[]> = signal<Producto[]>([]);
+
+  readonly ids = this._ids.asReadonly();
+  readonly total = computed(() => this._ids().length);
+  readonly totalFavoritos = this.total;
+
+  readonly productos = computed<Producto[]>(() => {
+    const idsSet = new Set(this._ids());
+    return this._catalogoProductos().filter(
+      (p) => p.id !== undefined && idsSet.has(p.id)
+    );
+  });
+
+  conectarCatalogo(productosSignal: Signal<Producto[]>): void {
+    this._catalogoProductos = productosSignal;
+  }
+
+  toggle(productoId: number): void {
+    const actual = this._ids();
+    const siguiente = actual.includes(productoId)
+      ? actual.filter((id) => id !== productoId)
+      : [...actual, productoId];
+
+    this._ids.set(siguiente);
+    this.guardarIds(siguiente);
+  }
+
+  tiene(productoId: number): boolean {
+    return this._ids().includes(productoId);
+  }
+
+  esFavorito(productoId: number | undefined): boolean {
+    if (productoId === undefined) return false;
+    return this.tiene(productoId);
+  }
+
+  limpiar(): void {
+    this._ids.set([]);
+    this.guardarIds([]);
+  }
+
+  private leerIds(): number[] {
     try {
-      const data = localStorage.getItem(this.STORAGE_KEY);
-      return data ? JSON.parse(data) : [];
+      const raw = localStorage.getItem(this.config.storageKeys.wishlist);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed)
+        ? parsed.filter((x): x is number => typeof x === 'number')
+        : [];
     } catch {
       return [];
     }
   }
 
-  private guardarItems(): void {
+  private guardarIds(ids: number[]): void {
     try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.items()));
-    } catch (e) {
-      console.error('Error guardando wishlist:', e);
+      localStorage.setItem(this.config.storageKeys.wishlist, JSON.stringify(ids));
+    } catch {
+      // Sin acción si localStorage no está disponible
     }
-  }
-
-  public esFavorito(productoId?: number): boolean {
-    if (!productoId) return false;
-    return this.items().some(p => p.id === productoId);
-  }
-
-  public toggleFavorito(producto: Producto): boolean {
-    if (!producto.id) return false;
-    const actuales = this.items();
-    const indice = actuales.findIndex(p => p.id === producto.id);
-    let agregado = false;
-
-    if (indice >= 0) {
-      this.items.set(actuales.filter(p => p.id !== producto.id));
-    } else {
-      this.items.set([...actuales, producto]);
-      agregado = true;
-    }
-    this.guardarItems();
-    return agregado;
   }
 }
