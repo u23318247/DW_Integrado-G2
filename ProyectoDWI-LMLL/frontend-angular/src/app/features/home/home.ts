@@ -8,15 +8,14 @@ import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { WishlistService } from '../../services/wishlist.service';
 import { CurrencyService } from '../../services/currency.service';
+import { CatalogFilterService, Genero } from '../../services/catalog-filter.service';
 import { Producto, ProductoDetalle } from '../../models/producto.model';
 import { Categoria } from '../../models/categoria.model';
 
-import { AppHeader } from '../../shared/app-header/app-header';
 import { HeroBanner } from '../../features/hero-banner/hero-banner';
 import { SummaryPanel } from '../../features/summary-panel/summary-panel';
 import { CartDrawer } from '../../features/cart-drawer/cart-drawer';
 import { ProductModal } from '../../features/product-modal/product-modal';
-import { AppFooter } from '../../shared/app-footer/app-footer';
 
 export interface GrupoCategoria {
   id?: number;
@@ -53,12 +52,10 @@ export const CATEGORIA_META: Record<string, CategoriaMeta> = {
   imports: [
     CommonModule,
     FormsModule,
-    AppHeader,
     HeroBanner,
     SummaryPanel,
     CartDrawer,
-    ProductModal,
-    AppFooter
+    ProductModal
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss'
@@ -70,6 +67,7 @@ export class HomeComponent implements OnInit {
   public wishlistService = inject(WishlistService);
   public authService = inject(AuthService);
   public currencyService = inject(CurrencyService);
+  public catalogFilter = inject(CatalogFilterService);
   private platformId = inject(PLATFORM_ID);
 
   // Signals reactivos
@@ -80,11 +78,9 @@ export class HomeComponent implements OnInit {
 
   textoBusqueda = signal('');
   categoriaSeleccionada = signal<number | undefined>(undefined);
-  generoSeleccionado = signal<string>('Todos');
   colorFiltro = signal<string>('');
   ordenSeleccionado = signal<string>('relevancia');
   soloConStock = signal(false);
-  mostrarSoloFavoritos = signal(false);
 
   monedaActiva = signal<'PEN' | 'USD'>('PEN');
 
@@ -114,6 +110,10 @@ export class HomeComponent implements OnInit {
   // Computados derivados
   tasaCambio = computed(() => this.currencyService.tasaCambio());
 
+  // Exponer signals del servicio para el template
+  generoSeleccionado = this.catalogFilter.genero;
+  mostrarSoloFavoritos = this.catalogFilter.soloFavoritos;
+
   productosFiltrados = computed(() => {
     let resultado = [...this.productos()];
 
@@ -121,9 +121,10 @@ export class HomeComponent implements OnInit {
       resultado = resultado.filter(p => this.wishlistService.esFavorito(p.id));
     }
 
-    // Filtro por género
-    if (this.generoSeleccionado() !== 'Todos') {
-      resultado = resultado.filter(p => p.genero?.toLowerCase() === this.generoSeleccionado().toLowerCase());
+    // Filtro por género (desde servicio compartido)
+    const genero = this.generoSeleccionado();
+    if (genero !== 'Todos') {
+      resultado = resultado.filter(p => p.genero?.toLowerCase() === genero.toLowerCase());
     }
 
     // Filtro por color
@@ -204,7 +205,6 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarTodo();
-    // CurrencyService usa httpResource, se carga automáticamente
   }
 
   cargarTodo(): void {
@@ -270,8 +270,9 @@ export class HomeComponent implements OnInit {
     this.cargarProductos();
   }
 
+  // Usar el servicio compartido para género
   filtrarGenero(genero: string): void {
-    this.generoSeleccionado.set(genero);
+    this.catalogFilter.setGenero(genero as Genero);
   }
 
   filtrarPorColor(color: string): void {
@@ -292,11 +293,11 @@ export class HomeComponent implements OnInit {
 
   limpiarFiltros(): void {
     this.categoriaSeleccionada.set(undefined);
-    this.generoSeleccionado.set('Todos');
     this.colorFiltro.set('');
     this.textoBusqueda.set('');
     this.ordenSeleccionado.set('relevancia');
     this.soloConStock.set(false);
+    this.catalogFilter.clearAll(); // Limpia género y favoritos también
     this.cargarProductos();
   }
 
@@ -434,8 +435,9 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  // Usar el servicio compartido para favoritos
   toggleFiltroFavoritos(): void {
-    this.mostrarSoloFavoritos.update(v => !v);
+    this.catalogFilter.toggleFavoritos();
   }
 
   toggleFavoritoItem(p: Producto, event: Event): void {

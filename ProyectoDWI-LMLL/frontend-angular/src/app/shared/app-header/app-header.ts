@@ -1,10 +1,12 @@
-import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
 import { ProductoService } from '../../services/producto.service';
+import { CatalogFilterService } from '../../services/catalog-filter.service';
 import { Producto } from '../../models/producto.model';
 
 @Component({
@@ -19,11 +21,8 @@ export class AppHeader {
   public cartService = inject(CartService);
   public wishlistService = inject(WishlistService);
   public productoService = inject(ProductoService);
-
-  @Output() generoSeleccionado = new EventEmitter<string>();
-  @Output() abrirBolsa = new EventEmitter<void>();
-  @Output() productoSeleccionado = new EventEmitter<Producto>();
-  @Output() toggleFavoritosFiltro = new EventEmitter<void>();
+  public catalogFilter = inject(CatalogFilterService);
+  private router = inject(Router);
 
   // Estado del Buscador Predictivo
   public busquedaTexto = '';
@@ -41,16 +40,15 @@ export class AppHeader {
   public mensajeVisualIa = '';
 
   onSelectGenero(genero: string): void {
-    this.generoSeleccionado.emit(genero);
+    this.catalogFilter.setGenero(genero as 'Todos' | 'Hombre' | 'Mujer' | 'Unisex');
   }
 
   onToggleBolsa(): void {
     this.cartService.toggleCarrito();
-    this.abrirBolsa.emit();
   }
 
   onToggleFavoritos(): void {
-    this.toggleFavoritosFiltro.emit();
+    this.catalogFilter.toggleFavoritos();
   }
 
   onInputBusqueda(event: Event): void {
@@ -86,7 +84,8 @@ export class AppHeader {
   seleccionarResultado(p: Producto): void {
     this.mostrarDropdown = false;
     this.busquedaTexto = '';
-    this.productoSeleccionado.emit(p);
+    // Navegar al detalle del producto
+    this.router.navigate(['/producto', p.id]);
   }
 
   cerrarDropdown(): void {
@@ -155,5 +154,13 @@ export class AppHeader {
   cerrarSesionGoogle(): void {
     this.usuarioGoogle = null;
     this.cartService.mensajeToast.set('Has cerrado sesión de Google');
+  }
+
+  navegarRastrear(): void {
+    this.router.navigate(['/seguimiento']);
+  }
+
+  navegarReclamaciones(): void {
+    this.router.navigate(['/reclamaciones']);
   }
 }
