@@ -26,8 +26,3 @@ export interface Producto {
   colores?: string[];
   variantes?: ProductoDetalle[];
 }
-
-export interface Categoria {
-  id: number;
-  nombre: string;
-}
