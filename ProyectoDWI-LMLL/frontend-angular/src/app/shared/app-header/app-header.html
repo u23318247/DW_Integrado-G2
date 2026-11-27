@@ -63,8 +63,8 @@
       }
     </div>
 
-    <!-- Menú de Categorías (Visible en desktop) -->
-    <nav class="d-none d-xl-flex align-items-center gap-3 main-nav">
+    <!-- Menú de Categorías (Visible en desktop ≥992px) -->
+    <nav class="d-none d-lg-flex align-items-center gap-3 main-nav">
       <button type="button" class="nav-link-btn" [class.active]="catalogFilter.genero() === 'Todos'" (click)="onSelectGenero('Todos')">Colección</button>
       <button type="button" class="nav-link-btn" [class.active]="catalogFilter.genero() === 'Hombre'" (click)="onSelectGenero('Hombre')">Hombre</button>
       <button type="button" class="nav-link-btn" [class.active]="catalogFilter.genero() === 'Mujer'" (click)="onSelectGenero('Mujer')">Mujer</button>

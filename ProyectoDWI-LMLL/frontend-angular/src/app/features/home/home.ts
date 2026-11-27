@@ -14,7 +14,6 @@ import { Categoria } from '../../models/categoria.model';
 
 import { HeroBanner } from '../../features/hero-banner/hero-banner';
 import { SummaryPanel } from '../../features/summary-panel/summary-panel';
-import { CartDrawer } from '../../features/cart-drawer/cart-drawer';
 import { ProductModal } from '../../features/product-modal/product-modal';
 
 export interface GrupoCategoria {
@@ -54,7 +53,6 @@ export const CATEGORIA_META: Record<string, CategoriaMeta> = {
     FormsModule,
     HeroBanner,
     SummaryPanel,
-    CartDrawer,
     ProductModal
   ],
   templateUrl: './home.html',
