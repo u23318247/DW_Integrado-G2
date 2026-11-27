@@ -26,12 +26,12 @@
       <div class="col-lg-2 col-6">
         <h5 class="footer-title">Colecciones</h5>
         <ul class="list-unstyled footer-links">
-          <li><a href="/productos">Novedades 2026</a></li>
-          <li><a href="/productos">Polos Oversize</a></li>
-          <li><a href="/productos">Camisas de Lino</a></li>
-          <li><a href="/productos">Jeans & Cargos</a></li>
-          <li><a href="/productos">Calzado Urbano</a></li>
-          <li><a href="/productos">Accesorios</a></li>
+          <li><a routerLink="/productos">Novedades 2026</a></li>
+          <li><a routerLink="/productos">Polos Oversize</a></li>
+          <li><a routerLink="/productos">Camisas de Lino</a></li>
+          <li><a routerLink="/productos">Jeans & Cargos</a></li>
+          <li><a routerLink="/productos">Calzado Urbano</a></li>
+          <li><a routerLink="/productos">Accesorios</a></li>
         </ul>
       </div>
 
@@ -41,17 +41,17 @@
         <ul class="list-unstyled footer-links">
           @if (authService.currentUser(); as user) {
             @if (authService.hasPanelAccess()) {
-              <li><a href="/admin/dashboard" class="text-gold fw-bold"><i class="bi bi-person-gear me-1"></i>Panel Admin</a></li>
+              <li><a routerLink="/admin/dashboard" class="text-gold fw-bold"><i class="bi bi-person-gear me-1"></i>Panel Admin</a></li>
             } @else {
-              <li><a href="/mis-pedidos" class="text-gold fw-bold"><i class="bi bi-box2-heart me-1"></i>Mis Pedidos</a></li>
+              <li><a routerLink="/mis-pedidos" class="text-gold fw-bold"><i class="bi bi-box2-heart me-1"></i>Mis Pedidos</a></li>
             }
-            <li><a href="/auth/logout"><i class="bi bi-box-arrow-right me-1"></i>Cerrar Sesión</a></li>
+            <li><a routerLink="/auth/logout"><i class="bi bi-box-arrow-right me-1"></i>Cerrar Sesión</a></li>
           } @else {
-            <li><a href="/auth/login"><i class="bi bi-person me-1"></i>Iniciar Sesión</a></li>
-            <li><a href="/auth/registro"><i class="bi bi-person-plus me-1"></i>Crear Cuenta</a></li>
+            <li><a routerLink="/auth/login"><i class="bi bi-person me-1"></i>Iniciar Sesión</a></li>
+            <li><a routerLink="/auth/registro"><i class="bi bi-person-plus me-1"></i>Crear Cuenta</a></li>
           }
-          <li><a href="/seguimiento"><i class="bi bi-geo-alt me-1"></i>Rastrear Pedido</a></li>
-          <li><a href="/reclamaciones"><i class="bi bi-book-half me-1"></i>Libro Reclamaciones</a></li>
+          <li><a routerLink="/seguimiento"><i class="bi bi-geo-alt me-1"></i>Rastrear Pedido</a></li>
+          <li><a routerLink="/reclamaciones"><i class="bi bi-book-half me-1"></i>Libro Reclamaciones</a></li>
         </ul>
       </div>
 

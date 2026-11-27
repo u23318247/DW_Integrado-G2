@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Producto, ProductoDetalle } from '../../models/producto.model';
 import { CartService } from '../../services/cart.service';
 
@@ -17,7 +18,7 @@ export interface LookComplemento {
 @Component({
   selector: 'app-product-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './product-modal.html',
   styleUrl: './product-modal.scss'
 })
