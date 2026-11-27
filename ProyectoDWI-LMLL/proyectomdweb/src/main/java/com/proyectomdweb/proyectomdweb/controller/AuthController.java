@@ -4,16 +4,20 @@ import com.proyectomdweb.proyectomdweb.dtos.UsuarioRegistroDTO;
 import com.proyectomdweb.proyectomdweb.service.JwtService;
 import com.proyectomdweb.proyectomdweb.service.UsuarioService;
 
-import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @Controller
 @RequestMapping("/auth")
@@ -41,6 +45,7 @@ public class AuthController {
     @PostMapping("/login")
     public String procesarLogin(@RequestParam("username") String username, 
                                 @RequestParam("password") String password, 
+                                HttpServletRequest request,
                                 HttpServletResponse response) {
         try {
             // 1. Autentica al usuario
@@ -50,13 +55,8 @@ public class AuthController {
             // 2. Crea Token JWT
             String token = jwtService.generarToken(userDetails);
             
-            // 3. Almacena en una Cookie Segura
-            Cookie cookie = new Cookie("jwt_token", token);
-            cookie.setHttpOnly(true);  // Protege contra ataques XSS (JS no puede leerla)
-            cookie.setSecure(false);    // Cambiar a true para producciones reales
-            cookie.setPath("/");          // Disponible en toda la aplicación
-            cookie.setMaxAge(86400);  // Duración de 1 día
-            response.addCookie(cookie);
+            // 3. Almacena en una Cookie Segura (dura lo mismo que el token)
+            agregarCookieJwt(request, response, token, Duration.ofMillis(jwtService.getExpirationMs()));
             
             //  4. Verifica si es administrador, vendedor, almacenero o repartidor
             boolean tieneAccesoPanel = userDetails.getAuthorities().stream()
@@ -76,13 +76,27 @@ public class AuthController {
     }
     // Metodo para cerrar sesión destruyendo la cookie
     @GetMapping("/logout")
-    public String cerrarSesion(HttpServletResponse response) {
-        Cookie cookie = new Cookie("jwt_token", null);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(0); // Esto borra la cookie inmediatamente
-        response.addCookie(cookie);
+    public String cerrarSesion(HttpServletRequest request, HttpServletResponse response) {
+        agregarCookieJwt(request, response, "", Duration.ZERO); // maxAge 0 borra la cookie inmediatamente
         return "redirect:/auth/login?logout=true";
+    }
+
+    /**
+     * Cookie del JWT para las vistas Thymeleaf:
+     * - HttpOnly: JavaScript no puede leerla (protege contra XSS).
+     * - Secure según request.isSecure(): con HTTPS solo viaja cifrada; en http://localhost sigue funcionando.
+     *   Detrás de un proxy (nginx) depende de server.forward-headers-strategy (perfil prod).
+     * - SameSite=Lax: no se envía en POST desde otros sitios, pero sí al volver de PayU (GET).
+     */
+    private void agregarCookieJwt(HttpServletRequest request, HttpServletResponse response, String valor, Duration duracion) {
+        ResponseCookie cookie = ResponseCookie.from("jwt_token", valor)
+                .httpOnly(true)
+                .secure(request.isSecure())
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(duracion)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     //-- METODOS DE REGISTRO DE USUARIO --//

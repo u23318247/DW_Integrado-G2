@@ -52,8 +52,19 @@ public class UsuarioInicializador implements CommandLineRunner {
             log.info("Usuario inicial asegurado: {} ({}) con DNI {}", email, rol, dni);
         } else {
             Usuario exist = opt.get();
+            boolean cambios = false;
             if (exist.getDni() == null || exist.getDni().isBlank()) {
                 exist.setDni(dni);
+                cambios = true;
+            }
+            // Los roles ya no se deducen del email: se asegura que las cuentas base
+            // tengan su rol guardado en la BD (antes admin@email.com era ADMIN por su correo).
+            if (!rol.equals(exist.getRol())) {
+                exist.setRol(rol);
+                cambios = true;
+                log.info("Rol de {} corregido en BD a {}", email, rol);
+            }
+            if (cambios) {
                 usuarioRepository.save(exist);
             }
         }

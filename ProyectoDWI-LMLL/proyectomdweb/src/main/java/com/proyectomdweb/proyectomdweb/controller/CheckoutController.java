@@ -9,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
@@ -33,6 +35,7 @@ public class CheckoutController {
     private final String API_KEY     = "4Vj8eK4rloUd272L48hsrarnUA";
     private final String ACCOUNT_ID  = "512323"; // <--- ID de pruebas para PERÚ
     private final String PAYU_URL    = "https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/"; // <--- URL de la pasarela p
+    private static final String ALGORITMO_FIRMA_PAYU = "SHA256"; // Valor del parámetro algorithmSignature de PayU
 
     @GetMapping
     public String mostrarPaginaPago(Principal principal, Model model) {
@@ -122,9 +125,12 @@ public class CheckoutController {
             }
         }
 
+        // 5. Firma PayU: SHA-256 de "ApiKey~merchantId~referenceCode~amount~currency".
+        //    El monto va con 2 decimales, igual que el campo "amount" que se envía en el formulario.
         String  currency        = "PEN";                                 //*<--*4
-        String  cadenaParaFirma = API_KEY + "~" + MERCHANT_ID + "~" + referenceCode + "~" + total + "~" + currency; //*<--*5
-        String  signature       = generarHashMD5(cadenaParaFirma);                                                 //*<--*5
+        String  montoFirma      = total.setScale(2, RoundingMode.HALF_UP).toPlainString();
+        String  cadenaParaFirma = API_KEY + "~" + MERCHANT_ID + "~" + referenceCode + "~" + montoFirma + "~" + currency; //*<--*5
+        String  signature       = generarHashSHA256(cadenaParaFirma);                                                 //*<--*5
 
         // 6. Inyectar datos en el modelo para la página de redirección
         model.addAttribute("payuUrl", PAYU_URL);
@@ -137,6 +143,7 @@ public class CheckoutController {
         model.addAttribute("taxReturnBase", "0");
         model.addAttribute("currency", currency);
         model.addAttribute("signature", signature);
+        model.addAttribute("algorithmSignature", ALGORITMO_FIRMA_PAYU);
         model.addAttribute("buyerEmail", usuarioLogueado.getEmail());      
         model.addAttribute("buyerFullName", usuarioLogueado.getNombre());
         model.addAttribute("test", "1"); 
@@ -204,18 +211,26 @@ public class CheckoutController {
         }
     }
 
-    // Utilidad estándar de Java para cálculo de firmas de seguridad hash
-    private String generarHashMD5(String cadena) {
+    /**
+     * Firma digital del formulario WebCheckout de PayU Latam.
+     * PayU acepta MD5, SHA (SHA-1) y SHA256; se usa SHA256 porque MD5 está roto
+     * (permite colisiones). Al usar SHA256 hay que enviar el parámetro
+     * algorithmSignature=SHA256 en el formulario (ver payu-redirect.html); si no
+     * se envía, PayU asume MD5 y rechaza la firma.
+     * Documentación: https://developers-payu-latam.github.io/latam/en/docs/integrations/webcheckout-integration/payment-form.html
+     */
+    private String generarHashSHA256(String cadena) {
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] array = md.digest(cadena.getBytes());
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] array = md.digest(cadena.getBytes(StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder();
             for (byte b : array) {
-                sb.append(Integer.toHexString((b & 0xFF) | 0x100).substring(1, 3));
+                sb.append(String.format("%02x", b));
             }
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            return null;
+            // SHA-256 está garantizado en toda JVM; si faltara, no se puede firmar el pago
+            throw new IllegalStateException("SHA-256 no disponible para firmar el pago PayU", e);
         }
     }
 }

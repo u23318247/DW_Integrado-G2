@@ -6,27 +6,36 @@ import com.proyectomdweb.proyectomdweb.model.Venta;
 import com.proyectomdweb.proyectomdweb.service.UsuarioService;
 import com.proyectomdweb.proyectomdweb.service.VentaPresentacionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pedidos")
-@RequiredArgsConstructor 
+@RequiredArgsConstructor
 public class PedidoController {
 
     private final VentaPresentacionService ventaService;
     private final UsuarioService usuarioService;
 
     @PostMapping("/procesar")
-    public ResponseEntity<Map<String, Object>> procesarPago(
-            @RequestBody CheckoutRequestDTO request,
-            Principal principal) {
+    public ResponseEntity<Map<String, Object>> procesarPago(@RequestBody CheckoutRequestDTO request) {
+        // El usuario se toma del SecurityContext, que JwtAuthenticationFilter llena
+        // solo después de validar la firma y la expiración del JWT.
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "error", "Debe iniciar sesión para registrar un pedido"
+            ));
+        }
+
         try {
-            String email = (principal != null) ? principal.getName() : "invitado@tienda.com";
-            Usuario usuario = usuarioService.obtenerUsuarioEntidadPorEmail(email);
+            Usuario usuario = usuarioService.obtenerUsuarioEntidadPorEmail(auth.getName());
 
             Venta venta = ventaService.crearVentaInicialPendiente(request.total(), "BOLETA", usuario);
             ventaService.completarVentaExitosa(venta, request.metodoPago());

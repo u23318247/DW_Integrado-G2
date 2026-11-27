@@ -5,6 +5,8 @@ import com.proyectomdweb.proyectomdweb.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -16,6 +18,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -27,10 +33,28 @@ public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   CorsConfigurationSource corsConfigurationSource) throws Exception {
+        // Token CSRF con protección BREACH. Al poner el nombre del atributo en null el token se carga
+        // en cada petición, así la cookie XSRF-TOKEN se escribe antes de que Thymeleaf renderice el
+        // formulario (si se difiere, la respuesta puede estar ya enviada y la cookie se pierde).
+        XorCsrfTokenRequestAttributeHandler csrfRequestHandler = new XorCsrfTokenRequestAttributeHandler();
+        csrfRequestHandler.setCsrfRequestAttributeName(null);
+
         http
-            .csrf(csrf -> csrf.disable())
+            // CSRF activo solo para las vistas Thymeleaf (formularios con th:action reciben el campo _csrf).
+            // La API REST (/api/**) se autentica con JWT Bearer y se protege validando el Origin.
+            // El token se guarda en cookie porque la aplicación no usa sesión de servidor (STATELESS).
+            .csrf(csrf -> csrf
+                .csrfTokenRepository(new CookieCsrfTokenRepository())
+                .csrfTokenRequestHandler(csrfRequestHandler)
+                .ignoringRequestMatchers("/api/**"))
+            // CORS con los orígenes de app.cors.allowed-origins (bean corsConfigurationSource de CorsConfig)
+            .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
+                // 0. Registrar un pedido por API exige un JWT válido
+                .requestMatchers(HttpMethod.POST, "/api/pedidos/procesar").authenticated()
+
                 // 1. Estadísticas e Ingresos son de acceso exclusivo para ADMIN (Clean Code RBAC)
                 .requestMatchers("/admin/estadisticas/**").hasRole("ADMIN")
                 // 2. Gestión de Productos y Stock para ADMIN, VENDEDOR y ALMACENERO
@@ -87,6 +111,9 @@ public class SecurityConfig {
             // Se apagan las sesiones de servidor nativas. 
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
+            // Rechaza peticiones POST/PUT/PATCH/DELETE a /api/** desde orígenes no permitidos
+            .addFilterAfter(new OriginValidationFilter(corsConfigurationSource), CorsFilter.class)
+
             // Se agrega el filtro de Cookies/JWT antes del filtro nativo de Spring
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

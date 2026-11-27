@@ -8,3 +8,7 @@ dist/
 *.zip
 .angular/
 **/.angular/
+
+# Variables de entorno con secretos (perfil prod)
+.env
+**/.env

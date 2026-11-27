@@ -8,8 +8,16 @@ services:
     container_name: proyectomdweb-backend
     ports:
       - "8080:8080"
+    # Perfil prod: los valores salen del entorno o de un archivo .env junto a este compose (no subir .env a Git)
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=${DB_URL}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:8082}
+      - MAIL_USERNAME=${MAIL_USERNAME:-}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-}
     networks:
       - dwi-network
     restart: always
